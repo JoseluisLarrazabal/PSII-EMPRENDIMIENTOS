@@ -16,7 +16,7 @@ const SubNav = () => {
         {/* Logo */}
         <div className="flex items-center">
           <img 
-            src="/public/Logo.png" 
+            src="Logo.png" 
             alt="Incuvia Lab" 
             className="h-24 w-auto"
           />
