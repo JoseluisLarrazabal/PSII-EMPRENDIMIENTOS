@@ -5,7 +5,7 @@ const SubNav = () => {
   const menuItems = [
     'Acerca de nosotros',
     'Nuestros servicios',
-    'Crowd Funding',
+    'CrowdFunding',
     'Apoya a emprendedor',
     'Postulaciones'
   ];
@@ -16,9 +16,9 @@ const SubNav = () => {
         {/* Logo */}
         <div className="flex items-center">
           <img 
-            src="Logo.png" 
+            src="logo-incuvalab.png" 
             alt="Incuvia Lab" 
-            className="h-24 w-auto"
+            className="h-44 w-auto"
           />
         </div>
 

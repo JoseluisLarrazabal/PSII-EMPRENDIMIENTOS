@@ -26,7 +26,7 @@ const ImportantDates = () => {
   return (
     <div>
       <h2 className="text-xl font-bold">FECHAS IMPORTANTES</h2>
-      <div className="mt-4 border-t border-gray-200">
+      <div className="mt-4 border-t border-[#66B5CB]">
         {/* Contenedor horizontal */}
         <div className="flex justify-between items-center mt-4">
           {dates.map((date, index) => (
