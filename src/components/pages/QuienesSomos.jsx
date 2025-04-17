@@ -1,7 +1,8 @@
 // src/components/pages/QuienesSomos.jsx
 import React from "react";
 import HeroBanner from "../HeroBanner";
-import MissionStatement from "../MissionStatement"; // Asegúrate de que la ruta sea correcta   
+import MissionStatement from "../MissionStatement";
+import CampusLocations from "../CampusLocations";
 
 function QuienesSomos() {
   return (
@@ -14,13 +15,15 @@ function QuienesSomos() {
       
       {/* Declaración de misión */}
       <MissionStatement />
-
-      {/* Contenido principal */}
+      
+      {/* Campus y ubicaciones */}
+      <CampusLocations />
+      
+      {/* Contenido principal - lo dejamos como placeholder para futuros componentes */}
       <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-8">
         <h1 className="text-3xl font-bold mb-8">Quiénes Somos</h1>
         <p className="text-lg">
-          Contenido de Quiénes Somos en construcción. Aquí irán los componentes específicos
-          según las capturas de pantalla que me envíes.
+          Contenido adicional de Quiénes Somos en construcción.
         </p>
       </div>
     </div>
