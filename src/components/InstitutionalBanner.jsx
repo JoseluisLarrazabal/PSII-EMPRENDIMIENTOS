@@ -3,7 +3,7 @@ import React from "react";
 
 function InstitutionalBanner() {
   return (
-    <div className="w-full bg-[#880043] py-16 flex justify-center items-center">
+    <div className="relative w-full h-[472px] bg-[#880043] py-16 flex justify-center items-center">
       <div className="w-full max-w-4xl mx-auto px-6 flex flex-col md:flex-row items-center justify-center">
         {/* Logos con fondos circulares blancos */}
         <div className="flex items-center space-x-6 mb-8 md:mb-0">

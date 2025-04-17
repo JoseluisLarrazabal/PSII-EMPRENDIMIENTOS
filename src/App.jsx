@@ -8,13 +8,16 @@ import SuccessStories from "./components/SuccessStories";
 import ImportantDates from "./components/ImportantDates";
 import SocialMediaGallery from "./components/SocialMediaGallery"; // Importa el nuevo componente
 import InstitutionalBanner from "./components/InstitutionalBanner"; // Importa el nuevo componente
+import VideoHero from "./components/VideoHero"; // Importa el nuevo componente
 
 function App() {
   return (
     <div>
       <Navbar />
       <SubNav />
-      <Carousel />
+      <div className="w-full">
+        <Carousel />
+      </div>
       {/* Contenedor principal con nuevo grid y espaciado */}
       <div className="max-w-[1200px] mx-auto px-12 py-8">
         <div className="grid grid-cols-12 gap-16">
@@ -37,8 +40,13 @@ function App() {
       </h2>
       <SocialMediaGallery />
       {/* Banner Institucional con dimensiones controladas por el contenedor */}
-      <div className="max-w-[1200px] mx-auto my-12">
+      <div className="w-full">
         <InstitutionalBanner />
+      </div>
+
+      {/* El VideoHero fuera del contenedor principal para que ocupe ancho completo */}
+      <div className="w-full">
+        <VideoHero />
       </div>
     </div>
   );
