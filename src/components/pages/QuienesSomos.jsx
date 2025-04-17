@@ -4,6 +4,25 @@ import HeroBanner from "../HeroBanner";
 import MissionStatement from "../MissionStatement";
 import CampusLocations from "../CampusLocations";
 import UniversityProfile from "../UniversityProfile";
+import LocationMap from "../LocationMap"; // Asegúrate de que la ruta sea correcta
+
+const locationData = [
+    {
+      name: "INCUVALAB - Universidad Univalle",
+      address: "Av. América, Cochabamba, Bolivia",
+      lat: -17.371345, // NOTA: Estos son valores de ejemplo, deberás reemplazarlos
+      lng: -66.158654, // con las coordenadas reales
+      rating: 4.5,
+      reviewCount: 126,
+      type: "Centro de Emprendimiento",
+      url: "https://maps.google.com/?cid=123456789", // URL de Google Maps
+      iconUrl: "/images/marker-incuvalab.png" // Ícono personalizado del marcador
+    }
+  ];
+
+  // Acceder a la clave API desde las variables de entorno
+  const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
 
 function QuienesSomos() {
   return (
@@ -23,13 +42,12 @@ function QuienesSomos() {
       {/* Perfil de la Universidad */}
       <UniversityProfile />
       
-      {/* Contenido principal - lo dejamos como placeholder para futuros componentes */}
-      <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-8">
-        <h1 className="text-3xl font-bold mb-8">Quiénes Somos</h1>
-        <p className="text-lg">
-          Contenido adicional de Quiénes Somos en construcción.
-        </p>
-      </div>
+      {/* Mapa de ubicación */}
+      <LocationMap 
+        apiKey={googleMapsApiKey}
+        locations={locationData}
+      />
+
     </div>
   );
 }
