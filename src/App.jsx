@@ -1,57 +1,28 @@
-// src/App.js
+// src/App.jsx
 import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import SubNav from "./components/SubNav";
-import Carousel from "./components/Carousel";
-import ServiceCards from "./components/ServiceCards";
-import SuccessStories from "./components/SuccessStories";
-import ImportantDates from "./components/ImportantDates";
-import SocialMediaGallery from "./components/SocialMediaGallery"; // Importa el nuevo componente
-import InstitutionalBanner from "./components/InstitutionalBanner"; // Importa el nuevo componente
-import VideoHero from "./components/VideoHero"; // Importa el nuevo componente
-import Footer from "./components/Footer"; // Importa el nuevo componente
+import Footer from "./components/Footer";
+// Rutas corregidas para las páginas
+import Home from "./components/pages/Home";
+import QuienesSomos from "./components/pages/QuienesSomos";
 
 function App() {
   return (
-    <div>
-      <Navbar />
-      <SubNav />
-      <div className="w-full">
-        <Carousel />
+    <BrowserRouter>
+      <div>
+        <Navbar />
+        <SubNav />
+        <main>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/quienes-somos" element={<QuienesSomos />} />
+          </Routes>
+        </main>
+        <Footer />
       </div>
-      {/* Contenedor principal con nuevo grid y espaciado */}
-      <div className="max-w-[1200px] mx-auto px-12 py-8">
-        <div className="grid grid-cols-12 gap-16">
-          {/* Área principal - 8 columnas */}
-          <div className="col-span-8">
-            <ServiceCards />
-            <div className="mt-16">
-              <ImportantDates />
-            </div>
-          </div>
-          {/* Sidebar - 4 columnas */}
-          <div className="col-span-4">
-            <SuccessStories />
-          </div>
-        </div>
-        <div className="h-px bg-gray-300 mb-6"></div>
-      </div>
-      <h2 className="font-montserrat font-normal text-base text-center">
-        Explora nuestros emprendimientos en redes sociales
-      </h2>
-      <SocialMediaGallery />
-      {/* Banner Institucional con dimensiones controladas por el contenedor */}
-      <div className="w-full">
-        <InstitutionalBanner />
-      </div>
-
-      {/* El VideoHero fuera del contenedor principal para que ocupe ancho completo */}
-      <div className="w-full">
-        <VideoHero />
-      </div>
-
-      <Footer />
-    </div>
+    </BrowserRouter>
   );
 }
 
