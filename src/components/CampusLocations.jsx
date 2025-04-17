@@ -57,7 +57,7 @@ const CampusLocations = () => {
   };
 
   return (
-    <div className="w-full bg-gray-100 py-12">
+    <div className="w-full bg-white-100 py-12">
       <div className="max-w-[1200px] mx-auto">
         {/* Título de la sección */}
         <div className="px-4 mb-8">

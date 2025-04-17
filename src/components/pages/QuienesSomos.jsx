@@ -3,6 +3,7 @@ import React from "react";
 import HeroBanner from "../HeroBanner";
 import MissionStatement from "../MissionStatement";
 import CampusLocations from "../CampusLocations";
+import UniversityProfile from "../UniversityProfile";
 
 function QuienesSomos() {
   return (
@@ -18,6 +19,9 @@ function QuienesSomos() {
       
       {/* Campus y ubicaciones */}
       <CampusLocations />
+
+      {/* Perfil de la Universidad */}
+      <UniversityProfile />
       
       {/* Contenido principal - lo dejamos como placeholder para futuros componentes */}
       <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-8">
