@@ -32,7 +32,7 @@ function Home() {
         </div>
         <div className="h-px bg-gray-300 mb-6"></div>
       </div>
-      <h2 className="font-montserrat font-normal text-base text-center">
+      <h2 className="font-montserrat font-normal text-2xl text-center">
         Explora nuestros emprendimientos en redes sociales
       </h2>
       <SocialMediaGallery />

@@ -57,12 +57,6 @@ function SocialMediaGallery() {
         </div>
       </div>
       
-      {/* Botón de Redes Sociales */}
-      <div className="flex justify-center">
-        <button className="bg-[#5EBFBF] text-white font-montserrat py-2 px-8 rounded-md hover:bg-[#4da3a3] transition-colors">
-          Redes Sociales
-        </button>
-      </div>
     </div>
   );
 }

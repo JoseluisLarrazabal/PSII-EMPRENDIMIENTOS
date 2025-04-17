@@ -1,14 +1,24 @@
-// src/pages/QuienesSomos.jsx
+// src/components/pages/QuienesSomos.jsx
 import React from "react";
+import HeroBanner from "../HeroBanner";
 
 function QuienesSomos() {
   return (
-    <div className="max-w-[1200px] mx-auto px-12 py-8">
-      <h1 className="text-3xl font-bold mb-8">Quiénes Somos</h1>
-      <p className="text-lg">
-        Contenido de Quiénes Somos en construcción. Aquí irán los componentes específicos
-        según las capturas de pantalla que me envíes.
-      </p>
+    <div>
+      {/* Hero Banner */}
+      <HeroBanner 
+        imageSrc="/incuvalab-building.png" 
+        title="Bienvenido a INCUVALAB" 
+      />
+      
+      {/* Contenido principal */}
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-8">
+        <h1 className="text-3xl font-bold mb-8">Quiénes Somos</h1>
+        <p className="text-lg">
+          Contenido de Quiénes Somos en construcción. Aquí irán los componentes específicos
+          según las capturas de pantalla que me envíes.
+        </p>
+      </div>
     </div>
   );
 }
