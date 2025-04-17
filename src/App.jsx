@@ -9,6 +9,7 @@ import ImportantDates from "./components/ImportantDates";
 import SocialMediaGallery from "./components/SocialMediaGallery"; // Importa el nuevo componente
 import InstitutionalBanner from "./components/InstitutionalBanner"; // Importa el nuevo componente
 import VideoHero from "./components/VideoHero"; // Importa el nuevo componente
+import Footer from "./components/Footer"; // Importa el nuevo componente
 
 function App() {
   return (
@@ -48,6 +49,8 @@ function App() {
       <div className="w-full">
         <VideoHero />
       </div>
+
+      <Footer />
     </div>
   );
 }
