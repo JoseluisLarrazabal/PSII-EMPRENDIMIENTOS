@@ -1,27 +1,38 @@
-// src/App.jsx
+// src/App.jsx (versión alternativa)
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import SubNav from "./components/SubNav";
 import Footer from "./components/Footer";
-// Rutas corregidas para las páginas
 import Home from "./components/pages/Home";
 import QuienesSomos from "./components/pages/QuienesSomos";
+import Login from "./components/pages/Login";
+
+// Componente para controlar la visualización de elementos de navegación
+function AppContent() {
+  const location = useLocation();
+  const isLoginPage = location.pathname === "/login";
+  
+  return (
+    <div>
+      {!isLoginPage && <Navbar />}
+      {!isLoginPage && <SubNav />}
+      <main>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/quienes-somos" element={<QuienesSomos />} />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </main>
+      {!isLoginPage && <Footer />}
+    </div>
+  );
+}
 
 function App() {
   return (
     <BrowserRouter>
-      <div>
-        <Navbar />
-        <SubNav />
-        <main>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/quienes-somos" element={<QuienesSomos />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
+      <AppContent />
     </BrowserRouter>
   );
 }
