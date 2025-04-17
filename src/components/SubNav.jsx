@@ -1,5 +1,5 @@
 // SubNav.jsx con React Router
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const SubNav = () => {
@@ -15,12 +15,10 @@ const SubNav = () => {
   ];
 
   // Determinar el ítem activo basado en la ruta actual
-  React.useEffect(() => {
+  useEffect(() => {
     const currentPath = location.pathname;
     const activeIndex = menuItems.findIndex(item => item.path === currentPath);
-    if (activeIndex >= 0) {
-      setActiveItem(activeIndex);
-    }
+    setActiveItem(activeIndex >= 0 ? activeIndex : null);
   }, [location.pathname]);
 
   return (
@@ -41,12 +39,11 @@ const SubNav = () => {
             <Link
               key={index}
               to={item.path}
-              className={`relative px-3 h-full flex items-center mx-1 md:mx-3 text-sm md:text-base font-medium transition-all duration-200 border-b-2 ${
-                activeItem === index 
-                  ? 'text-[#8B0D37] border-[#8B0D37]' 
-                  : 'text-gray-700 border-transparent hover:text-[#8B0D37] hover:border-[#8B0D37]'
-              }`}
-              onClick={() => setActiveItem(index)}
+              className={`relative px-3 h-full flex items-center mx-1 md:mx-3 text-sm md:text-base font-medium transition-all duration-200 
+                ${activeItem === index 
+                  ? 'text-[#8B0D37] after:absolute after:left-0 after:bottom-[14px] after:w-full after:h-0.5 after:bg-[#8B0D37]' 
+                  : 'text-gray-700 hover:text-[#8B0D37] after:absolute after:left-0 after:bottom-[14px] after:w-0 hover:after:w-full after:h-0.5 after:bg-[#8B0D37] after:transition-all after:duration-300'
+                }`}
             >
               {item.name}
             </Link>

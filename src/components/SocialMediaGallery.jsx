@@ -7,7 +7,7 @@ function SocialMediaGallery() {
       {/* Contenedor principal de la galería */}
       <div className="flex justify-center gap-4 mb-6">
         {/* Primera imagen con borde azul */}
-        <div className="w-1/4 aspect-[3/4] border-4 border-blue-400 rounded-md overflow-hidden">
+        <div className="w-1/4 aspect-[3/4] overflow-hidden">
           <img 
             src="/students-table.png" 
             alt="Estudiantes colaborando en una mesa"
