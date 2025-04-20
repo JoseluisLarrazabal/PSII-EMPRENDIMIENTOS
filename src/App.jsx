@@ -1,10 +1,10 @@
-function App() {
+import React from 'react';
+//import ContactPage from './ContactPage';
+import MentoringPage from './MentoringPage'; 
 
-  return (
-    <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1>
-  )
+function App() {
+  //return <ContactPage />;
+  return <MentoringPage />;
 }
 
-export default App
+export default App;

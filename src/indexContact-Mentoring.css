@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+
+
+body {
+  font-family: 'Partner', sans-serif;
+}
+
+.text-stroke {
+  color: white;
+  -webkit-text-stroke: 0.5px black; /* antes era 1px */
+  font-size: 3rem;
+  font-weight: 500; /* más delgado que bold (700) */
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Partner', sans-serif;
+  font-weight: 600; /* más liviano */
+  -webkit-text-stroke: 0.5px black;
+}
+
+.bg-hero {
+  @apply min-h-screen bg-cover bg-center;
+}
+
+.bg-overlay {
+  @apply bg-black bg-opacity-20 text-white text-center py-10;
+}
+
+.form-container {
+  @apply bg-white bg-opacity-90 text-black rounded-lg p-8 w-full max-w-xl border-4 border-primary;
+}
+
+.form-field {
+  @apply w-full p-2 border rounded;
+}
+
+.send-button {
+  @apply bg-[#66B5CB] text-white font-bold py-2 px-6 rounded hover:bg-[#55a3b5] transition;
+}
+
+.social-icons {
+  @apply flex justify-center space-x-6 bg-white bg-opacity-90 p-4 border-4 border-primary rounded-lg w-fit mx-auto;
+}
+
+.info-box {
+  @apply bg-white bg-opacity-90 mt-4 p-4 border-4 border-[#66B5CB] rounded-md text-black max-w-xl mx-auto;
+}
+
+
+/* carrusel-mdc1 sprint1*/
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
