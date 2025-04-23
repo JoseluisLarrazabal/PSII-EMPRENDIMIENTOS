@@ -30,7 +30,7 @@ const MoocsPage = () => {
       {/* Using FilterSection for programs */}
       <FilterSection 
         title="Filter by programs"
-        subtitle="Get a degree or certificate with edX online"
+        subtitle="Get a degree or certificate with us online"
         type="programs"
         items={programFilters} 
       />

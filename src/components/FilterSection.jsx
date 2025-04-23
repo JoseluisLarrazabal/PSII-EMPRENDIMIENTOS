@@ -1,6 +1,5 @@
 // FilterSection.jsx
 import React from 'react';
-import CourseCard from './CourseCard';
 
 const FilterSection = ({ title, subtitle, type, items }) => {
   return (
