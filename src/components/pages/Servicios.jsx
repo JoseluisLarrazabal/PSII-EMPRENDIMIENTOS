@@ -14,7 +14,7 @@ const cardData = [
     description:
       "Espacio dedicado a la formación continua mediante cursos, talleres y recursos educativos que promueven el crecimiento de habilidades técnicas y blandas.",
     image: "/card2.jpg",
-    path: "/learning",
+    path: "/servicios/moocs",
   },
   {
     title: "INSPIRING",

@@ -11,7 +11,7 @@ const SubNav = () => {
     { name: 'Acerca de nosotros', path: '/quienes-somos' },
     { name: 'Nuestros servicios', path: '/servicios', isDropdown: true },
     { name: 'CrowdFunding', path: '/crowdfunding' },
-    { name: 'Mentoring', path: '/mentoring' },
+    { name: 'Mentores', path: '/mentoring' },
     { name: 'Eventos', path: '/eventos' }
   ];
 
@@ -19,7 +19,8 @@ const SubNav = () => {
     { name: 'Inspiring', path: '/servicios/inspiring' },
     { name: 'Challengers', path: '/servicios/challengers' },
     { name: 'Revenue', path: '/servicios/revenue' },
-    { name: 'Partners', path: '/servicios/partners' }
+    { name: 'Partners', path: '/servicios/partners' },
+    { name: 'Learning', path: '/servicios/moocs' }
   ];
 
   useEffect(() => {
