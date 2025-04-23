@@ -11,6 +11,7 @@ const SubNav = () => {
     { name: 'Nuestros servicios', path: '/servicios' },
     { name: 'CrowdFunding', path: '/crowdfunding' },
     { name: 'Apoya a emprendedor', path: '/apoya' },
+    { name: 'Learning', path: '/moocs' },
     { name: 'Postulaciones', path: '/postulaciones' }
   ];
 
