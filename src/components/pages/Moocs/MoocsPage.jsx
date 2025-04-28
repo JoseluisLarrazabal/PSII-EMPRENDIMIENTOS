@@ -1,10 +1,10 @@
 // src/components/pages/MoocsPage.jsx
 import React from 'react';
-import HeroSearch from '../../components/HeroSearch';
-import CourseCategory from '../../components/CourseCategory';
-import FilterSection from '../../components/FilterSection';
+import HeroSearch from './HeroSearch';
+import CourseCategory from './CourseCategory';
+import FilterSection from './FilterSection';
 import { executiveEducationCourses, mastersDegrees, bachelorDegrees, 
-         popularCourses, newCourses, trendingCourses, subjectFilters, schoolFilters } from './Moocs/data';
+         popularCourses, newCourses, trendingCourses, subjectFilters, schoolFilters } from './data';
 
 const MoocsPage = () => {
   return (
