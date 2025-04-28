@@ -1,5 +1,9 @@
 // src/components/Footer.jsx
 import React from 'react';
+<<<<<<< HEAD
+=======
+import { Link } from 'react-router-dom';
+>>>>>>> origin/main
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faFacebookF, 
@@ -10,7 +14,10 @@ import {
 } from '@fortawesome/free-brands-svg-icons';
 
 const Footer = () => {
+<<<<<<< HEAD
   // Datos para las columnas del footer
+=======
+>>>>>>> origin/main
   const footerColumns = [
     {
       title: "ENLACES ÚTILES",
@@ -39,7 +46,10 @@ const Footer = () => {
     }
   ];
 
+<<<<<<< HEAD
   // Iconos de redes sociales
+=======
+>>>>>>> origin/main
   const socialIcons = [
     { name: "Facebook", icon: faFacebookF, url: "#facebook" },
     { name: "Twitter", icon: faTwitter, url: "#twitter" },
@@ -79,7 +89,10 @@ const Footer = () => {
               INCUVA HOY
             </h3>
             
+<<<<<<< HEAD
             {/* Logo o campaña */}
+=======
+>>>>>>> origin/main
             <div className="mt-4 text-center">
               <img 
                 src="/logo-univalle.png" 
@@ -89,6 +102,7 @@ const Footer = () => {
               <p className="text-gray-400 mt-2">
                 Impulsamos la innovación y el emprendimiento para un futuro mejor
               </p>
+<<<<<<< HEAD
               
               {/* Botón de contacto o acción */}
               <a 
@@ -104,6 +118,23 @@ const Footer = () => {
         {/* Separador */}
         <div className="h-px bg-gray-700 my-8"></div>
         
+=======
+
+              {/* Botón que lleva a Contact.jsx */}
+              <Link 
+                to="/contact"
+                className="inline-block mt-6 px-6 py-2 bg-[#8B0D37] text-white rounded hover:bg-opacity-90 transition-colors duration-200"
+              >
+                Contáctanos
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Separador */}
+        <div className="h-px bg-gray-700 my-8"></div>
+
+>>>>>>> origin/main
         {/* Información institucional y redes sociales */}
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
@@ -116,7 +147,11 @@ const Footer = () => {
             <a href="#accesibilidad" className="text-gray-400 hover:text-white text-sm mx-2 my-1">Accesibilidad</a>
             <a href="#copyright" className="text-gray-400 hover:text-white text-sm mx-2 my-1">Copyright</a>
             <a href="#sitio" className="text-gray-400 hover:text-white text-sm mx-2 my-1">Información del Sitio</a>
+<<<<<<< HEAD
             <a href="#contacto" className="text-gray-400 hover:text-white text-sm mx-2 my-1">Contacto</a>
+=======
+            <Link to="/contact" className="text-gray-400 hover:text-white text-sm mx-2 my-1">Contáctanos</Link>
+>>>>>>> origin/main
           </div>
           
           <div className="flex space-x-4">
@@ -137,4 +172,8 @@ const Footer = () => {
   );
 };
 
+<<<<<<< HEAD
 export default Footer;
+=======
+export default Footer;
+>>>>>>> origin/main
