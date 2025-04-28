@@ -1,4 +1,4 @@
-const pool = require('../config/database');
+const pool = require("../config/database");
 
 // Crear tablas necesarias si no existen
 const initializeTables = async () => {
@@ -61,9 +61,9 @@ const initializeTables = async () => {
       )
     `);
 
-    console.log('Tablas MOOC inicializadas correctamente');
+    console.log("Tablas MOOC inicializadas correctamente");
   } catch (error) {
-    console.error('Error inicializando tablas MOOC:', error);
+    console.error("Error inicializando tablas MOOC:", error);
     throw error;
   }
 };
@@ -80,12 +80,15 @@ const getCategories = async () => {
 
 // Obtener cursos por categoría
 const getCoursesByCategory = async (category) => {
-  const [rows] = await pool.query(`
+  const [rows] = await pool.query(
+    `
     SELECT * 
     FROM mooc_catalog 
     WHERE category = ?
     ORDER BY id
-  `, [category]);
+  `,
+    [category]
+  );
   return rows;
 };
 
@@ -143,16 +146,19 @@ const getSchools = async () => {
   const result = [];
 
   for (const school of schools) {
-    const [subjects] = await pool.query(`
+    const [subjects] = await pool.query(
+      `
       SELECT subject_name 
       FROM mooc_school_subjects 
       WHERE school_id = ?
-    `, [school.id]);
+    `,
+      [school.id]
+    );
 
     result.push({
       id: school.id,
       name: school.name,
-      subjects: subjects.map(s => s.subject_name)
+      subjects: subjects.map((s) => s.subject_name),
     });
   }
 
@@ -162,40 +168,49 @@ const getSchools = async () => {
 // Crear un nuevo curso
 const createCourse = async (courseData) => {
   const connection = await pool.getConnection();
-  
+
   try {
     await connection.beginTransaction();
-    
-    const [result] = await connection.query(`
-      INSERT INTO mooc_catalog (
-        title, provider, image_url, logo_url, type, 
-        course_count, category, is_popular, is_new, is_trending
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-      courseData.title,
-      courseData.provider,
-      courseData.image_url,
-      courseData.logo_url,
-      courseData.type,
-      courseData.course_count || null,
-      courseData.category,
-      courseData.is_popular || false,
-      courseData.is_new || false,
-      courseData.is_trending || false
-    ]);
-    
+
+    const [result] = await connection.query(
+      `
+        INSERT INTO mooc_catalog (
+          title, provider, image_url, logo_url, type, 
+          course_count, category, is_popular, is_new, is_trending,
+          school_id, administrador_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      [
+        courseData.title,
+        courseData.provider,
+        courseData.image_url,
+        courseData.logo_url,
+        courseData.type,
+        courseData.course_count || null,
+        courseData.category,
+        courseData.is_popular || false,
+        courseData.is_new || false,
+        courseData.is_trending || false,
+        courseData.school_id || null,
+        courseData.administrador_id || null,
+      ]
+    );
+
     const courseId = result.insertId;
-    
+
     // Si hay temas asociados, los insertamos
     if (courseData.subjects && courseData.subjects.length > 0) {
       for (const subjectId of courseData.subjects) {
-        await connection.query(`
+        await connection.query(
+          `
           INSERT INTO mooc_course_subjects (catalog_id, subject_id)
           VALUES (?, ?)
-        `, [courseId, subjectId]);
+        `,
+          [courseId, subjectId]
+        );
       }
     }
-    
+
     await connection.commit();
     return courseId;
   } catch (error) {
@@ -209,11 +224,12 @@ const createCourse = async (courseData) => {
 // Actualizar un curso existente
 const updateCourse = async (id, courseData) => {
   const connection = await pool.getConnection();
-  
+
   try {
     await connection.beginTransaction();
-    
-    await connection.query(`
+
+    await connection.query(
+      `
       UPDATE mooc_catalog SET
         title = ?,
         provider = ?,
@@ -226,35 +242,43 @@ const updateCourse = async (id, courseData) => {
         is_new = ?,
         is_trending = ?
       WHERE id = ?
-    `, [
-      courseData.title,
-      courseData.provider,
-      courseData.image_url,
-      courseData.logo_url,
-      courseData.type,
-      courseData.course_count || null,
-      courseData.category,
-      courseData.is_popular || false,
-      courseData.is_new || false,
-      courseData.is_trending || false,
-      id
-    ]);
-    
+    `,
+      [
+        courseData.title,
+        courseData.provider,
+        courseData.image_url,
+        courseData.logo_url,
+        courseData.type,
+        courseData.course_count || null,
+        courseData.category,
+        courseData.is_popular || false,
+        courseData.is_new || false,
+        courseData.is_trending || false,
+        id,
+      ]
+    );
+
     // Si hay temas asociados, primero eliminamos los existentes
     if (courseData.subjects) {
-      await connection.query(`
+      await connection.query(
+        `
         DELETE FROM mooc_course_subjects WHERE catalog_id = ?
-      `, [id]);
-      
+      `,
+        [id]
+      );
+
       // Luego insertamos los nuevos
       for (const subjectId of courseData.subjects) {
-        await connection.query(`
+        await connection.query(
+          `
           INSERT INTO mooc_course_subjects (catalog_id, subject_id)
           VALUES (?, ?)
-        `, [id, subjectId]);
+        `,
+          [id, subjectId]
+        );
       }
     }
-    
+
     await connection.commit();
     return true;
   } catch (error) {
@@ -267,10 +291,13 @@ const updateCourse = async (id, courseData) => {
 
 // Eliminar un curso
 const deleteCourse = async (id) => {
-  const [result] = await pool.query(`
+  const [result] = await pool.query(
+    `
     DELETE FROM mooc_catalog WHERE id = ?
-  `, [id]);
-  
+  `,
+    [id]
+  );
+
   return result.affectedRows > 0;
 };
 
@@ -285,5 +312,5 @@ module.exports = {
   getSchools,
   createCourse,
   updateCourse,
-  deleteCourse
+  deleteCourse,
 };
