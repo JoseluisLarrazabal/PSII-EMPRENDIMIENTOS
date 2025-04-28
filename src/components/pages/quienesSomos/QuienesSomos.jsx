@@ -1,10 +1,10 @@
 // src/components/pages/QuienesSomos.jsx
 import React from "react";
-import HeroBanner from "../HeroBanner";
-import MissionStatement from "../MissionStatement";
-import CampusLocations from "../CampusLocations";
-import UniversityProfile from "../UniversityProfile";
-import LocationMap from "../LocationMap"; // Asegúrate de que la ruta sea correcta
+import HeroBanner from "./HeroBanner";
+import MissionStatement from "./MissionStatement";
+import CampusLocations from "./CampusLocations";
+import UniversityProfile from "./UniversityProfile";
+import LocationMap from "./LocationMap"; // Asegúrate de que la ruta sea correcta
 
 const locationData = [
     {

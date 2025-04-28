@@ -4,9 +4,9 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import SubNav from "./components/SubNav";
 import Footer from "./components/Footer";
-import Home from "./components/pages/Home";
-import QuienesSomos from "./components/pages/QuienesSomos";
-import Login from "./components/pages/Login";
+import Home from "./components/pages/home/Home";
+import QuienesSomos from "./components/pages/quienesSomos/QuienesSomos";
+import Login from "./components/pages/login/Login";
 import Mentoring from "./components/pages/Mentoring";
 import Contact from "./components/pages/Contact";
 import Revenue from "./components/pages/Revenue";
@@ -15,7 +15,7 @@ import Inspiring from "./components/pages/Inspiring";
 import Challengers from "./components/pages/Challengers";
 import Eventos from "./components/pages/Eventos";
 import Servicios from "./components/pages/Servicios";
-import MoocsPage from "./components/pages/MoocsPage";
+import MoocsPage from "./components/pages/moocs/MoocsPage";
 
 // Componente para controlar la visualización de elementos de navegación
 function AppContent() {
