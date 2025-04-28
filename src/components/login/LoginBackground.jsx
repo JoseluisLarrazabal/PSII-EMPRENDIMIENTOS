@@ -5,7 +5,7 @@ function LoginBackground() {
   return (
     <div className="hidden md:block md:w-1/2 bg-cover bg-center" 
          style={{ 
-           backgroundImage: "url('/univalle-entrance.png')",
+           backgroundImage: "url('/images/loginpage/univalle-entrance.png')",
            backgroundPosition: "center",
            backgroundSize: "cover"
          }}>

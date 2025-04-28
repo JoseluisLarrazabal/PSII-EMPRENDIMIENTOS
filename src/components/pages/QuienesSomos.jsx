@@ -29,7 +29,7 @@ function QuienesSomos() {
     <div>
       {/* Hero Banner */}
       <HeroBanner 
-        imageSrc="/incuvalab-building.png" 
+        imageSrc="/images/acercaIncuvalab/incuvalab-building.png" 
         title="Bienvenido a INCUVALAB" 
       />
       
