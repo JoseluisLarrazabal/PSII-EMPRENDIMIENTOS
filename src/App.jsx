@@ -7,8 +7,6 @@ import Footer from "./components/Footer";
 import Home from "./components/pages/Home";
 import QuienesSomos from "./components/pages/QuienesSomos";
 import Login from "./components/pages/Login";
-<<<<<<< HEAD
-=======
 import Mentoring from "./components/pages/Mentoring";
 import Contact from "./components/pages/Contact";
 import Revenue from "./components/pages/Revenue";
@@ -17,7 +15,6 @@ import Inspiring from "./components/pages/Inspiring";
 import Challengers from "./components/pages/Challengers";
 import Eventos from "./components/pages/Eventos";
 import Servicios from "./components/pages/Servicios";
->>>>>>> origin/main
 import MoocsPage from "./components/pages/MoocsPage";
 
 // Componente para controlar la visualización de elementos de navegación
@@ -33,10 +30,6 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/quienes-somos" element={<QuienesSomos />} />
-<<<<<<< HEAD
-          <Route path="/moocs" element={<MoocsPage />} />
-          <Route path="/login" element={<Login />} />
-=======
           <Route path="/login" element={<Login />} />
           <Route path="/mentoring" element={<Mentoring />} />
           <Route path="/contact" element={<Contact />} />
@@ -47,7 +40,6 @@ function AppContent() {
           <Route path="/servicios/inspiring" element={<Inspiring />} />         
           <Route path="/servicios/challengers" element={<Challengers />} />
           <Route path="/servicios/moocs" element={<MoocsPage />} />
->>>>>>> origin/main
         </Routes>
       </main>
       {!isLoginPage && <Footer />}

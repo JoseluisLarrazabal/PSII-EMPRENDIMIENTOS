@@ -1,41 +1,9 @@
-<<<<<<< HEAD
-// SubNav.jsx con React Router
-import React, { useState, useEffect } from 'react';
-=======
 import React, { useState, useEffect, useRef } from 'react';
->>>>>>> origin/main
 import { Link, useLocation } from 'react-router-dom';
 
 const SubNav = () => {
   const location = useLocation();
   const [activeItem, setActiveItem] = useState(null);
-<<<<<<< HEAD
-  
-  const menuItems = [
-    { name: 'Acerca de nosotros', path: '/quienes-somos' },
-    { name: 'Nuestros servicios', path: '/servicios' },
-    { name: 'CrowdFunding', path: '/crowdfunding' },
-    { name: 'Apoya a emprendedor', path: '/apoya' },
-    { name: 'Learning', path: '/moocs' },
-    { name: 'Postulaciones', path: '/postulaciones' }
-  ];
-
-  // Determinar el ítem activo basado en la ruta actual
-  useEffect(() => {
-    const currentPath = location.pathname;
-    const activeIndex = menuItems.findIndex(item => item.path === currentPath);
-    setActiveItem(activeIndex >= 0 ? activeIndex : null);
-  }, [location.pathname]);
-
-  return (
-    <div className="w-full bg-white border-b border-gray-100">
-      <div className="max-w-[1200px] mx-auto flex items-center justify-between px-6 md:px-12">
-        {/* Logo - con enlace a la página principal */}
-        <Link to="/" className="flex items-center h-20">
-          <img 
-            src="/logo-incuvalab.png" 
-            alt="Incuva Lab" 
-=======
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -110,31 +78,10 @@ const SubNav = () => {
           <img
             src="/logo-incuvalab.png"
             alt="Incuva Lab"
->>>>>>> origin/main
             className="h-full w-auto object-contain"
           />
         </Link>
 
-<<<<<<< HEAD
-        {/* Navigation Menu - centrado verticalmente */}
-        <nav className="flex items-center h-20">
-          {menuItems.map((item, index) => (
-            <Link
-              key={index}
-              to={item.path}
-              className={`relative px-3 h-full flex items-center mx-1 md:mx-3 text-sm md:text-base font-medium transition-all duration-200 
-                ${activeItem === index 
-                  ? 'text-[#8B0D37] after:absolute after:left-0 after:bottom-[14px] after:w-full after:h-0.5 after:bg-[#8B0D37]' 
-                  : 'text-gray-700 hover:text-[#8B0D37] after:absolute after:left-0 after:bottom-[14px] after:w-0 hover:after:w-full after:h-0.5 after:bg-[#8B0D37] after:transition-all after:duration-300'
-                }`}
-            >
-              {item.name}
-            </Link>
-          ))}
-          <Link 
-            to="/login"
-            className="ml-2 md:ml-4 px-4 py-2 bg-[#8B0D37] text-white rounded-md font-medium hover:bg-[#6E0B2A] transition-colors duration-200 flex items-center"
-=======
         <nav className="flex items-center h-20 relative gap-2" ref={dropdownRef}>
           {menuItems.map((item, index) => (
             item.isDropdown ? (
@@ -186,7 +133,6 @@ const SubNav = () => {
             to="/login"
             className="ml-2 md:ml-4 px-4 py-2 bg-[#8B0D37] text-white rounded-md font-medium hover:bg-[#6E0B2A] transition-colors duration-200 flex items-center"
             onClick={() => setIsDropdownOpen(false)}
->>>>>>> origin/main
           >
             <span>Login</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -199,8 +145,4 @@ const SubNav = () => {
   );
 };
 
-<<<<<<< HEAD
 export default SubNav;
-=======
-export default SubNav;
->>>>>>> origin/main

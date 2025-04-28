@@ -35,11 +35,6 @@ function InstitutionalBanner() {
             En Univalle estamos unidos por un propósito compartido
           </h2>
           
-<<<<<<< HEAD
-          <button className="mt-4 border-2 border-white text-white px-10 py-3 hover:bg-white hover:text-[#880043] transition-colors duration-300">
-            EXPLORAR
-          </button>
-=======
           <a
             href="https://www.univalle.edu/"
             target="_blank"
@@ -49,7 +44,6 @@ function InstitutionalBanner() {
             EXPLORAR
           </a>
 
->>>>>>> origin/main
         </div>
       </div>
     </div>
