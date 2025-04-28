@@ -9,7 +9,7 @@ function SocialMediaGallery() {
         {/* Primera imagen con borde azul */}
         <div className="w-1/4 aspect-[3/4] overflow-hidden">
           <img 
-            src="/students-table.png" 
+            src="/images/homepage/students-table.png" 
             alt="Estudiantes colaborando en una mesa"
             className="w-full h-full object-cover"
             loading="lazy"
@@ -20,7 +20,7 @@ function SocialMediaGallery() {
         <div className="w-1/4 flex flex-col gap-4">
           <div className="aspect-[4/3] overflow-hidden">
             <img 
-              src="/students-outdoor.png" 
+              src="/images/homepage/students-outdoor.png" 
               alt="Estudiantes en área verde"
               className="w-full h-full object-cover"
               loading="lazy"
@@ -28,7 +28,7 @@ function SocialMediaGallery() {
           </div>
           <div className="aspect-[4/3] overflow-hidden">
             <img 
-              src="/students-devices.png" 
+              src="/images/homepage/students-devices.png" 
               alt="Estudiantes usando dispositivos"
               className="w-full h-full object-cover"
               loading="lazy"
@@ -39,7 +39,7 @@ function SocialMediaGallery() {
         {/* Tercera imagen */}
         <div className="w-1/4 aspect-[3/4] overflow-hidden">
           <img 
-            src="/library-study.png" 
+            src="/images/homepage/library-study.png" 
             alt="Estudiantes en biblioteca"
             className="w-full h-full object-cover"
             loading="lazy"
@@ -49,7 +49,7 @@ function SocialMediaGallery() {
         {/* Cuarta imagen */}
         <div className="w-1/4 aspect-[3/4] overflow-hidden">
           <img 
-            src="/student-phone.png" 
+            src="/images/homepage/student-phone.png" 
             alt="Estudiante usando teléfono"
             className="w-full h-full object-cover"
             loading="lazy"

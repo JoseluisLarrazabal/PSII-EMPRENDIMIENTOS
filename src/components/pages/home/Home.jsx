@@ -1,13 +1,13 @@
 // src/components/pages/Home.jsx
 import React from "react";
 // Corrige las rutas de importación - solo sube un nivel
-import Carousel from "../Carousel";
-import ServiceCards from "../ServiceCards";
-import SuccessStories from "../SuccessStories";
-import ImportantDates from "../ImportantDates";
-import SocialMediaGallery from "../SocialMediaGallery";
-import InstitutionalBanner from "../InstitutionalBanner";
-import VideoHero from "../VideoHero";
+import Carousel from "./Carousel";
+import ServiceCards from "./ServiceCards";
+import SuccessStories from "./SuccessStories";
+import ImportantDates from "./ImportantDates";
+import SocialMediaGallery from "./SocialMediaGallery";
+import InstitutionalBanner from "./InstitutionalBanner";
+import VideoHero from "./VideoHero";
 
 function Home() {
   return (
