@@ -187,52 +187,7 @@ const getAllCourses = async () => {
   }
 };
 
-// Anhadida funcion de utilidad para asignar escuelas a cursos
-const assignSchoolsToCourses = async () => {
-  try {
-    // Get courses without school_id and schools
-    const [coursesWithoutSchool] = await pool.query(
-      `SELECT id FROM mooc_catalog WHERE school_id IS NULL`
-    );
-    const [schools] = await pool.query(`SELECT id FROM mooc_schools`);
-    
-    if (coursesWithoutSchool.length === 0 || schools.length === 0) {
-      return { assigned: 0 };
-    }
-    
-    // Distribute courses among schools randomly
-    let assignedCount = 0;
-    const connection = await pool.getConnection();
-    
-    try {
-      await connection.beginTransaction();
-      
-      for (const course of coursesWithoutSchool) {
-        // Pick a random school
-        const randomSchool = schools[Math.floor(Math.random() * schools.length)];
-        
-        await connection.query(
-          `UPDATE mooc_catalog SET school_id = ? WHERE id = ?`,
-          [randomSchool.id, course.id]
-        );
-        
-        assignedCount++;
-      }
-      
-      await connection.commit();
-    } catch (error) {
-      await connection.rollback();
-      throw error;
-    } finally {
-      connection.release();
-    }
-    
-    return { assigned: assignedCount };
-  } catch (error) {
-    console.error("Error assigning schools to courses:", error);
-    throw error;
-  }
-};
+
 
 
 // Obtener todos los temas/materias
