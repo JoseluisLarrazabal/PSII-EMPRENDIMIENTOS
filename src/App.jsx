@@ -1,25 +1,57 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home.jsx'; // Importa el componente Home
-import Inspiring from './pages/Inspiring.jsx'; // Importa la nueva página Inspiring
-import Challenger from './pages/Challenger.jsx';
+// src/App.jsx (versión alternativa)
+import React from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import SubNav from "./components/SubNav";
+import Footer from "./components/Footer";
+import Home from "./components/pages/Home";
+import QuienesSomos from "./components/pages/QuienesSomos";
+import Login from "./components/pages/Login";
+import Mentoring from "./components/pages/Mentoring";
+import Contact from "./components/pages/Contact";
+import Revenue from "./components/pages/Revenue";
+import Partners from  "./components/pages/Partners";
+import Inspiring from "./components/pages/Inspiring";
+import Challengers from "./components/pages/Challengers";
+import Eventos from "./components/pages/Eventos";
+import Servicios from "./components/pages/Servicios";
+import MoocsPage from "./components/pages/MoocsPage";
 
+// Componente para controlar la visualización de elementos de navegación
+function AppContent() {
+  const location = useLocation();
+  const isLoginPage = location.pathname === "/login";
+  
+  return (
+    <div>
+      {!isLoginPage && <Navbar />}
+      {!isLoginPage && <SubNav />}
+      <main>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/quienes-somos" element={<QuienesSomos />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/mentoring" element={<Mentoring />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/eventos" element={<Eventos />} />
+          <Route path="/servicios" element={<Servicios />} />
+          <Route path="/servicios/revenue" element={<Revenue />} />
+          <Route path="/servicios/partners" element={<Partners />} />
+          <Route path="/servicios/inspiring" element={<Inspiring />} />         
+          <Route path="/servicios/challengers" element={<Challengers />} />
+          <Route path="/servicios/moocs" element={<MoocsPage />} />
+        </Routes>
+      </main>
+      {!isLoginPage && <Footer />}
+    </div>
+  );
+}
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Ruta principal que renderiza la página de inicio (Home.jsx) */}
-        <Route path="/" element={<Home />} />
-        <Route path="/inspiring" element={<Inspiring />} />
-        <Route path="/challenger" element={<Challenger />} />
-
-        {/* Otras rutas que puedas agregar más adelante */}
-        {/* <Route path="/noticias" element={<Noticias />} /> */}
-        {/* <Route path="/eventos" element={<Eventos />} /> */}
-        {/* <Route path="/mentores" element={<Mentores />} /> */}
-      </Routes>
-    </Router>
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
   );
 }
 
