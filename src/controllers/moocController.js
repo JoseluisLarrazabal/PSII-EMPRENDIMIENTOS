@@ -192,7 +192,7 @@ const getAllCourses = async (req, res, next) => {
           subject_ids: courses[0].subject_ids
         } : 'No hay cursos');
 
-        
+
       result.coursesByCategory[categoryName] = courses;
     }
     
@@ -210,6 +210,21 @@ const getAllCourses = async (req, res, next) => {
   }
 };
 
+// Assign schools to courses without school_id
+const assignSchoolsToCourses = async (req, res, next) => {
+  try {
+    const result = await moocModel.assignSchoolsToCourses();
+    
+    res.status(200).json({
+      success: true,
+      message: `Successfully assigned schools to ${result.assigned} courses`,
+      data: result
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Actualizar module.exports para incluir getAllCourses
 module.exports = {
   initializeTables,
@@ -220,5 +235,6 @@ module.exports = {
   createCourse,
   updateCourse,
   deleteCourse,
-  getAllCourses  // Añadido nuevo método
+  getAllCourses,
+  assignSchoolsToCourses
 };

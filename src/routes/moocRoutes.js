@@ -10,6 +10,7 @@ router.get('/courses/:category', moocController.getCoursesByCategory);
 router.get('/subjects', moocController.getSubjects);
 router.get('/schools', moocController.getSchools);
 router.get('/all-courses', moocController.getAllCourses);
+router.post('/assign-schools', authMiddleware, moocController.assignSchoolsToCourses);
 
 // Rutas protegidas (requieren autenticación)
 router.post('/courses', authMiddleware, moocController.createCourse);

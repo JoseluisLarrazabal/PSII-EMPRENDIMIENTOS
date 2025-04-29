@@ -78,148 +78,162 @@ const getCategories = async () => {
   return rows;
 };
 
+const getCoursesWithSubjects = async (courseRows) => {
+  if (!courseRows || courseRows.length === 0) return [];
+  
+  // Extract all course IDs
+  const courseIds = courseRows.map(course => course.id);
+  
+  // Get all subject relations in a single query
+  const [subjectRelations] = await pool.query(
+    `SELECT catalog_id, subject_id 
+     FROM mooc_course_subjects 
+     WHERE catalog_id IN (?)`,
+    [courseIds]
+  );
+  
+  // Group subject IDs by course ID
+  const subjectsByCourseid = {};
+  subjectRelations.forEach(relation => {
+    if (!subjectsByCourseid[relation.catalog_id]) {
+      subjectsByCourseid[relation.catalog_id] = [];
+    }
+    subjectsByCourseid[relation.catalog_id].push(relation.subject_id);
+  });
+  
+  // Add subject_ids to each course
+  return courseRows.map(course => ({
+    ...course,
+    subject_ids: subjectsByCourseid[course.id] || []
+  }));
+};
+
+
 // Obtener cursos por categoría con subject_ids
 const getCoursesByCategory = async (category) => {
-  // Primero obtenemos los cursos
   const [rows] = await pool.query(
-    `
-    SELECT * 
-    FROM mooc_catalog 
-    WHERE category = ?
-    ORDER BY id
-  `,
+    `SELECT * 
+     FROM mooc_catalog 
+     WHERE category = ?
+     ORDER BY id`,
     [category]
   );
   
-  // Para cada curso, obtenemos sus subject_ids
-  const result = [];
-  for (const course of rows) {
-    const [subjects] = await pool.query(
-      `
-      SELECT subject_id
-      FROM mooc_course_subjects
-      WHERE catalog_id = ?
-    `,
-      [course.id]
-    );
-    
-    // Crear un nuevo objeto que incluya todos los campos del curso original
-    // más el array de subject_ids
-    const courseWithSubjects = {
-      ...course, // Spread operator para incluir todas las propiedades originales
-      subject_ids: subjects.map(s => s.subject_id)
-    };
-    
-    result.push(courseWithSubjects);
-  }
-  
-  return result;
+  return await getCoursesWithSubjects(rows);
 };
 
 // Obtener cursos populares con subject_ids
 const getPopularCourses = async () => {
-  // Primero obtenemos los cursos populares
-  const [rows] = await pool.query(`
-    SELECT * 
-    FROM mooc_catalog 
-    WHERE is_popular = TRUE
-    ORDER BY id
-  `);
+  const [rows] = await pool.query(
+    `SELECT * 
+     FROM mooc_catalog 
+     WHERE is_popular = TRUE
+     ORDER BY id`
+  );
   
-  // Para cada curso, obtenemos sus subject_ids
-  const result = [];
-  for (const course of rows) {
-    const [subjects] = await pool.query(
-      `
-      SELECT subject_id
-      FROM mooc_course_subjects
-      WHERE catalog_id = ?
-    `,
-      [course.id]
-    );
-    
-    // Crear un nuevo objeto que incluya todos los campos del curso original
-    // más el array de subject_ids
-    const courseWithSubjects = {
-      ...course, // Spread operator para incluir todas las propiedades originales
-      subject_ids: subjects.map(s => s.subject_id)
-    };
-    
-    result.push(courseWithSubjects);
-  }
-  
-  return result;
+  return await getCoursesWithSubjects(rows);
 };
-
 // Obtener cursos nuevos con subject_ids
 const getNewCourses = async () => {
-  // Primero obtenemos los cursos nuevos
-  const [rows] = await pool.query(`
-    SELECT * 
-    FROM mooc_catalog 
-    WHERE is_new = TRUE
-    ORDER BY id
-  `);
+  const [rows] = await pool.query(
+    `SELECT * 
+     FROM mooc_catalog 
+     WHERE is_new = TRUE
+     ORDER BY id`
+  );
   
-  // Para cada curso, obtenemos sus subject_ids
-  const result = [];
-  for (const course of rows) {
-    const [subjects] = await pool.query(
-      `
-      SELECT subject_id
-      FROM mooc_course_subjects
-      WHERE catalog_id = ?
-    `,
-      [course.id]
-    );
-    
-    // Crear un nuevo objeto que incluya todos los campos del curso original
-    // más el array de subject_ids
-    const courseWithSubjects = {
-      ...course, // Spread operator para incluir todas las propiedades originales
-      subject_ids: subjects.map(s => s.subject_id)
-    };
-    
-    result.push(courseWithSubjects);
-  }
-  
-  return result;
+  return await getCoursesWithSubjects(rows);
 };
 
 // Obtener cursos tendencia con subject_ids
 const getTrendingCourses = async () => {
-  // Primero obtenemos los cursos tendencia
-  const [rows] = await pool.query(`
-    SELECT * 
-    FROM mooc_catalog 
-    WHERE is_trending = TRUE
-    ORDER BY id
-  `);
+  const [rows] = await pool.query(
+    `SELECT * 
+     FROM mooc_catalog 
+     WHERE is_trending = TRUE
+     ORDER BY id`
+  );
   
-  // Para cada curso, obtenemos sus subject_ids
-  const result = [];
-  for (const course of rows) {
-    const [subjects] = await pool.query(
-      `
-      SELECT subject_id
-      FROM mooc_course_subjects
-      WHERE catalog_id = ?
-    `,
-      [course.id]
-    );
+  return await getCoursesWithSubjects(rows);
+};
+
+// Nueva funcion para obtener todos los cursos de forma eficiente
+const getAllCourses = async () => {
+  try {
+    // Get all categories
+    const categories = await getCategories();
     
-    // Crear un nuevo objeto que incluya todos los campos del curso original
-    // más el array de subject_ids
-    const courseWithSubjects = {
-      ...course, // Spread operator para incluir todas las propiedades originales
-      subject_ids: subjects.map(s => s.subject_id)
+    // Object to store results
+    const result = {
+      categories: categories,
+      coursesByCategory: {},
+      specialCategories: {
+        popular: await getPopularCourses(),
+        new: await getNewCourses(),
+        trending: await getTrendingCourses()
+      }
     };
     
-    result.push(courseWithSubjects);
+    // Get courses for each category
+    for (const cat of categories) {
+      const categoryName = cat.category;
+      result.coursesByCategory[categoryName] = await getCoursesByCategory(categoryName);
+    }
+    
+    return result;
+  } catch (error) {
+    console.error("Error getting all courses:", error);
+    throw error;
   }
-  
-  return result;
 };
+
+// Anhadida funcion de utilidad para asignar escuelas a cursos
+const assignSchoolsToCourses = async () => {
+  try {
+    // Get courses without school_id and schools
+    const [coursesWithoutSchool] = await pool.query(
+      `SELECT id FROM mooc_catalog WHERE school_id IS NULL`
+    );
+    const [schools] = await pool.query(`SELECT id FROM mooc_schools`);
+    
+    if (coursesWithoutSchool.length === 0 || schools.length === 0) {
+      return { assigned: 0 };
+    }
+    
+    // Distribute courses among schools randomly
+    let assignedCount = 0;
+    const connection = await pool.getConnection();
+    
+    try {
+      await connection.beginTransaction();
+      
+      for (const course of coursesWithoutSchool) {
+        // Pick a random school
+        const randomSchool = schools[Math.floor(Math.random() * schools.length)];
+        
+        await connection.query(
+          `UPDATE mooc_catalog SET school_id = ? WHERE id = ?`,
+          [randomSchool.id, course.id]
+        );
+        
+        assignedCount++;
+      }
+      
+      await connection.commit();
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+    
+    return { assigned: assignedCount };
+  } catch (error) {
+    console.error("Error assigning schools to courses:", error);
+    throw error;
+  }
+};
+
 
 // Obtener todos los temas/materias
 const getSubjects = async () => {
