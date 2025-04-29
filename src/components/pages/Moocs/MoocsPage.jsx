@@ -26,15 +26,18 @@ const MoocsPage = () => {
 
         // Cargar categorías
         const categoriesData = await fetchCategories();
-        console.log('Categorías recibidas:', categoriesData);  // AÑADE ESTA LÍNEA
-        
+        console.log("Categorías recibidas:", categoriesData);
         setCategories(categoriesData);
 
         // Cargar cursos para cada categoría
         const coursesData = {};
-        for (const category of categoriesData) {
-          const courses = await fetchCoursesByCategory(category);
-          coursesData[category] = courses;
+        for (const categoryObj of categoriesData) {
+          // Extraer el nombre de la categoría del objeto
+          const categoryName = categoryObj.category;
+          // Usar el nombre de la categoría para la petición
+          const courses = await fetchCoursesByCategory(categoryName);
+          // Guardar con el nombre como clave
+          coursesData[categoryName] = courses;
         }
 
         // Cargar cursos especiales
