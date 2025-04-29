@@ -160,6 +160,57 @@ const deleteCourse = async (req, res, next) => {
   }
 };
 
+// Añadir en moocController.js
+
+// Obtener todos los cursos agrupados por categoría
+const getAllCourses = async (req, res, next) => {
+  try {
+    // Obtener todas las categorías
+    const categories = await moocModel.getCategories();
+    
+    // Objeto para almacenar resultados
+    const result = {
+      categories: categories,
+      coursesByCategory: {},
+      specialCategories: {
+        popular: [],
+        new: [],
+        trending: []
+      }
+    };
+    
+    // Obtener cursos para cada categoría
+    for (const cat of categories) {
+      const categoryName = cat.category;
+      const courses = await moocModel.getCoursesByCategory(categoryName);
+
+      // Verificar si subject_ids está presente
+      console.log(`Categoría ${categoryName}, primer curso:`, 
+        courses.length > 0 ? {
+          id: courses[0].id,
+          title: courses[0].title,
+          subject_ids: courses[0].subject_ids
+        } : 'No hay cursos');
+
+        
+      result.coursesByCategory[categoryName] = courses;
+    }
+    
+    // Obtener cursos especiales
+    result.specialCategories.popular = await moocModel.getPopularCourses();
+    result.specialCategories.new = await moocModel.getNewCourses();
+    result.specialCategories.trending = await moocModel.getTrendingCourses();
+    
+    res.status(200).json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Actualizar module.exports para incluir getAllCourses
 module.exports = {
   initializeTables,
   getCategories,
@@ -168,5 +219,6 @@ module.exports = {
   getSchools,
   createCourse,
   updateCourse,
-  deleteCourse
+  deleteCourse,
+  getAllCourses  // Añadido nuevo método
 };

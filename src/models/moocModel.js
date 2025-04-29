@@ -78,8 +78,9 @@ const getCategories = async () => {
   return rows;
 };
 
-// Obtener cursos por categoría
+// Obtener cursos por categoría con subject_ids
 const getCoursesByCategory = async (category) => {
+  // Primero obtenemos los cursos
   const [rows] = await pool.query(
     `
     SELECT * 
@@ -89,40 +90,135 @@ const getCoursesByCategory = async (category) => {
   `,
     [category]
   );
-  return rows;
+  
+  // Para cada curso, obtenemos sus subject_ids
+  const result = [];
+  for (const course of rows) {
+    const [subjects] = await pool.query(
+      `
+      SELECT subject_id
+      FROM mooc_course_subjects
+      WHERE catalog_id = ?
+    `,
+      [course.id]
+    );
+    
+    // Crear un nuevo objeto que incluya todos los campos del curso original
+    // más el array de subject_ids
+    const courseWithSubjects = {
+      ...course, // Spread operator para incluir todas las propiedades originales
+      subject_ids: subjects.map(s => s.subject_id)
+    };
+    
+    result.push(courseWithSubjects);
+  }
+  
+  return result;
 };
 
-// Obtener cursos populares
+// Obtener cursos populares con subject_ids
 const getPopularCourses = async () => {
+  // Primero obtenemos los cursos populares
   const [rows] = await pool.query(`
     SELECT * 
     FROM mooc_catalog 
     WHERE is_popular = TRUE
     ORDER BY id
   `);
-  return rows;
+  
+  // Para cada curso, obtenemos sus subject_ids
+  const result = [];
+  for (const course of rows) {
+    const [subjects] = await pool.query(
+      `
+      SELECT subject_id
+      FROM mooc_course_subjects
+      WHERE catalog_id = ?
+    `,
+      [course.id]
+    );
+    
+    // Crear un nuevo objeto que incluya todos los campos del curso original
+    // más el array de subject_ids
+    const courseWithSubjects = {
+      ...course, // Spread operator para incluir todas las propiedades originales
+      subject_ids: subjects.map(s => s.subject_id)
+    };
+    
+    result.push(courseWithSubjects);
+  }
+  
+  return result;
 };
 
-// Obtener cursos nuevos
+// Obtener cursos nuevos con subject_ids
 const getNewCourses = async () => {
+  // Primero obtenemos los cursos nuevos
   const [rows] = await pool.query(`
     SELECT * 
     FROM mooc_catalog 
     WHERE is_new = TRUE
     ORDER BY id
   `);
-  return rows;
+  
+  // Para cada curso, obtenemos sus subject_ids
+  const result = [];
+  for (const course of rows) {
+    const [subjects] = await pool.query(
+      `
+      SELECT subject_id
+      FROM mooc_course_subjects
+      WHERE catalog_id = ?
+    `,
+      [course.id]
+    );
+    
+    // Crear un nuevo objeto que incluya todos los campos del curso original
+    // más el array de subject_ids
+    const courseWithSubjects = {
+      ...course, // Spread operator para incluir todas las propiedades originales
+      subject_ids: subjects.map(s => s.subject_id)
+    };
+    
+    result.push(courseWithSubjects);
+  }
+  
+  return result;
 };
 
-// Obtener cursos tendencia
+// Obtener cursos tendencia con subject_ids
 const getTrendingCourses = async () => {
+  // Primero obtenemos los cursos tendencia
   const [rows] = await pool.query(`
     SELECT * 
     FROM mooc_catalog 
     WHERE is_trending = TRUE
     ORDER BY id
   `);
-  return rows;
+  
+  // Para cada curso, obtenemos sus subject_ids
+  const result = [];
+  for (const course of rows) {
+    const [subjects] = await pool.query(
+      `
+      SELECT subject_id
+      FROM mooc_course_subjects
+      WHERE catalog_id = ?
+    `,
+      [course.id]
+    );
+    
+    // Crear un nuevo objeto que incluya todos los campos del curso original
+    // más el array de subject_ids
+    const courseWithSubjects = {
+      ...course, // Spread operator para incluir todas las propiedades originales
+      subject_ids: subjects.map(s => s.subject_id)
+    };
+    
+    result.push(courseWithSubjects);
+  }
+  
+  return result;
 };
 
 // Obtener todos los temas/materias
