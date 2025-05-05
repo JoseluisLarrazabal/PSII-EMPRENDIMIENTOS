@@ -13,11 +13,13 @@ const CourseCard = ({ course }) => {
   } = course;
   
   return (
-    <div className="flex flex-col h-full rounded-md overflow-hidden shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
-      {/* El resto del componente igual */}
-      <div className="relative h-40 bg-cover bg-center" style={{ backgroundImage: `url(${image})` }}>
+    <div className="flex flex-col h-full rounded-md overflow-hidden shadow-md border border-gray-100 hover:shadow-lg transition-shadow card-hover">
+      <div className="relative h-40 bg-cover bg-center overflow-hidden" style={{ backgroundImage: `url(${image})` }}>
+        {/* Agregamos un div con una clase para el efecto de zoom en hover */}
+        <div className="absolute inset-0 img-zoom" style={{ backgroundImage: `url(${image})`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+        
         {logo && (
-          <div className="absolute top-4 left-4 bg-white p-2 rounded-md w-24 h-16 flex items-center justify-center">
+          <div className="absolute top-4 left-4 bg-white p-2 rounded-md w-24 h-16 flex items-center justify-center z-10">
             <img src={logo} alt={provider} className="max-w-full max-h-full object-contain" />
           </div>
         )}
@@ -28,7 +30,7 @@ const CourseCard = ({ course }) => {
         <p className="text-sm mb-4">{provider}</p>
         
         <div className="mt-auto flex items-center justify-between">
-          <span className="px-3 py-1 bg-gray-200 bg-opacity-20 rounded-full text-xs">
+          <span className="px-3 py-1 bg-gray-200 bg-opacity-20 rounded-full text-xs filter-transition hover:bg-opacity-30">
             {type}
           </span>
           

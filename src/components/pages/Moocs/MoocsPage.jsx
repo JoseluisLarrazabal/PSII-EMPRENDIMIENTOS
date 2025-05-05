@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "./transitions.css"; // Importar el CSS de transición
 import HeroSearch from "./HeroSearch";
 import CourseCategory from "./CourseCategory";
 import FilterSection from "./FilterSection";
@@ -9,6 +10,12 @@ import {
   fetchSchools,
 } from "../../../services/api";
 import LoadingSpinner from "../../LoadingSpinner";
+
+const STORAGE_KEYS = {
+  SUBJECT_FILTERS: "moocs_subject_filters",
+  SCHOOL_FILTER: "moocs_school_filter",
+  LAST_SEARCH: "moocs_last_search",
+};
 
 const MoocsPage = () => {
   // Estados para datos
@@ -203,6 +210,57 @@ const MoocsPage = () => {
     originalSpecialCourses,
   ]);
 
+  // Añadir este efecto después de los useEffect existentes
+  useEffect(() => {
+    // Recuperar filtros guardados al iniciar
+    try {
+      // Cargar filtros de materias
+      const savedSubjectFilters = localStorage.getItem(
+        STORAGE_KEYS.SUBJECT_FILTERS
+      );
+      if (savedSubjectFilters) {
+        setActiveSubjectFilters(JSON.parse(savedSubjectFilters));
+      }
+
+      // Cargar filtro de escuela
+      const savedSchoolFilter = localStorage.getItem(
+        STORAGE_KEYS.SCHOOL_FILTER
+      );
+      if (savedSchoolFilter) {
+        setActiveSchoolFilter(JSON.parse(savedSchoolFilter));
+      }
+    } catch (error) {
+      console.error("Error al cargar preferencias guardadas:", error);
+      // Si hay error, limpiar localStorage para evitar problemas futuros
+      localStorage.removeItem(STORAGE_KEYS.SUBJECT_FILTERS);
+      localStorage.removeItem(STORAGE_KEYS.SCHOOL_FILTER);
+    }
+  }, []); // Solo se ejecuta al montar el componente
+
+  // Efecto para guardar cambios en filtros de materias
+  useEffect(() => {
+    if (activeSubjectFilters.length > 0) {
+      localStorage.setItem(
+        STORAGE_KEYS.SUBJECT_FILTERS,
+        JSON.stringify(activeSubjectFilters)
+      );
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.SUBJECT_FILTERS);
+    }
+  }, [activeSubjectFilters]);
+
+  // Efecto para guardar cambios en filtro de escuela
+  useEffect(() => {
+    if (activeSchoolFilter) {
+      localStorage.setItem(
+        STORAGE_KEYS.SCHOOL_FILTER,
+        JSON.stringify(activeSchoolFilter)
+      );
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.SCHOOL_FILTER);
+    }
+  }, [activeSchoolFilter]);
+
   // Manejador para cambios en filtros de materias
   const handleSubjectFilterChange = (selectedSubjects) => {
     setActiveSubjectFilters(selectedSubjects);
@@ -256,10 +314,12 @@ const MoocsPage = () => {
   const handleSearch = (term) => {
     if (!term.trim()) {
       setShowSearchResults(false);
+      localStorage.removeItem(STORAGE_KEYS.LAST_SEARCH); // Limpiar última búsqueda
       return;
     }
 
     setSearchTerm(term);
+    localStorage.setItem(STORAGE_KEYS.LAST_SEARCH, term); // Guardar búsqueda
     setLoadingStates((prev) => ({ ...prev, searching: true }));
     setShowSearchResults(true);
 
@@ -308,16 +368,27 @@ const MoocsPage = () => {
     }
   };
 
+  // Función para limpiar todas las preferencias
+  const clearAllPreferences = () => {
+    localStorage.removeItem(STORAGE_KEYS.SUBJECT_FILTERS);
+    localStorage.removeItem(STORAGE_KEYS.SCHOOL_FILTER);
+    localStorage.removeItem(STORAGE_KEYS.LAST_SEARCH);
+    setActiveSubjectFilters([]);
+    setActiveSchoolFilter(null);
+    clearSearch(); // Usa la función existente para limpiar la búsqueda de manera consistente
+  };
+
   // Función para limpiar los resultados de búsqueda
   const clearSearch = () => {
     setSearchTerm("");
     setShowSearchResults(false);
     setSearchResults([]);
+    localStorage.removeItem(STORAGE_KEYS.LAST_SEARCH); // Asegurarse de que la búsqueda se elimine del localStorage
   };
 
   // Renderizado principal ajustado para mostrar estados específicos
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white page-transition">
       <HeroSearch onSearch={handleSearch} />
 
       {/* Error global para búsqueda */}
@@ -337,21 +408,21 @@ const MoocsPage = () => {
 
       {/* Indicador de búsqueda en progreso */}
       {loadingStates.searching && (
-        <div className="py-10">
+        <div className="py-10 fade-in">
           <LoadingSpinner message={`Buscando "${searchTerm}"...`} />
         </div>
       )}
 
       {/* Sección de resultados de búsqueda */}
       {showSearchResults && !loadingStates.searching && (
-        <div className="max-w-[1200px] mx-auto px-4 py-8">
+        <div className="max-w-[1200px] mx-auto px-4 py-8 fade-in">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">
+            <h2 className="text-2xl font-bold slide-in">
               Resultados para "{searchTerm}" ({searchResults.length})
             </h2>
             <button
               onClick={clearSearch}
-              className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-md text-sm transition-colors"
+              className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-md text-sm transition-colors scale-hover"
             >
               Limpiar búsqueda
             </button>
@@ -362,13 +433,13 @@ const MoocsPage = () => {
               {searchResults.map((course) => (
                 <div
                   key={course.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 card-hover slide-in"
                 >
                   <div className="h-40 relative overflow-hidden">
                     <img
                       src={course.image_url}
                       alt={course.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover img-zoom"
                     />
                     <div className="absolute top-0 left-0 p-2">
                       <img
@@ -426,6 +497,7 @@ const MoocsPage = () => {
               message="No se encontraron cursos para este término de búsqueda"
               actionText="Intentar con otra búsqueda"
               onAction={clearSearch}
+              className="slide-in"
             />
           )}
         </div>
@@ -436,17 +508,17 @@ const MoocsPage = () => {
         <>
           {/* Estado de error global para cursos */}
           {errorStates.courses ? (
-            <div className="text-center py-10">
+            <div className="text-center py-10 fade-in">
               <p className="text-red-600 mb-4">{errorStates.courses}</p>
               <button
                 onClick={() => handleRetry("courses")}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 scale-hover"
               >
                 Reintentar
               </button>
             </div>
           ) : loadingStates.courses ? (
-            <div className="py-20">
+            <div className="py-20 fade-in">
               <LoadingSpinner message="Cargando cursos..." />
             </div>
           ) : (
@@ -463,14 +535,13 @@ const MoocsPage = () => {
                     }}
                   />
                 )}
-
               {/* Categorías principales - solo si hay resultados */}
               {hasFilteredResults && (
                 <>
                   {/* Indicador de filtrado activo */}
                   {loadingStates.filtering && (
                     <div className="text-center py-4 text-blue-600">
-                      <div className="inline-block animate-pulse">
+                      <div className="inline-block pulse">
                         Aplicando filtros...
                       </div>
                     </div>
@@ -495,7 +566,6 @@ const MoocsPage = () => {
                   })}
                 </>
               )}
-
               {/* Filtros por tema */}
               {errorStates.subjects ? (
                 <div className="text-center py-6">
@@ -520,7 +590,6 @@ const MoocsPage = () => {
                   onFilterChange={handleSubjectFilterChange}
                 />
               )}
-
               {/* Cursos especiales - Solo se muestran si hay cursos después de filtrar */}
               {specialCourses.popular.length > 0 && (
                 <CourseCategory
@@ -528,18 +597,15 @@ const MoocsPage = () => {
                   courses={specialCourses.popular}
                 />
               )}
-
               {specialCourses.new.length > 0 && (
                 <CourseCategory title="New" courses={specialCourses.new} />
               )}
-
               {specialCourses.trending.length > 0 && (
                 <CourseCategory
                   title="Trending"
                   courses={specialCourses.trending}
                 />
               )}
-
               {/* Filtros por escuela */}
               {errorStates.schools ? (
                 <div className="text-center py-6">
@@ -564,6 +630,16 @@ const MoocsPage = () => {
                   onFilterChange={handleSchoolFilterChange}
                 />
               )}
+
+              {/* Botón para limpiar preferencias guardadas */}
+              <div className="max-w-[1200px] mx-auto px-4 py-2">
+                <button
+                  onClick={clearAllPreferences}
+                  className="text-sm text-gray-500 hover:text-gray-700 underline scale-hover"
+                >
+                  Restablecer preferencias guardadas
+                </button>
+              </div>
             </>
           )}
         </>
