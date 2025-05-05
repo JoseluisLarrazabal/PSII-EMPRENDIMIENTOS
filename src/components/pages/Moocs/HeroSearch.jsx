@@ -1,7 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-const HeroSearch = () => {
+const HeroSearch = ({ onSearch }) => {
+  const [inputValue, setInputValue] = useState("");
   const trendingTags = ["Python", "Excel", "Data Sciences", "Marketing"];
+  
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    onSearch(inputValue);
+  };
+  
+  const handleTrendingClick = (tag) => {
+    setInputValue(tag);
+    onSearch(tag);
+  };
   
   return (
     <div className="w-full bg-[#00262D] py-12 px-4 md:py-16">
@@ -11,28 +22,33 @@ const HeroSearch = () => {
           Mejora tu carrera de Emprendedor.
         </h1>
         
-        <div className="flex w-full max-w-lg">
+        <form onSubmit={handleSubmit} className="flex w-full max-w-lg">
           <input 
             type="text" 
-            placeholder="What do you want to learn?" 
+            placeholder="Que quieres aprender?" 
             className="flex-grow p-3 text-gray-700 rounded-l-md border-0 focus:ring-2 focus:ring-[#8B0D37]"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
           />
-          <button className="bg-[#8B0D37] hover:bg-[#6E0B2A] text-white px-6 py-3 rounded-r-md transition-colors">
+          <button 
+            type="submit"
+            className="bg-[#8B0D37] hover:bg-[#6E0B2A] text-white px-6 py-3 rounded-r-md transition-colors"
+          >
             Search
           </button>
-        </div>
+        </form>
         
         <div className="flex items-center mt-5 flex-wrap gap-2">
           <span className="text-white font-medium mr-2">Trending:</span>
           <div className="flex flex-wrap gap-2">
             {trendingTags.map((tag, index) => (
-              <a 
+              <button 
                 key={index} 
-                href={`#${tag.toLowerCase()}`}
+                onClick={() => handleTrendingClick(tag)}
                 className="px-3 py-1 bg-gray-700 bg-opacity-30 text-white rounded-md text-sm hover:bg-opacity-50 transition-colors"
               >
                 {tag}
-              </a>
+              </button>
             ))}
           </div>
         </div>
