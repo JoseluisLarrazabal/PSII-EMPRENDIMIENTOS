@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+// En HeroSearch.jsx
 const HeroSearch = ({ onSearch }) => {
   const [inputValue, setInputValue] = useState("");
   const trendingTags = ["Python", "Excel", "Data Sciences", "Marketing"];
@@ -22,30 +23,35 @@ const HeroSearch = ({ onSearch }) => {
           Mejora tu carrera de Emprendedor.
         </h1>
         
-        <form onSubmit={handleSubmit} className="flex w-full max-w-lg">
+        <form onSubmit={handleSubmit} className="flex w-full max-w-lg" role="search" aria-label="Buscar cursos">
+          <label htmlFor="search-input" className="sr-only">Buscar cursos</label>
           <input 
+            id="search-input"
             type="text" 
-            placeholder="Que quieres aprender?" 
-            className="flex-grow p-3 text-gray-700 rounded-l-md border-0 focus:ring-2 focus:ring-[#8B0D37]"
+            placeholder="¿Qué quieres aprender?" 
+            className="flex-grow p-3 text-gray-700 rounded-l-md border-0 focus:ring-2 focus:ring-[#8B0D37] focus:outline-none"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
+            aria-label="Término de búsqueda"
           />
           <button 
             type="submit"
-            className="bg-[#8B0D37] hover:bg-[#6E0B2A] text-white px-6 py-3 rounded-r-md transition-colors"
+            className="bg-[#8B0D37] hover:bg-[#6E0B2A] text-white px-6 py-3 rounded-r-md transition-colors focus:outline-none focus:ring-2 focus:ring-[#8B0D37] focus:ring-offset-2"
+            aria-label="Buscar"
           >
-            Search
+            Buscar
           </button>
         </form>
         
         <div className="flex items-center mt-5 flex-wrap gap-2">
-          <span className="text-white font-medium mr-2">Trending:</span>
-          <div className="flex flex-wrap gap-2">
+          <span className="text-white font-medium mr-2" id="trending-label">Trending:</span>
+          <div className="flex flex-wrap gap-2" role="list" aria-labelledby="trending-label">
             {trendingTags.map((tag, index) => (
               <button 
                 key={index} 
                 onClick={() => handleTrendingClick(tag)}
-                className="px-3 py-1 bg-gray-700 bg-opacity-30 text-white rounded-md text-sm hover:bg-opacity-50 transition-colors"
+                className="px-3 py-1 bg-gray-700 bg-opacity-30 text-white rounded-md text-sm hover:bg-opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#00262D]"
+                role="listitem"
               >
                 {tag}
               </button>

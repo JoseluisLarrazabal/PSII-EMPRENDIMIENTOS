@@ -1,5 +1,6 @@
 // src/App.jsx (versión alternativa)
 import React from "react";
+import './styles/accessibility.css';
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import SubNav from "./components/SubNav";

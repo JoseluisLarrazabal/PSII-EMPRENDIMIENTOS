@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./transitions.css"; // Importar el CSS de transición
+import "../../../styles/accessibility.css"; // Importar estilos de accesibilidad
 import HeroSearch from "./HeroSearch";
 import CourseCategory from "./CourseCategory";
 import FilterSection from "./FilterSection";
@@ -389,261 +390,282 @@ const MoocsPage = () => {
   // Renderizado principal ajustado para mostrar estados específicos
   return (
     <div className="min-h-screen bg-white page-transition">
-      <HeroSearch onSearch={handleSearch} />
+      {/* Skip link para accesibilidad */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:p-4 focus:bg-blue-500 focus:text-white focus:z-50"
+      >
+        Saltar al contenido principal
+      </a>
 
-      {/* Error global para búsqueda */}
-      {errorStates.searching && (
-        <div className="text-center py-4">
-          <p className="text-red-600 mb-2">{errorStates.searching}</p>
-          <button
-            onClick={() =>
-              setErrorStates((prev) => ({ ...prev, searching: null }))
-            }
-            className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
-          >
-            Cerrar
-          </button>
-        </div>
-      )}
+      <header role="banner">
+        <HeroSearch onSearch={handleSearch} />
+      </header>
 
-      {/* Indicador de búsqueda en progreso */}
-      {loadingStates.searching && (
-        <div className="py-10 fade-in">
-          <LoadingSpinner message={`Buscando "${searchTerm}"...`} />
-        </div>
-      )}
-
-      {/* Sección de resultados de búsqueda */}
-      {showSearchResults && !loadingStates.searching && (
-        <div className="max-w-[1200px] mx-auto px-4 py-8 fade-in">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold slide-in">
-              Resultados para "{searchTerm}" ({searchResults.length})
-            </h2>
+      <main id="main-content" role="main">
+        {/* Error global para búsqueda */}
+        {errorStates.searching && (
+          <div className="text-center py-4" role="alert" aria-live="assertive">
+            <p className="text-red-600 mb-2">{errorStates.searching}</p>
             <button
-              onClick={clearSearch}
-              className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-md text-sm transition-colors scale-hover"
+              onClick={() =>
+                setErrorStates((prev) => ({ ...prev, searching: null }))
+              }
+              className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              Limpiar búsqueda
+              Cerrar
             </button>
           </div>
+        )}
 
-          {searchResults.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {searchResults.map((course) => (
-                <div
-                  key={course.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 card-hover slide-in"
-                >
-                  <div className="h-40 relative overflow-hidden">
-                    <img
-                      src={course.image_url}
-                      alt={course.title}
-                      className="w-full h-full object-cover img-zoom"
-                    />
-                    <div className="absolute top-0 left-0 p-2">
-                      <img
-                        src={course.logo_url}
-                        alt={course.provider}
-                        className="h-8 w-auto"
-                      />
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <h3
-                      className="font-semibold text-lg mb-1 line-clamp-2"
-                      title={course.title}
-                    >
-                      {course.title}
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-2">
-                      {course.provider}
-                    </p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                        {course.type}
-                      </span>
-                      {course.course_count && (
-                        <span className="text-xs text-gray-500">
-                          {course.course_count} cursos
-                        </span>
-                      )}
-                    </div>
+        {/* Indicador de búsqueda en progreso */}
+        {loadingStates.searching && (
+          <div className="py-10 fade-in">
+            <LoadingSpinner message={`Buscando "${searchTerm}"...`} />
+          </div>
+        )}
 
-                    {/* Mostrar las materias asociadas si existen */}
-                    {course.subject_ids && course.subject_ids.length > 0 && (
-                      <div className="mt-3 flex flex-wrap gap-1">
-                        {course.subject_ids.map((subjectId) => {
-                          const subject = subjects.find(
-                            (s) => s.id === subjectId
-                          );
-                          return subject ? (
-                            <span
-                              key={subjectId}
-                              className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded"
-                            >
-                              {subject.name}
-                            </span>
-                          ) : null;
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <EmptyState
-              message="No se encontraron cursos para este término de búsqueda"
-              actionText="Intentar con otra búsqueda"
-              onAction={clearSearch}
-              className="slide-in"
-            />
-          )}
-        </div>
-      )}
-
-      {/* Mostrar contenido normal solo si no hay búsqueda activa */}
-      {!showSearchResults && (
-        <>
-          {/* Estado de error global para cursos */}
-          {errorStates.courses ? (
-            <div className="text-center py-10 fade-in">
-              <p className="text-red-600 mb-4">{errorStates.courses}</p>
+        {/* Sección de resultados de búsqueda */}
+        {showSearchResults && !loadingStates.searching && (
+          <div className="max-w-[1200px] mx-auto px-4 py-4 md:py-8 fade-in">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 md:mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-0 slide-in">
+                Resultados para "{searchTerm}" ({searchResults.length})
+              </h2>
               <button
-                onClick={() => handleRetry("courses")}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 scale-hover"
+                onClick={clearSearch}
+                className="self-start sm:self-auto px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-md text-sm transition-colors scale-hover focus:outline-none focus:ring-2 focus:ring-gray-400"
               >
-                Reintentar
+                Limpiar búsqueda
               </button>
             </div>
-          ) : loadingStates.courses ? (
-            <div className="py-20 fade-in">
-              <LoadingSpinner message="Cargando cursos..." />
-            </div>
-          ) : (
-            <>
-              {/* Mensaje cuando no hay resultados de filtrado */}
-              {!hasFilteredResults &&
-                (activeSubjectFilters.length > 0 || activeSchoolFilter) && (
-                  <EmptyState
-                    message="No se encontraron cursos con los filtros seleccionados"
-                    actionText="Limpiar filtros"
-                    onAction={() => {
-                      setActiveSubjectFilters([]);
-                      setActiveSchoolFilter(null);
-                    }}
-                  />
-                )}
-              {/* Categorías principales - solo si hay resultados */}
-              {hasFilteredResults && (
-                <>
-                  {/* Indicador de filtrado activo */}
-                  {loadingStates.filtering && (
-                    <div className="text-center py-4 text-blue-600">
-                      <div className="inline-block pulse">
-                        Aplicando filtros...
+
+            {/* Grid responsivo para resultados de búsqueda */}
+            {searchResults.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {searchResults.map((course) => (
+                  <div
+                    key={course.id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 card-hover slide-in"
+                  >
+                    <div className="h-40 relative overflow-hidden">
+                      <img
+                        src={course.image_url}
+                        alt={course.title}
+                        className="w-full h-full object-cover img-zoom"
+                      />
+                      <div className="absolute top-0 left-0 p-2">
+                        <img
+                          src={course.logo_url}
+                          alt={course.provider}
+                          className="h-8 w-auto"
+                        />
                       </div>
                     </div>
-                  )}
+                    <div className="p-4">
+                      <h3
+                        className="font-semibold text-lg mb-1 line-clamp-2"
+                        title={course.title}
+                      >
+                        {course.title}
+                      </h3>
+                      <p className="text-gray-600 text-sm mb-2">
+                        {course.provider}
+                      </p>
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs bg-gray-100 px-2 py-1 rounded">
+                          {course.type}
+                        </span>
+                        {course.course_count && (
+                          <span className="text-xs text-gray-500">
+                            {course.course_count} cursos
+                          </span>
+                        )}
+                      </div>
 
-                  {/* Categorías de cursos */}
-                  {categories.map((category) => {
-                    const categoryName = category.category;
-                    const categoryCourses =
-                      coursesByCategory[categoryName] || [];
+                      {/* Mostrar las materias asociadas si existen */}
+                      {course.subject_ids && course.subject_ids.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-1">
+                          {course.subject_ids.map((subjectId) => {
+                            const subject = subjects.find(
+                              (s) => s.id === subjectId
+                            );
+                            return subject ? (
+                              <span
+                                key={subjectId}
+                                className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded"
+                              >
+                                {subject.name}
+                              </span>
+                            ) : null;
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                message="No se encontraron cursos para este término de búsqueda"
+                actionText="Intentar con otra búsqueda"
+                onAction={clearSearch}
+                className="slide-in"
+              />
+            )}
+          </div>
+        )}
 
-                    // Solo mostrar categorías que tengan cursos después de aplicar filtros
-                    if (categoryCourses.length === 0) return null;
-
-                    return (
-                      <CourseCategory
-                        key={category.id || categoryName}
-                        title={categoryName}
-                        courses={categoryCourses}
-                      />
-                    );
-                  })}
-                </>
-              )}
-              {/* Filtros por tema */}
-              {errorStates.subjects ? (
-                <div className="text-center py-6">
-                  <p className="text-red-600 mb-4">{errorStates.subjects}</p>
-                  <button
-                    onClick={() => handleRetry("subjects")}
-                    className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
-                  >
-                    Reintentar carga de materias
-                  </button>
-                </div>
-              ) : loadingStates.subjects ? (
-                <div className="py-8">
-                  <LoadingSpinner message="Cargando materias..." size="small" />
-                </div>
-              ) : (
-                <FilterSection
-                  title="Filter by popular subjects"
-                  type="subjects"
-                  items={subjects}
-                  activeFilters={activeSubjectFilters}
-                  onFilterChange={handleSubjectFilterChange}
-                />
-              )}
-              {/* Cursos especiales - Solo se muestran si hay cursos después de filtrar */}
-              {specialCourses.popular.length > 0 && (
-                <CourseCategory
-                  title="Explore courses and programs"
-                  courses={specialCourses.popular}
-                />
-              )}
-              {specialCourses.new.length > 0 && (
-                <CourseCategory title="New" courses={specialCourses.new} />
-              )}
-              {specialCourses.trending.length > 0 && (
-                <CourseCategory
-                  title="Trending"
-                  courses={specialCourses.trending}
-                />
-              )}
-              {/* Filtros por escuela */}
-              {errorStates.schools ? (
-                <div className="text-center py-6">
-                  <p className="text-red-600 mb-4">{errorStates.schools}</p>
-                  <button
-                    onClick={() => handleRetry("schools")}
-                    className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
-                  >
-                    Reintentar carga de escuelas
-                  </button>
-                </div>
-              ) : loadingStates.schools ? (
-                <div className="py-8">
-                  <LoadingSpinner message="Cargando escuelas..." size="small" />
-                </div>
-              ) : (
-                <FilterSection
-                  title="Filter by popular schools and partners"
-                  type="schools"
-                  items={schools}
-                  activeFilters={activeSchoolFilter ? [activeSchoolFilter] : []}
-                  onFilterChange={handleSchoolFilterChange}
-                />
-              )}
-
-              {/* Botón para limpiar preferencias guardadas */}
-              <div className="max-w-[1200px] mx-auto px-4 py-2">
+        {/* Mostrar contenido normal solo si no hay búsqueda activa */}
+        {!showSearchResults && (
+          <>
+            {/* Estado de error global para cursos */}
+            {errorStates.courses ? (
+              <div className="text-center py-10 fade-in">
+                <p className="text-red-600 mb-4">{errorStates.courses}</p>
                 <button
-                  onClick={clearAllPreferences}
-                  className="text-sm text-gray-500 hover:text-gray-700 underline scale-hover"
+                  onClick={() => handleRetry("courses")}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 scale-hover"
                 >
-                  Restablecer preferencias guardadas
+                  Reintentar
                 </button>
               </div>
-            </>
-          )}
-        </>
-      )}
+            ) : loadingStates.courses ? (
+              <div className="py-20 fade-in">
+                <LoadingSpinner message="Cargando cursos..." />
+              </div>
+            ) : (
+              <>
+                {/* Mensaje cuando no hay resultados de filtrado */}
+                {!hasFilteredResults &&
+                  (activeSubjectFilters.length > 0 || activeSchoolFilter) && (
+                    <EmptyState
+                      message="No se encontraron cursos con los filtros seleccionados"
+                      actionText="Limpiar filtros"
+                      onAction={() => {
+                        setActiveSubjectFilters([]);
+                        setActiveSchoolFilter(null);
+                      }}
+                    />
+                  )}
+                {/* Categorías principales - solo si hay resultados */}
+                {hasFilteredResults && (
+                  <>
+                    {/* Indicador de filtrado activo */}
+                    {loadingStates.filtering && (
+                      <div className="text-center py-4 text-blue-600">
+                        <div className="inline-block pulse">
+                          Aplicando filtros...
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Categorías de cursos */}
+                    {categories.map((category) => {
+                      const categoryName = category.category;
+                      const categoryCourses =
+                        coursesByCategory[categoryName] || [];
+
+                      // Solo mostrar categorías que tengan cursos después de aplicar filtros
+                      if (categoryCourses.length === 0) return null;
+
+                      return (
+                        <CourseCategory
+                          key={category.id || categoryName}
+                          title={categoryName}
+                          courses={categoryCourses}
+                        />
+                      );
+                    })}
+                  </>
+                )}
+                {/* Filtros por tema */}
+                {errorStates.subjects ? (
+                  <div className="text-center py-6">
+                    <p className="text-red-600 mb-4">{errorStates.subjects}</p>
+                    <button
+                      onClick={() => handleRetry("subjects")}
+                      className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                    >
+                      Reintentar carga de materias
+                    </button>
+                  </div>
+                ) : loadingStates.subjects ? (
+                  <div className="py-8">
+                    <LoadingSpinner
+                      message="Cargando materias..."
+                      size="small"
+                    />
+                  </div>
+                ) : (
+                  <FilterSection
+                    title="Filter by popular subjects"
+                    type="subjects"
+                    items={subjects}
+                    activeFilters={activeSubjectFilters}
+                    onFilterChange={handleSubjectFilterChange}
+                  />
+                )}
+                {/* Cursos especiales - Solo se muestran si hay cursos después de filtrar */}
+                {specialCourses.popular.length > 0 && (
+                  <CourseCategory
+                    title="Explore courses and programs"
+                    courses={specialCourses.popular}
+                  />
+                )}
+                {specialCourses.new.length > 0 && (
+                  <CourseCategory title="New" courses={specialCourses.new} />
+                )}
+                {specialCourses.trending.length > 0 && (
+                  <CourseCategory
+                    title="Trending"
+                    courses={specialCourses.trending}
+                  />
+                )}
+                {/* Filtros por escuela */}
+                {errorStates.schools ? (
+                  <div className="text-center py-6">
+                    <p className="text-red-600 mb-4">{errorStates.schools}</p>
+                    <button
+                      onClick={() => handleRetry("schools")}
+                      className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                    >
+                      Reintentar carga de escuelas
+                    </button>
+                  </div>
+                ) : loadingStates.schools ? (
+                  <div className="py-8">
+                    <LoadingSpinner
+                      message="Cargando escuelas..."
+                      size="small"
+                    />
+                  </div>
+                ) : (
+                  <FilterSection
+                    title="Filter by popular schools and partners"
+                    type="schools"
+                    items={schools}
+                    activeFilters={
+                      activeSchoolFilter ? [activeSchoolFilter] : []
+                    }
+                    onFilterChange={handleSchoolFilterChange}
+                  />
+                )}
+
+                {/* Botón para limpiar preferencias guardadas */}
+                <div className="max-w-[1200px] mx-auto px-4 py-2">
+                  <button
+                    onClick={clearAllPreferences}
+                    className="text-sm text-gray-500 hover:text-gray-700 underline scale-hover"
+                  >
+                    Restablecer preferencias guardadas
+                  </button>
+                </div>
+              </>
+            )}
+          </>
+        )}
+      </main>
     </div>
   );
 };
