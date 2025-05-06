@@ -13,7 +13,7 @@ const CampusLocations = () => {
         id: 1,
         name: "Laboratorio de Innovación",
         location: "LA PAZ, BOLIVIA",
-        image: "/campus-1.png",
+        image: "/images/acercaIncuvalab/campus-1.png",
         description: "Nuestro laboratorio principal donde ideas innovadoras se transforman en realidad, equipado con tecnología de punta para el desarrollo de prototipos.",
         link: "/sedes/laboratorio"
       },
@@ -21,7 +21,7 @@ const CampusLocations = () => {
         id: 2,
         name: "Centro AgriTech",
         location: "COCHABAMBA, BOLIVIA",
-        image: "/campus-2.png",
+        image: "/images/acercaIncuvalab/campus-2.png",
         description: "Dedicado a soluciones tecnológicas para el sector agrícola, con espacios de experimentación y pruebas de campo.",
         link: "/sedes/agritech"
       }
@@ -31,7 +31,7 @@ const CampusLocations = () => {
       id: 3,
       name: "Campus Principal",
       location: "LA PAZ, BOLIVIA",
-      image: "/campus-3.png",
+      image: "/images/acercaIncuvalab/campus-3.png",
       description: "Ubicado en el corazón de La Paz, el Campus Principal ofrece la experiencia completa de INCUVALAB con todas sus instalaciones, espacios de trabajo colaborativo, laboratorios y áreas de investigación.",
       link: "/sedes/principal"
     },
@@ -41,7 +41,7 @@ const CampusLocations = () => {
         id: 4,
         name: "Centro Tecnológico",
         location: "SANTA CRUZ, BOLIVIA",
-        image: "/campus-4.png",
+        image: "/images/acercaIncuvalab/campus-4.png",
         description: "Un espacio moderno dedicado al desarrollo de emprendimientos tecnológicos con equipamiento especializado y mentores técnicos.",
         link: "/sedes/tecnologico"
       },
@@ -49,7 +49,7 @@ const CampusLocations = () => {
         id: 5,
         name: "Hub Internacional",
         location: "NUEVA YORK, EE.UU.",
-        image: "/campus-5.png",
+        image: "/images/acercaIncuvalab/campus-5.png",
         description: "Nuestra conexión internacional que facilita vínculos con ecosistemas globales de emprendimiento e inversores internacionales.",
         link: "/sedes/internacional"
       }
