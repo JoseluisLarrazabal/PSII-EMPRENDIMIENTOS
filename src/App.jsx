@@ -17,6 +17,7 @@ import Challengers from "./components/pages/Challengers";
 import Eventos from "./components/pages/Eventos";
 import Servicios from "./components/pages/Servicios";
 import MoocsPage from "./components/pages/moocs/MoocsPage";
+import CourseDetail from "./components/pages/courseDetail/CourseDetail";
 
 // Componente para controlar la visualización de elementos de navegación
 function AppContent() {
@@ -41,6 +42,7 @@ function AppContent() {
           <Route path="/servicios/inspiring" element={<Inspiring />} />         
           <Route path="/servicios/challengers" element={<Challengers />} />
           <Route path="/servicios/moocs" element={<MoocsPage />} />
+          <Route path="/servicios/moocs/:courseId" element={<CourseDetail />} />
         </Routes>
       </main>
       {!isLoginPage && <Footer />}
