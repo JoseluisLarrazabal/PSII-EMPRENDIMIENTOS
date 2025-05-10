@@ -47,10 +47,10 @@ const MentoringPage = () => {
 
       if (meInteresa) {
         setMentorSeleccionadoId(mentorId);
-        alert('¡Te interesa este mentor!');
+        alert('¡Contactarme con el mentor!');
       } else {
         setMentorSeleccionadoId(null);
-        alert('No te interesa este mentor.');
+        alert('Ya no me conectaré a este mentor.');
       }
     } catch (err) {
       console.error(err);
@@ -131,14 +131,14 @@ const MentoringPage = () => {
                       disabled={haySeleccion}
                       className={`px-4 py-1 rounded text-white ${haySeleccion ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#880043] hover:bg-opacity-80'}`}
                     >
-                      Me interesa
+                      Contactar
                     </button>
                     <button
                       onClick={() => handleClick(mentor.id, false)}
                       disabled={haySeleccion}
                       className={`px-4 py-1 rounded text-white ${haySeleccion ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#66B5CB] hover:bg-opacity-80'}`}
                     >
-                      No me interesa
+                      Ya no contactar
                     </button>
                   </div>
                 </div>
