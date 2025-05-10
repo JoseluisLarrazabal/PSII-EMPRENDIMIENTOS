@@ -2,7 +2,8 @@
 import React, { useState } from "react";
 import LoginLogo from "./LoginLogo"; // Ensure casing matches the actual file path
 import LoginLinks from "./LoginLinks";  // Ensure casing matches the actual file path
-// Fix casing for the import statement
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+
 function LoginForm() {
   const [formData, setFormData] = useState({
     email: "",
@@ -10,6 +11,7 @@ function LoginForm() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();  // Hook for redirection after successful login
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,17 +27,29 @@ function LoginForm() {
     setError("");
     
     try {
-      // Aquí iría la lógica de autenticación
-      // Por ejemplo: await authService.login(formData.email, formData.password);
-      console.log("Iniciando sesión con:", formData);
+      // Verificar las credenciales llamando al backend
+      const response = await fetch("http://localhost:8000/login", { // Suponiendo que la API de login está en esta URL
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        })
+      });
       
-      // Simulamos un retraso para mostrar el estado de carga
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const result = await response.json();
       
-      // Redirigir al usuario después del login exitoso
-      // navigate("/dashboard");
+      if (response.ok) {
+        // Si las credenciales son correctas, redirigir al dashboard o al lugar correspondiente
+        navigate("/");
+      } else {
+        // Si las credenciales son incorrectas
+        setError(result.message || "Credenciales incorrectas. Por favor, inténtalo de nuevo.");
+      }
     } catch (err) {
-      setError("Credenciales incorrectas. Por favor, inténtalo de nuevo.");
+      setError("Error al iniciar sesión. Intenta nuevamente.");
     } finally {
       setIsLoading(false);
     }
@@ -47,7 +61,7 @@ function LoginForm() {
       <LoginLogo />
       
       <h1 className="text-gray-700 text-xl mb-6 text-center">
-        Inicia sesion con tu ID (@univalle.edu)
+        Inicia sesión con tu ID (@univalle.edu)
       </h1>
       
       {/* Formulario */}
@@ -76,7 +90,7 @@ function LoginForm() {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            placeholder="Your ID Password"
+            placeholder="Tu contraseña"
             className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#8B0D37]"
             required
           />
