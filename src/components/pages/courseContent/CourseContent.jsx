@@ -97,7 +97,7 @@ const CourseContent = () => {
         {/* Botón para ver el CourseBuilder (demo) */}
         <div className="flex justify-end mb-4">
           <a
-            href="/courseBuilder"
+            href="/course-Builder"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 bg-[#8B0D37] text-white rounded hover:bg-[#6E0B2A] font-semibold"
@@ -142,7 +142,6 @@ const CourseContent = () => {
 
         {/* Recursos */}
         <div className="mb-8 shadow rounded bg-white p-6">
-          <h4 className="font-semibold mb-2">Recursos para descargar</h4>
           <Resources resources={slide.resources} />
         </div>
 
