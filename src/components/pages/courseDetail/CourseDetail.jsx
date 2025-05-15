@@ -152,6 +152,12 @@ const CourseDetail = () => {
         {/* Contenido de la pestaña seleccionada */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-24">
           {renderTabContent()}
+          <button
+            className="mt-4 px-4 py-2 bg-[#8B0D37] text-white rounded"
+            onClick={() => navigate(`/curso/${courseData.id}/contenido`)}
+          >
+            Ir al contenido del curso (demo)
+          </button>
         </div>
       </div>
 
