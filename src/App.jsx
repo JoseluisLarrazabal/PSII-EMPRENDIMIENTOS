@@ -17,7 +17,7 @@ import Challengers from "./components/pages/Challengers";
 import Eventos from "./components/pages/Eventos";
 import Servicios from "./components/pages/Servicios";
 import MoocsPage from "./components/pages/moocs/MoocsPage";
-import CourseDetail from "./components/pages/courseDetail/CourseDetail";
+import CourseDetail from "./components/pages/courseDetail/Tabs/CourseDetail";
 import CourseContent from "./components/pages/courseContent/CourseContent";
 
 // Componente para controlar la visualización de elementos de navegación
