@@ -5,13 +5,48 @@ const emptySlide = {
   title: "",
   content: "",
   videoUrl: "",
+  embedUrl: "",
   quiz: [],
   resources: [],
+};
+
+// Validación simple al intentar guardar
+const validateEmbedUrl = (url) => {
+  if (!url) return true; // Campo opcional
+  // Ejemplo: Google Slides, Canva, PowerPoint Online (puedes agregar más patrones)
+  const patterns = [
+    /^https:\/\/docs\.google\.com\/presentation\/d\/e\/.+\/embed\?start=/,
+    /^https:\/\/www\.canva\.com\/design\/.+\/view\?embed/,
+    /^https:\/\/onedrive\.live\.com\/embed\?resid=.+/,
+  ];
+  return patterns.some((regex) => regex.test(url));
+};
+
+const validateSlide = (slide) => {
+  const errs = {};
+  if (!slide.title.trim()) errs.title = "El título es obligatorio.";
+  if (slide.embedUrl && !validateEmbedUrl(slide.embedUrl)) {
+    errs.embedUrl = "El enlace de inserción no es válido. Usa el enlace de 'insertar' de Google Slides, Canva o PowerPoint Online.";
+  }
+  slide.quiz.forEach((q, idx) => {
+    if (!q.question.trim()) errs[`quiz-q${idx}`] = "La pregunta es obligatoria.";
+    if (q.options.length < 2) errs[`quiz-opt${idx}`] = "Debe haber al menos 2 opciones.";
+    if (typeof q.answer !== "number" || q.answer < 0 || q.answer >= q.options.length) {
+      errs[`quiz-ans${idx}`] = "Debe marcar una respuesta correcta.";
+    }
+  });
+  slide.resources.forEach((r, idx) => {
+    if ((r.name && !r.url) || (!r.name && r.url)) {
+      errs[`res${idx}`] = "Completa ambos campos del recurso.";
+    }
+  });
+  return errs;
 };
 
 const CourseBuilder = () => {
   const [slides, setSlides] = useState([{ ...emptySlide }]);
   const [selectedSlide, setSelectedSlide] = useState(0);
+  const [errors, setErrors] = useState({});
 
   // Funciones para agregar, eliminar y actualizar slides
   const addSlide = () => {
@@ -31,6 +66,15 @@ const CourseBuilder = () => {
       idx === selectedSlide ? { ...slide, [field]: value } : slide
     );
     setSlides(newSlides);
+  };
+
+  const handleSave = () => {
+    const errs = validateSlide(slides[selectedSlide]);
+    setErrors(errs);
+    if (Object.keys(errs).length === 0) {
+      alert("¡Lección válida y lista para guardar!");
+      // Aquí iría la lógica de guardado real
+    }
   };
 
   return (
@@ -71,6 +115,14 @@ const CourseBuilder = () => {
 
       {/* Editor de slide */}
       <main className="flex-1 p-8">
+        <div className="flex justify-end mb-4">
+          <button
+            className="px-4 py-2 bg-[#8B0D37] text-white rounded font-semibold"
+            onClick={handleSave}
+          >
+            Guardar lección (demo)
+          </button>
+        </div>
         <h3 className="text-xl font-bold mb-4">Editar lección</h3>
         <div className="mb-4">
           <label className="block font-semibold mb-1">Título</label>
@@ -80,6 +132,7 @@ const CourseBuilder = () => {
             onChange={(e) => updateSlide("title", e.target.value)}
             placeholder="Título de la lección"
           />
+          {errors.title && <span className="text-red-600 text-sm">{errors.title}</span>}
         </div>
         <div className="mb-4">
           <label className="block font-semibold mb-1">Contenido</label>
@@ -100,6 +153,36 @@ const CourseBuilder = () => {
             placeholder="URL de YouTube"
           />
         </div>
+        <div className="mb-4">
+          <label className="block font-semibold mb-1">
+            Enlace de presentación embebida (opcional)
+            <span className="block text-xs text-gray-500">
+              Pega aquí el enlace de inserción de Google Slides, Canva, PowerPoint Online, etc.
+            </span>
+          </label>
+          <input
+            className="w-full border rounded px-3 py-2"
+            value={slides[selectedSlide].embedUrl || ""}
+            onChange={e => updateSlide("embedUrl", e.target.value)}
+            placeholder="https://docs.google.com/presentation/d/e/..."
+          />
+          {errors.embedUrl && (
+            <span className="text-red-600 text-sm">{errors.embedUrl}</span>
+          )}
+        </div>
+        {slides[selectedSlide].embedUrl && (
+          <div className="mb-8 shadow rounded bg-white p-4">
+            <iframe
+              src={slides[selectedSlide].embedUrl}
+              title="Presentación embebida"
+              width="100%"
+              height="400"
+              frameBorder="0"
+              allowFullScreen
+              className="rounded"
+            ></iframe>
+          </div>
+        )}
         {/* Editor de Quiz */}
         <div className="mb-4">
           <label className="block font-semibold mb-1">Quiz (opcional)</label>
@@ -116,6 +199,9 @@ const CourseBuilder = () => {
                 }}
                 placeholder={`Pregunta ${qIdx + 1}`}
               />
+              {errors[`quiz-q${qIdx}`] && (
+                <span className="text-red-600 text-sm">{errors[`quiz-q${qIdx}`]}</span>
+              )}
               <div className="mb-2">
                 {q.options.map((opt, oIdx) => (
                   <div key={oIdx} className="flex items-center mb-1">
@@ -179,6 +265,9 @@ const CourseBuilder = () => {
                     )}
                   </div>
                 ))}
+                {errors[`quiz-opt${qIdx}`] && (
+                  <span className="text-red-600 text-sm">{errors[`quiz-opt${qIdx}`]}</span>
+                )}
                 <button
                   type="button"
                   className="mt-1 text-xs text-[#8B0D37] underline"
@@ -194,6 +283,9 @@ const CourseBuilder = () => {
                   + Agregar opción
                 </button>
               </div>
+              {errors[`quiz-ans${qIdx}`] && (
+                <span className="text-red-600 text-sm">{errors[`quiz-ans${qIdx}`]}</span>
+              )}
               <button
                 type="button"
                 className="text-xs text-red-600"
@@ -247,6 +339,9 @@ const CourseBuilder = () => {
                 }}
                 placeholder="URL de descarga"
               />
+              {errors[`res${rIdx}`] && (
+                <span className="text-red-600 text-sm">{errors[`res${rIdx}`]}</span>
+              )}
               <button
                 type="button"
                 className="text-xs text-red-600"
