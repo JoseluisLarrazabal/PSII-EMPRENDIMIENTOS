@@ -65,28 +65,100 @@ const CrudProyecto = () => {
       >
         <h2 className="text-2xl font-bold text-[#880043] mb-6 text-center">Registro de Proyecto</h2>
 
-        {/* Campos */}
-        {[
-          { label: 'Nombre del estudiante', name: 'nombre_estudiante' },
-          { label: 'Semestre del estudiante', name: 'semestre' },
-          { label: 'Carrera', name: 'carrera' },
-          { label: 'Contacto', name: 'contacto' },
-          { label: 'Nombre del proyecto', name: 'nombre_proyecto' },
-        ].map((field) => (
-          <div key={field.name} className="mb-4">
-            <label className="block mb-1 text-[#8d8d8d]">{field.label}</label>
+        {/* Nombre del estudiante */}
+        <div className="mb-4">
+          <label className="block mb-1 text-[#8d8d8d]">Nombre del estudiante</label>
+          <input
+            type="text"
+            name="nombre_estudiante"
+            value={formData.nombre_estudiante}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-[#ccc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#66b5cb]"
+            required
+          />
+        </div>
+
+        {/* Semestre como dropdown */}
+        <div className="mb-4">
+          <label className="block mb-1 text-[#8d8d8d]">Semestre del estudiante</label>
+          <select
+            name="semestre"
+            value={formData.semestre}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-[#ccc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#66b5cb]"
+            required
+          >
+            <option value="">Selecciona un semestre</option>
+            {[...Array(8)].map((_, i) => (
+              <option key={i + 1} value={i + 1}>{`Semestre ${i + 1}`}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Carrera */}
+        <div className="mb-4">
+          <label className="block mb-1 text-[#8d8d8d]">Carrera</label>
+          <input
+            type="text"
+            name="carrera"
+            value={formData.carrera}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-[#ccc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#66b5cb]"
+            required
+          />
+        </div>
+        {/* Contacto */}
+        <div className="mb-4">
+          <label className="block mb-1 text-[#8d8d8d]">Contacto</label>
+          <div className="flex space-x-2">
+            <select
+              name="codigo_pais"
+              value={formData.codigo_pais || '+591'}
+              onChange={(e) => setFormData({ ...formData, codigo_pais: e.target.value })}
+              className="px-3 py-2 border border-[#ccc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#66b5cb]"
+              required
+            >
+              <option value="+591">🇧🇴 +591</option>
+              <option value="+54">🇦🇷 +54</option>
+              <option value="+56">🇨🇱 +56</option>
+              <option value="+57">🇨🇴 +57</option>
+              <option value="+52">🇲🇽 +52</option>
+              <option value="+1">🇺🇸 +1</option>
+              {/* Puedes agregar más países aquí */}
+            </select>
             <input
-              type="text"
-              name={field.name}
-              value={formData[field.name]}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-[#ccc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#66b5cb]"
+              type="tel"
+              name="contacto"
+              value={formData.contacto}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (/^\d*$/.test(val)) {
+                  setFormData((prev) => ({ ...prev, contacto: val }));
+                }
+              }}
+              placeholder="Ej: 77712345"
+              className="flex-1 px-4 py-2 border border-[#ccc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#66b5cb]"
+              maxLength={15}
               required
             />
           </div>
-        ))}
+        </div>
 
-        {/* Descripción */}
+
+        {/* Nombre del proyecto */}
+        <div className="mb-4">
+          <label className="block mb-1 text-[#8d8d8d]">Nombre del proyecto</label>
+          <input
+            type="text"
+            name="nombre_proyecto"
+            value={formData.nombre_proyecto}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-[#ccc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#66b5cb]"
+            required
+          />
+        </div>
+
+        {/* Descripción del proyecto */}
         <div className="mb-4">
           <label className="block mb-1 text-[#8d8d8d]">Descripción del proyecto</label>
           <textarea
