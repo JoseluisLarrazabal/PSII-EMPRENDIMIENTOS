@@ -25,5 +25,4 @@ const CourseCategory = ({ title, courses }) => {
     </section>
   );
 };
-
 export default CourseCategory;
