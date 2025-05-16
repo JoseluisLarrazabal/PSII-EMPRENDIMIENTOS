@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import "./transitions.css"; // Importar el CSS de transición
 import "../../../styles/accessibility.css"; // Importar estilos de accesibilidad
 import HeroSearch from "./HeroSearch";
-import CourseCategory from "/CourseCategory";
-import FilterSection from "/FilterSection";
+import CourseCategory from "./CourseCategory";
+import FilterSection from "./FilterSection";
 import EmptyState from "./EmptyState"; // Nuevo componente
 import {
   fetchAllMoocsData,

@@ -4,7 +4,6 @@ import LoginBackground from "../login/LoginBackground"; // Asegúrate de que coi
 import LoginForm from "../login/LoginForm"; 
 import Registrer from "../login/Register";
 
-
 function Login() {
   // Podríamos ocultar Navbar, SubNav y Footer para esta página
   React.useEffect(() => {

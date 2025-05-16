@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "../../pages/moocs/transitions.css";
+import "../moocs/transitions.css";
 import CourseHero from "./CourseHero";
 import CourseInfoCards from "./CourseInfoCards";
 import CourseNavTabs from "./CourseNavTabs";
