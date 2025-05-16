@@ -15,7 +15,6 @@ const HeroSearch = ({ onSearch }) => {
     onSearch(tag);
   };
   
-
   return (
     <div className="w-full bg-[#00262D] py-12 px-4 md:py-16">
       <div className="max-w-[1200px] mx-auto">
@@ -56,7 +55,6 @@ const HeroSearch = ({ onSearch }) => {
               >
                 {tag}
               </button>
-
             ))}
           </div>
         </div>

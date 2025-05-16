@@ -7,6 +7,7 @@ import AdminRevenue from "../admin/AdminRevenue";
 import AdminEvents from "../admin/AdminEvents";
 import AdminChallenger from "../admin/AdminChallenger";
 import AdminLearning from "../admin/AdminLearning";
+import axios from "axios";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -95,6 +96,7 @@ const [learningFormData, setLearningFormData] = useState({
   const [currentChallenger, setCurrentChallenger] = useState(null);
   const [showLearningForm, setShowLearningForm] = useState(false);
   const [currentLearning, setCurrentLearning] = useState(null);
+  const [logoutLoading, setLogoutLoading] = useState(false);
 
 
 
@@ -592,10 +594,32 @@ const handleLearningDelete = async (id) => {
 };
 
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
+   const handleLogout = async () => {
+    try {
+      setLogoutLoading(true);
+      
+      // Clear user data from localStorage
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      
+      // Clear axios default headers (if any)
+      delete axios.defaults.headers.common['Authorization'];
+      
+      // Redirect to login page
+      navigate('/login');
+      
+      // Optional: Force a hard refresh to ensure all application state is cleared
+      window.location.reload();
+      
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Even if there's an error, ensure we clear everything
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      navigate('/login');
+    } finally {
+      setLogoutLoading(false);
+    }
   };
 
   if (loading) {

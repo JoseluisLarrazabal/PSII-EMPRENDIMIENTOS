@@ -176,7 +176,6 @@ const FilterSection = ({
                 Limpiar filtros
               </button>
             </div>
-
           </div>
         )}
       </div>
@@ -185,4 +184,3 @@ const FilterSection = ({
 };
 
 export default FilterSection;
-

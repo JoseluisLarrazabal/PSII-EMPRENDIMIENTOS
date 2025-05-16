@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../../pages/moocs/transitions.css";
+import "../moocs/transitions.css";
 import Quiz from "./components/Quiz.jsx";
 import Resources from "./components/Resources.jsx";
 import Sidebar from "./components/Sidebar.jsx";
