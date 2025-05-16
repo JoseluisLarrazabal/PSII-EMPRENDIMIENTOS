@@ -6,9 +6,9 @@ import SubNav from "./components/SubNav";
 import Footer from "./components/Footer";
 
 import Home from "./components/pages/Home";
-import QuienesSomos from "./components/pages/QuienesSomos";
+import QuienesSomos from "./components/pages/quienesSomos/QuienesSomos";
 import Login from "./components/pages/Login";
-import Register from "./components/login/Register"; // <-- Importar Register.jsx
+import Register from "./components/login/Register";
 import Mentoring from "./components/pages/Mentoring";
 import Contact from "./components/pages/Contact";
 import Revenue from "./components/pages/Revenue";
@@ -17,15 +17,29 @@ import Inspiring from "./components/pages/Inspiring";
 import Challengers from "./components/pages/Challengers";
 import Eventos from "./components/pages/Eventos";
 import Servicios from "./components/pages/Servicios";
-import MoocsPage from "./components/pages/MoocsPage";
+import MoocsPage from "./components/pages/moocs/MoocsPage";
 import CrudRevenue from "./components/pages/CrudRevenue";
 import CrudPartner from "./components/pages/CrudPartner";
+import AdminDashboard from "./components/pages/admin/AdminDashboard";
+import ProtectedRoute from './components/ProtectedRoute';
+import ForgotPassword from "./components/login/ForgotPassword";
+import Help from "./components/login/Help";
+import CrowdFunding from "./components/pages/CrowdFunding";
+import { AuthProvider } from './components/login/AuthContext';
+import CourseDetail from "./components/pages/courseDetail/CourseDetail";
+import CourseContent from "./components/pages/courseContent/CourseContent";
+import CourseBuilder from "./components/pages/CourseBuilder/CourseBuilder";
+import Profile from './components/pages/Profile';
+
 
 // Componente para controlar la visualización de elementos de navegación
 function AppContent() {
   const location = useLocation();
-  const hideNavAndFooter = location.pathname === "/login" || location.pathname === "/register"; 
-  // Ocultar si estamos en login o en register
+  const hideNavAndFooter = location.pathname === "/login" || 
+                         location.pathname === "/register" || 
+                         location.pathname === "/admin-dashboard" || 
+                         location.pathname === "/forgot-password" || 
+                         location.pathname === "/help";
 
   return (
     <div>
@@ -37,7 +51,9 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/quienes-somos" element={<QuienesSomos />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} /> {/* Agregar ruta de Register */}
+          <Route path="/register" element={<Register />} /> 
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/help" element={<Help />} />
           <Route path="/mentoring" element={<Mentoring />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/eventos" element={<Eventos />} />
@@ -47,8 +63,21 @@ function AppContent() {
           <Route path="/servicios/inspiring" element={<Inspiring />} />
           <Route path="/servicios/challengers" element={<Challengers />} />
           <Route path="/servicios/moocs" element={<MoocsPage />} />
+          <Route path="/servicios/moocs/:courseId" element={<CourseDetail />} />
           <Route path="/crud-revenue" element={<CrudRevenue />} />
           <Route path="/crud-partner" element={<CrudPartner />} />
+          <Route path="/crowdfunding" element={<CrowdFunding />} />
+          <Route path="/curso/:courseId/contenido" element={<CourseContent />} />
+          <Route path="/course-builder" element={<CourseBuilder />} />
+          <Route path="/perfil" element={<Profile />} />
+          <Route 
+            path="/admin-dashboard" 
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
       </main>
 
@@ -60,7 +89,9 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter>
-      <AppContent />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </BrowserRouter>
   );
 }

@@ -265,38 +265,6 @@ export const executiveEducationCourses = [
     }
   ];
   
-  export const programFilters = [
-    {
-      title: "Master's Program",
-      description: "Earn a full master's degree from top ranked universities",
-      features: ["Graduate-level", "Master's Degree", "Affordable & flexible"],
-      color: "#E04D95"
-    },
-    {
-      title: "MicroMaster's Program®",
-      description: "Start your master's degree and advance your career",
-      features: ["Graduate-level", "Degree path", "Affordable & flexible"],
-      color: "#F76B1C"
-    },
-    {
-      title: "MicroBachelor's Program®",
-      description: "Start your bachelor's degree",
-      features: ["Undergraduate-level", "Degree path", "Career advancement"],
-      color: "#9B59B6"
-    },
-    {
-      title: "Professional Certificate",
-      description: "Learn career-relevant skills and stand out at work",
-      features: ["In-demand career skills", "edX certificate", "Career advancement"],
-      color: "#3498DB"
-    },
-    {
-      title: "X-Series Program",
-      description: "Explore popular topics and earn an edX certificate",
-      features: ["Popular topics", "edX certificate", "Life-long learning"],
-      color: "#E74C3C"
-    }
-  ];
   
   export const schoolFilters = [
     {

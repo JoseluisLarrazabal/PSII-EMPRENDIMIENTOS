@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../login/AuthContext';
 import partnerImage from '/oratoria.jpg';
 import expert1 from '/experto1.jpg';
 import expert2 from '/experto2.jpg';
@@ -11,18 +12,44 @@ import profile1 from '/tinder.jpg';
 import icon1 from '/icon1.png';
 import icon2 from '/icon2.png';
 import icon3 from '/icon3.png';
-
 import '../../styles/Partners.css';
-
 
 const PartnerSection = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, login, logout } = useAuth();
   const [showAll, setShowAll] = useState(false);
   const [hiddenCards, setHiddenCards] = useState([]);
   const [visibleExperts, setVisibleExperts] = useState(5);
   const [interesCount, setInteresCount] = useState(0);
   const [showMatchModal, setShowMatchModal] = useState(false);
   const [expertsData, setExpertsData] = useState([]);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  useEffect(() => {
+    // Verificar autenticación al cargar el componente
+  const checkAuth = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        const response = await axios.get('http://localhost:8000/verify-auth', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setIsAuthenticated(response.data.isAuthenticated);
+      } else {
+        setIsAuthenticated(false);
+      }
+    } catch (error) {
+      console.error('Error al verificar autenticación:', error);
+      setIsAuthenticated(false);
+    }
+  };
+
+    const handleStorageChange = () => {
+      checkAuth();
+    };
+     window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   useEffect(() => {
     const fetchMentors = async () => {
@@ -42,10 +69,12 @@ const PartnerSection = () => {
     fetchMentors();
   }, []);
 
-
-  
-
   const handleHideCard = async (index, isInterested, mentorId) => {
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+
     const card = document.getElementById(`expert-card-${index}`);
     if (card) {
       card.classList.add('fade-out');
@@ -55,6 +84,10 @@ const PartnerSection = () => {
         await axios.post('http://localhost:8000/mentoring', {
           mentorId: mentorId,
           meInteresa: isInterested
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
         });
   
         console.log('Selección guardada exitosamente');
@@ -100,6 +133,11 @@ const PartnerSection = () => {
     navigate('/crud-partner');
   };
 
+  const handleNavigateToLogin = () => {
+    setShowLoginModal(false);
+    navigate('/login');
+  };
+
   if (!Array.isArray(expertsData)) {
     return <div>Error: Los datos de mentores no son válidos.</div>;
   }
@@ -110,6 +148,45 @@ const PartnerSection = () => {
 
   return (
     <div>
+      {/* Imagen de fondo con texto */}
+      <div
+        className="partner-section"
+        style={{ backgroundImage: `url(${partnerImage})` }}
+      >
+        <div className="partner-overlay" />
+        <div className="partner-text">
+          <h2>
+            Reserva a un Partner solicitado <br />
+            y poder tener un trabajo COlaborativo para poder sacar adelante tu emprendimiento
+          </h2>
+        </div>
+      </div>
+
+      {/* Círculos de expertos */}
+      <div className="partner-experts">
+        <div className="partner-bottom">
+          <p className="partner-subtext">
+            Elige un experto para hacer match! y recibir su colaboración
+          </p>
+          <div className="expert-circles">
+            <div className="circle" style={{ backgroundImage: `url(${expert1})` }}>
+              <p className="circle-text">Todos los expertos</p>
+            </div>
+            <div className="circle" style={{ backgroundImage: `url(${expert2})` }}>
+              <p className="circle-text">Expertos Top</p>
+            </div>
+            <div className="circle" style={{ backgroundImage: `url(${expert3})` }}>
+              <p className="circle-text">Legal y Financiero</p>
+            </div>
+            <div className="circle" style={{ backgroundImage: `url(${expert4})` }}>
+              <p className="circle-text">Ventas</p>
+            </div>
+            <div className="circle" style={{ backgroundImage: `url(${expert5})` }}>
+              <p className="circle-text">Internacionalización</p>
+            </div>
+          </div>
+        </div>
+      </div>
       {/* Sección texto */}
       <div className="expert-info bg-white text-center py-10 px-5 mt-8">
         <h3 className="font-montserrat text-3xl font-bold text-black mb-2 text-left">
@@ -137,19 +214,39 @@ const PartnerSection = () => {
               className="expert-card show transition-all duration-500 ease-out"
             >
               <div className="relative">
-                <img
-                  src={profile1}
-                  alt="Foto del mentor"
-                  className="w-full h-[220px] object-cover rounded-xl"
-                />
+                {/* Contenedor de imagen con manejo de errores */}
+                <div className="w-full h-[220px] bg-gradient-to-br from-[#880043] to-[#66B5CB] rounded-xl flex items-center justify-center overflow-hidden">
+                  {mentor.image_url ? (
+                    <img
+                      src={mentor.image_url}
+                      alt={`Foto de ${mentor.nombre}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.parentElement.classList.remove("bg-gradient-to-br");
+                        e.target.parentElement.classList.add("bg-[#880043]");
+                      }}
+                    />
+                  ) : null}
+                  
+                  {/* Mostrar inicial si no hay imagen o falla la carga */}
+                  {(!mentor.image_url || !mentor.image_url.startsWith('http')) && (
+                    <span className="text-white text-6xl font-bold">
+                      {mentor.nombre.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                
                 <div className="absolute top-2 right-2 text-xl text-red-500 bg-white rounded-full p-1">
                   ❤️
                 </div>
               </div>
+              
               <h4 className="text-xl font-semibold text-gray-800 my-3">{mentor.nombre} ✔</h4>
               <p className="text-base text-gray-600 my-1">Tel: {mentor.telefono}</p>
               <p className="text-base text-gray-600 my-1">Área: {mentor.area_experiencia}</p>
               <p className="text-base text-gray-600 my-1">Disponibilidad: {mentor.disponibilidad}</p>
+              
               <div className="flex justify-center gap-2 mt-3">
                 <button
                   className="bg-[#880043] text-white px-4 py-2 rounded-lg font-medium cursor-pointer hover:opacity-90"
@@ -170,65 +267,96 @@ const PartnerSection = () => {
       </div>
 
 
-
+      {/* Modal de Match */}
       {showMatchModal && (
-        <div className="match-modal fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="match-content bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-            <h2 className="text-2xl font-semibold text-center mb-4">¡Hiciste match!</h2>
-            <p className="text-center text-lg mb-6">¡Felicitaciones, encontraste a tu Partner ideal! ❤️</p>
-            <div className="modal-buttons flex flex-col gap-4 items-center">
-              <button 
-                className="register-button bg-[#66B5CB] text-white py-2 px-6 rounded-lg shadow-md"
-                onClick={handleRegisterData}
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-lg max-w-md w-full mx-4 border-2 border-[#66b5cb] shadow-lg">
+            <div className="text-center">
+              {/* Icono de corazón simple */}
+              <div className="text-[#880043] text-4xl mb-3">❤️</div>
+              
+              <h3 className="text-3xl font-bold mb-4 text-[#880043]">¡Felicidades!</h3>
+              <div className="mb-6">
+                <p className="text-lg mb-2 text-[#8d8d8d]">¡Hiciste Match!</p>
+                <p className="text-[#66b5cb] font-medium">Pronto se pondrán en contacto contigo</p>
+              </div>
+              
+              <div className="flex flex-col space-y-3">
+                <button
+                  onClick={() => {
+                    handleCloseMatchModal();
+                    navigate('/crud-partner');
+                  }}
+                  className="bg-[#880043] hover:bg-[#6a0034] text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200"
+                >
+                  Registrar datos del partner
+                </button>
+                
+                <button
+                  onClick={handleCloseMatchModal}
+                  className="border-2 border-[#66b5cb] text-[#66b5cb] hover:bg-[#f0f9fb] font-medium py-3 px-6 rounded-lg transition-colors duration-200"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Login Requerido */}
+      {showLoginModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full">
+            <h3 className="text-2xl font-bold mb-4">Inicio de sesión requerido</h3>
+            <p className="mb-4">Debes iniciar sesión para poder interactuar con los expertos.</p>
+            <div className="flex flex-col space-y-3">
+              <button
+                onClick={handleNavigateToLogin}
+                className="bg-[#880043] text-white px-4 py-2 rounded-lg font-medium"
               >
-                Registrar datos
+                Ir a Iniciar Sesión
               </button>
-              <button 
-                className="py-2 px-6 rounded-lg bg-[#880043] text-white shadow-md"
-                onClick={handleCloseMatchModal}
+              <button
+                onClick={() => setShowLoginModal(false)}
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium"
               >
-                Cerrar
+                Cancelar
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Línea final */}
-      <div className="border-t-4 border-black w-[80%] mx-auto mt-8 mb-8"></div>
+       {/* Línea final */}
+      <div className="revenue-line"></div>
 
-      {/* Nueva sección con íconos */}
-      <div className="mt-16 text-center px-5">
-        <div className="flex justify-center flex-wrap gap-10">
-          {/* Item 1 */}
-          <div className="flex flex-col items-center mb-8 max-w-[220px] flex-basis-[22%]">
-            <img src={icon1} alt="Asesoramiento Personalizado" className="w-[100px] h-[100px] mb-4" />
-            <p className="text-xl font-bold text-black mb-2">BUSCA UN PARTNER</p>
-            <p className="text-lg font-normal text-gray-600 leading-6 text-center">
+      {/* Nueva sección con imágenes y texto */}
+      <div className="icon-text-section">
+        <div className="icon-text-container">
+          <div className="icon-text-item">
+            <img src={icon1} alt="Asesoramiento Personalizado" className="icon" />
+            <p className="icon-title">BUSCA UN PARTNER</p>
+            <p className="icon-description">
               Descubre y elige entre nuestra lista de Partners listos para ayudarte y COlaborarte
             </p>
           </div>
-
-          {/* Item 2 */}
-          <div className="flex flex-col items-center mb-8 max-w-[220px] flex-basis-[22%]">
-            <img src={icon2} alt="Consultores Internacionales" className="w-[100px] h-[100px] mb-4" />
-            <p className="text-xl font-bold text-black mb-2">AGENDA UNA VIDEOCONFERENCIA</p>
-            <p className="text-lg font-normal text-gray-600 leading-6 text-center">
+          <div className="icon-text-item">
+            <img src={icon2} alt="Consultores Internacionales" className="icon" />
+            <p className="icon-title">AGENDA UNA VIDEOCONFERENCIA</p>
+            <p className="icon-description">
               Selecciona un horario que funcione tanto para ti como para la agenda de tu partner.
             </p>
           </div>
-
-          {/* Item 3 */}
-          <div className="flex flex-col items-center mb-8 max-w-[220px] flex-basis-[22%]">
-            <img src={icon3} alt="Soluciones Tecnológicas" className="w-[100px] h-[100px] mb-4" />
-            <p className="text-xl font-bold text-black mb-2">CONSULTAS VIRTUALES</p>
-            <p className="text-lg font-normal text-gray-600 leading-6 text-center">
+          <div className="icon-text-item">
+            <img src={icon3} alt="Soluciones Tecnológicas" className="icon" />
+            <p className="icon-title">CONSULTAS VIRTUALES</p>
+            <p className="icon-description">
               Únete a la videollamada 1 a 1, haz preguntas y recibe asesoramiento partner.
             </p>
           </div>
         </div>
       </div>
-
     </div>
   );
 };
