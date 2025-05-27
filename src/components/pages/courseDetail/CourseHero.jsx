@@ -47,6 +47,9 @@ const CourseHero = ({ course }) => {
     }
   };
 
+  console.log("DEBUG course:", course);
+  console.log("DEBUG course.id:", course?.id);
+
   return (
     <div 
       className="relative h-80 md:h-96 bg-cover bg-center bg-gray-800" 

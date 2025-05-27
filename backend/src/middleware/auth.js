@@ -18,8 +18,7 @@ const authMiddleware = (req, res, next) => {
     }
   
     try {
-      // Cambia 'TU_SECRETO' por tu clave secreta real
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'TU_SECRETO');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET); // <--- solo esto
       req.user = decoded; // Ahora tienes req.user.id disponible
       next();
     } catch (err) {

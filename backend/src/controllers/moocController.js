@@ -213,7 +213,27 @@ const getAllCourses = async (req, res, next) => {
 const getCourseById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const course = await moocModel.getCourseById(id);
+    const [rows] = await pool.query(`
+      SELECT 
+        mc.id, -- <--- Asegura que el campo id esté presente
+        mc.*,
+        COALESCE(c.image_url, mc.image_url) as image_url,
+        COALESCE(c.logo_url, mc.logo_url) as logo_url,
+        COALESCE(c.titulo, mc.title) as title,
+        COALESCE(c.descripcion, mc.description) as description,
+        COALESCE(c.provider, mc.provider_name) as provider,
+        COALESCE(c.school_name, mc.school) as school_name,
+        c.start_date,
+        c.duration,
+        c.effort_hours,
+        c.level,
+        c.language,
+        c.has_certificate
+      FROM mooc_catalog mc
+      LEFT JOIN curso c ON mc.curso_id = c.id
+      WHERE mc.id = ?
+    `, [id]);
+    const course = rows[0];
     
     if (!course) {
       return res.status(404).json({

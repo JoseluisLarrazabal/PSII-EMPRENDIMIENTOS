@@ -29,6 +29,9 @@ const CourseEnrollCTA = ({ course }) => {
     }
   };
 
+  console.log("DEBUG course:", course);
+  console.log("DEBUG course.id:", course?.id);
+
   if (!course) return null;
 
   return (
