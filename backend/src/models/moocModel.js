@@ -237,13 +237,16 @@ const createCourse = async (courseData) => {
   try {
     await connection.beginTransaction();
 
+    // 1. Insertar curso principal
     const [result] = await connection.query(
       `
         INSERT INTO mooc_catalog (
           title, provider, image_url, logo_url, type, 
           course_count, category, is_popular, is_new, is_trending,
-          school_id, administrador_id
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          school_id, administrador_id, description, start_date, duration,
+          effort_hours, language, level, prerequisites, enrollment_count,
+          rating, video_preview_url, has_certificate
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         courseData.title,
@@ -258,20 +261,50 @@ const createCourse = async (courseData) => {
         courseData.is_trending || false,
         courseData.school_id || null,
         courseData.administrador_id || null,
+        courseData.description || null,
+        courseData.start_date || null,
+        courseData.duration || null,
+        courseData.effort_hours || null,
+        courseData.language || null,
+        courseData.level || null,
+        courseData.prerequisites || null,
+        courseData.enrollment_count || null,
+        courseData.rating || null,
+        courseData.video_preview_url || null,
+        courseData.has_certificate || false,
       ]
     );
 
     const courseId = result.insertId;
 
-    // Si hay temas asociados, los insertamos
+    // 2. Insertar materias asociadas
     if (courseData.subjects && courseData.subjects.length > 0) {
       for (const subjectId of courseData.subjects) {
         await connection.query(
-          `
-          INSERT INTO mooc_course_subjects (catalog_id, subject_id)
-          VALUES (?, ?)
-        `,
+          `INSERT INTO mooc_course_subjects (catalog_id, subject_id) VALUES (?, ?)`,
           [courseId, subjectId]
+        );
+      }
+    }
+
+    // 3. Insertar slides/lecciones
+    if (courseData.slides && courseData.slides.length > 0) {
+      for (let i = 0; i < courseData.slides.length; i++) {
+        const slide = courseData.slides[i];
+        await connection.query(
+          `INSERT INTO mooc_course_slides 
+            (course_id, title, content, video_url, embed_url, quiz, resources, slide_order)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            courseId,
+            slide.title,
+            slide.content,
+            slide.videoUrl || null,
+            slide.embedUrl || null,
+            JSON.stringify(slide.quiz || []),
+            JSON.stringify(slide.resources || []),
+            i
+          ]
         );
       }
     }

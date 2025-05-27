@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createCourse } from "../../../services/api";
 
 // Estructura inicial de un slide vacío
 const emptySlide = {
@@ -10,10 +11,37 @@ const emptySlide = {
   resources: [],
 };
 
+// Estructura inicial para el curso
+const emptyCourse = {
+  title: "",
+  provider: "",
+  image_url: "",
+  logo_url: "",
+  type: "",
+  course_count: "",
+  category: "",
+  is_popular: false,
+  is_new: false,
+  is_trending: false,
+  school_id: "",
+  administrador_id: "",
+  description: "",
+  start_date: "",
+  duration: "",
+  effort_hours: "",
+  language: "",
+  level: "",
+  prerequisites: "",
+  enrollment_count: "",
+  rating: "",
+  video_preview_url: "",
+  has_certificate: false,
+  subjects: [],
+};
+
 // Validación simple al intentar guardar
 const validateEmbedUrl = (url) => {
   if (!url) return true; // Campo opcional
-  // Ejemplo: Google Slides, Canva, PowerPoint Online (puedes agregar más patrones)
   const patterns = [
     /^https:\/\/docs\.google\.com\/presentation\/d\/e\/.+\/embed\?start=/,
     /^https:\/\/www\.canva\.com\/design\/.+\/view\?embed/,
@@ -44,9 +72,11 @@ const validateSlide = (slide) => {
 };
 
 const CourseBuilder = () => {
+  const [course, setCourse] = useState({ ...emptyCourse });
   const [slides, setSlides] = useState([{ ...emptySlide }]);
   const [selectedSlide, setSelectedSlide] = useState(0);
   const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
 
   // Funciones para agregar, eliminar y actualizar slides
   const addSlide = () => {
@@ -68,13 +98,33 @@ const CourseBuilder = () => {
     setSlides(newSlides);
   };
 
-  const handleSave = () => {
-    const errs = validateSlide(slides[selectedSlide]);
-    setErrors(errs);
-    if (Object.keys(errs).length === 0) {
-      alert("¡Lección válida y lista para guardar!");
-      // Aquí iría la lógica de guardado real
+  // Guardar todo el curso y sus slides
+  const handleSaveCourse = async () => {
+    // Validación básica de campos obligatorios del curso
+    if (!course.title || !course.provider || !course.image_url || !course.logo_url || !course.type || !course.category) {
+      alert("Completa todos los campos obligatorios del curso.");
+      return;
     }
+    // Validar todas las slides
+    for (let i = 0; i < slides.length; i++) {
+      const errs = validateSlide(slides[i]);
+      if (Object.keys(errs).length > 0) {
+        setSelectedSlide(i);
+        setErrors(errs);
+        alert(`Corrige los errores en la lección ${i + 1} antes de guardar el curso.`);
+        return;
+      }
+    }
+    setSaving(true);
+    try {
+      const token = localStorage.getItem("token");
+      const courseToSave = { ...course, slides };
+      const response = await createCourse(courseToSave, token);
+      alert("Curso creado exitosamente con ID: " + response.data.id);
+    } catch (error) {
+      alert("Error al crear el curso: " + (error.response?.data?.message || error.message));
+    }
+    setSaving(false);
   };
 
   return (
@@ -113,16 +163,9 @@ const CourseBuilder = () => {
         </button>
       </aside>
 
-      {/* Editor de slide */}
+      {/* Panel principal */}
       <main className="flex-1 p-8">
-        <div className="flex justify-end mb-4">
-          <button
-            className="px-4 py-2 bg-[#8B0D37] text-white rounded font-semibold"
-            onClick={handleSave}
-          >
-            Guardar lección (demo)
-          </button>
-        </div>
+        {/* Editor de slide */}
         <h3 className="text-xl font-bold mb-4">Editar lección</h3>
         <div className="mb-4">
           <label className="block font-semibold mb-1">Título</label>
@@ -368,6 +411,202 @@ const CourseBuilder = () => {
           >
             + Agregar recurso
           </button>
+        </div>
+
+        {/* Datos generales del curso */}
+        <div className="mt-12 bg-white rounded shadow p-6">
+          <h2 className="text-xl font-bold mb-4">Datos generales del curso</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block font-semibold mb-1">Título *</label>
+              <input
+                className="w-full border rounded px-3 py-2"
+                value={course.title}
+                onChange={e => setCourse({ ...course, title: e.target.value })}
+                placeholder="Título del curso"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">Proveedor *</label>
+              <input
+                className="w-full border rounded px-3 py-2"
+                value={course.provider}
+                onChange={e => setCourse({ ...course, provider: e.target.value })}
+                placeholder="Proveedor"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">Imagen (URL) *</label>
+              <input
+                className="w-full border rounded px-3 py-2"
+                value={course.image_url}
+                onChange={e => setCourse({ ...course, image_url: e.target.value })}
+                placeholder="URL de la imagen"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">Logo (URL) *</label>
+              <input
+                className="w-full border rounded px-3 py-2"
+                value={course.logo_url}
+                onChange={e => setCourse({ ...course, logo_url: e.target.value })}
+                placeholder="URL del logo"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">Tipo *</label>
+              <input
+                className="w-full border rounded px-3 py-2"
+                value={course.type}
+                onChange={e => setCourse({ ...course, type: e.target.value })}
+                placeholder="Tipo de curso"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">Categoría *</label>
+              <input
+                className="w-full border rounded px-3 py-2"
+                value={course.category}
+                onChange={e => setCourse({ ...course, category: e.target.value })}
+                placeholder="Categoría"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">Descripción</label>
+              <textarea
+                className="w-full border rounded px-3 py-2"
+                value={course.description}
+                onChange={e => setCourse({ ...course, description: e.target.value })}
+                placeholder="Descripción del curso"
+                rows={3}
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">Fecha de inicio</label>
+              <input
+                type="date"
+                className="w-full border rounded px-3 py-2"
+                value={course.start_date}
+                onChange={e => setCourse({ ...course, start_date: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">Idioma</label>
+              <input
+                className="w-full border rounded px-3 py-2"
+                value={course.language}
+                onChange={e => setCourse({ ...course, language: e.target.value })}
+                placeholder="Idioma"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">¿Es popular?</label>
+              <input
+                type="checkbox"
+                checked={course.is_popular}
+                onChange={e => setCourse({ ...course, is_popular: e.target.checked })}
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">¿Es nuevo?</label>
+              <input
+                type="checkbox"
+                checked={course.is_new}
+                onChange={e => setCourse({ ...course, is_new: e.target.checked })}
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">¿Es tendencia?</label>
+              <input
+                type="checkbox"
+                checked={course.is_trending}
+                onChange={e => setCourse({ ...course, is_trending: e.target.checked })}
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">Cantidad de cursos (si aplica)</label>
+              <input
+                type="number"
+                className="w-full border rounded px-3 py-2"
+                value={course.course_count}
+                onChange={e => setCourse({ ...course, course_count: e.target.value })}
+                placeholder="Cantidad de cursos"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">Duración</label>
+              <input
+                className="w-full border rounded px-3 py-2"
+                value={course.duration}
+                onChange={e => setCourse({ ...course, duration: e.target.value })}
+                placeholder="Duración"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">Esfuerzo semanal (horas)</label>
+              <input
+                type="number"
+                className="w-full border rounded px-3 py-2"
+                value={course.effort_hours}
+                onChange={e => setCourse({ ...course, effort_hours: e.target.value })}
+                placeholder="Horas por semana"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">Nivel</label>
+              <input
+                className="w-full border rounded px-3 py-2"
+                value={course.level}
+                onChange={e => setCourse({ ...course, level: e.target.value })}
+                placeholder="Nivel"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">Prerrequisitos</label>
+              <textarea
+                className="w-full border rounded px-3 py-2"
+                value={course.prerequisites}
+                onChange={e => setCourse({ ...course, prerequisites: e.target.value })}
+                placeholder="Prerrequisitos"
+                rows={2}
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">Calificación (rating)</label>
+              <input
+                type="number"
+                step="0.01"
+                className="w-full border rounded px-3 py-2"
+                value={course.rating}
+                onChange={e => setCourse({ ...course, rating: e.target.value })}
+                placeholder="Calificación"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1">¿Incluye certificado?</label>
+              <input
+                type="checkbox"
+                checked={course.has_certificate}
+                onChange={e => setCourse({ ...course, has_certificate: e.target.checked })}
+              />
+            </div>
+            {/* Agrega aquí los demás campos opcionales si lo deseas */}
+          </div>
+          <div className="flex justify-end mt-6">
+            <button
+              className="px-6 py-2 bg-[#8B0D37] text-white rounded font-semibold"
+              onClick={handleSaveCourse}
+              disabled={saving}
+            >
+              {saving ? "Guardando..." : "Guardar curso completo"}
+            </button>
+          </div>
         </div>
       </main>
     </div>
