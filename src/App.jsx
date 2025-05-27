@@ -28,7 +28,7 @@ import CrowdFunding from "./components/pages/CrowdFunding";
 import { AuthProvider } from './components/login/AuthContext';
 import CourseDetail from "./components/pages/courseDetail/CourseDetail";
 import CourseContent from "./components/pages/courseContent/CourseContent";
-import CourseBuilder from "./components/pages/CourseBuilder/CourseBuilder";
+import CourseBuilder from "./components/pages/courseBuilder/CourseBuilder";
 import Profile from './components/pages/Profile';
 
 

@@ -9,30 +9,7 @@ import CourseSyllabus from "./Tabs/CourseSyllabus";
 import CourseInstructors from "./Tabs/CourseInstructors";
 import CourseEnrollCTA from "./CourseEnrollCTA";
 import LoadingSpinner from "../../LoadingSpinner"; // Usar el spinner existente
-
-// Datos mock para desarrollo inicial
-const mockCourseData = {
-  id: 1,
-  title: "CS50's Introduction to Computer Science",
-  provider: "HarvardX",
-  school_name: "Harvard University",
-  image_url:
-    "../../cs50.png",
-  logo_url: "../../harvard.png",
-  description:
-    "This is Harvard University's introduction to the intellectual enterprises of computer science and the art of programming. This course teaches students how to think algorithmically and solve problems efficiently. Topics include abstraction, algorithms, data structures, encapsulation, resource management, security, and software engineering. Languages include C, Python, and SQL plus HTML, CSS, and JavaScript.",
-  start_date: "2023-11-15T00:00:00",
-  duration: "12 semanas",
-  effort_hours: 6,
-  language: "Inglés",
-  level: "Principiante",
-  prerequisites: "No se requieren conocimientos previos de programación.",
-  enrollment_count: 2500000,
-  rating: 4.8,
-  video_preview_url: "https://www.youtube.com/embed/WOvhPzWGGc",
-  has_certificate: true,
-  // Añadiremos más datos en próximos pasos
-};
+import { fetchCourseById, fetchCourseContent } from '../../../services/api';
 
 const CourseDetail = () => {
   const { courseId } = useParams();
@@ -40,6 +17,7 @@ const CourseDetail = () => {
 
   // Estados para datos del curso
   const [courseData, setCourseData] = useState(null);
+  const [courseContent, setCourseContent] = useState(null);
   const [relatedCourses, setRelatedCourses] = useState([]);
 
   // Estados para navegación por pestañas
@@ -51,14 +29,28 @@ const CourseDetail = () => {
 
   // Efecto para cargar datos del curso
   useEffect(() => {
-    // Simulación de carga (reemplazar con API real más adelante)
-    setLoading(true);
-    setTimeout(() => {
-      setCourseData(mockCourseData);
-      setLoading(false);
-    }, 800);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [courseData, courseContent] = await Promise.all([
+          fetchCourseById(courseId),
+          fetchCourseContent(courseId)
+        ]);
+        
+        setCourseData(courseData);
+        setCourseContent(courseContent);
+        
+        // Eliminar la llamada a courseService
+        setRelatedCourses([]); // Por ahora dejamos vacío los cursos relacionados
+        
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    // Implementaremos la llamada API real en un paso posterior
+    fetchData();
   }, [courseId]);
 
   // Función para renderizar el contenido según la pestaña activa
@@ -159,10 +151,33 @@ const CourseDetail = () => {
             Ir al contenido del curso (demo)
           </button>
         </div>
+
+        {/* Cursos relacionados */}
+        <RelatedCourses courses={relatedCourses} />
       </div>
 
       {/* Botón flotante de inscripción - Ajustado para dejar espacio al footer */}
       <CourseEnrollCTA course={courseData} />
+    </div>
+  );
+};
+
+// Componente para mostrar cursos relacionados
+const RelatedCourses = ({ courses }) => {
+  if (!courses?.length) return null;
+  
+  return (
+    <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
+      <h2 className="text-2xl font-bold mb-4">Cursos Relacionados</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {courses.map(course => (
+          <div key={course.id} className="border rounded p-4">
+            <img src={course.image_url} alt={course.title} className="w-full h-40 object-cover mb-2"/>
+            <h3 className="font-semibold">{course.title}</h3>
+            <p className="text-sm text-gray-600">{course.provider}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

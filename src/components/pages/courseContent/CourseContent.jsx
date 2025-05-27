@@ -1,66 +1,53 @@
 import React, { useState, useEffect } from "react";
+import { useParams } from 'react-router-dom';
 import "../moocs/transitions.css";
 import Quiz from "./components/Quiz.jsx";
 import Resources from "./components/Resources.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import SlideContent from "./components/SlideContent.jsx";
 import VideoPlayer from "./components/VideoPlayer.jsx";
-
-// Simulación de slides/lecciones del curso
-const mockSlides = [
-  {
-    id: 1,
-    title: "Introducción al curso",
-    videoUrl: "https://www.youtube.com/embed/WOvhPzWGGc",
-    content: "Bienvenido a la primera lección. Aquí aprenderás los conceptos básicos...",
-    quiz: [
-      {
-        question: "¿Qué es la programación?",
-        options: ["Arte", "Ciencia", "Ambas", "Ninguna"],
-        answer: 2,
-      },
-    ],
-    resources: [
-      { name: "Guía de inicio", url: "#" },
-      { name: "Presentación PDF", url: "#" },
-    ],
-  },
-  {
-    id: 2,
-    title: "Algoritmos y lógica",
-    videoUrl: "https://www.youtube.com/embed/WOvhPzWGGc",
-    content: "En esta lección veremos cómo se construyen los algoritmos...",
-    quiz: [
-      {
-        question: "¿Qué es un algoritmo?",
-        options: [
-          "Una receta para resolver un problema",
-          "Un lenguaje de programación",
-          "Un tipo de hardware",
-          "Ninguna de las anteriores",
-        ],
-        answer: 0,
-      },
-    ],
-    resources: [
-      { name: "Ejercicios de algoritmos", url: "#" },
-    ],
-  },
-  // ...puedes agregar más slides simuladas
-];
+import { fetchCourseContent } from '../../../services/api'; // Corregir la importación
+import axios from 'axios';
 
 const CourseContent = () => {
+  const { courseId } = useParams(); // Agregar esta línea
   const [currentSlide, setCurrentSlide] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [slides, setSlides] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const slide = mockSlides[currentSlide];
-  const totalSlides = mockSlides.length;
+  const totalSlides = slides.length;
   const progress = ((currentSlide + 1) / totalSlides) * 100;
+
+  // Reemplazar mockSlides con datos reales
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        setLoading(true);
+        const content = await fetchCourseContent(courseId);
+        setSlides(content);
+      } catch (error) {
+        console.error("Error loading course content:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (courseId) {
+      fetchContent();
+    }
+  }, [courseId]);
 
   // Scroll automático al cambiar de slide
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentSlide]);
+
+  if (loading) {
+    return <div>Cargando contenido del curso...</div>; // O un spinner/loading component
+  }
+
+  const slide = slides[currentSlide];
 
   return (
     <div className="flex bg-gray-50 min-h-screen">
@@ -76,7 +63,7 @@ const CourseContent = () => {
 
       {/* Sidebar responsivo */}
       <Sidebar
-        slides={mockSlides}
+        slides={slides}
         currentSlide={currentSlide}
         setCurrentSlide={setCurrentSlide}
         className={`fixed top-0 left-0 h-full z-40 bg-white transition-transform duration-300 md:static md:translate-x-0 ${

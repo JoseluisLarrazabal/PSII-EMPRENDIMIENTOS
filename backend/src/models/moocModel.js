@@ -366,6 +366,80 @@ const deleteCourse = async (id) => {
   return result.affectedRows > 0;
 };
 
+// Optimizar getCourseById para manejar mejor las URLs de imágenes
+const getCourseById = async (id) => {
+  try {
+    const [course] = await pool.query(`
+      SELECT 
+        mc.*,
+        COALESCE(c.image_url, mc.image_url) as image_url,
+        COALESCE(c.logo_url, mc.logo_url) as logo_url,
+        COALESCE(c.titulo, mc.title) as title,
+        COALESCE(c.descripcion, mc.description) as description,
+        COALESCE(c.provider, mc.provider_name) as provider,
+        COALESCE(c.school_name, mc.school) as school_name,
+        c.start_date,
+        c.duration,
+        c.effort_hours,
+        c.level,
+        c.language,
+        c.has_certificate
+      FROM mooc_catalog mc
+      LEFT JOIN curso c ON mc.curso_id = c.id
+      WHERE mc.id = ?
+    `, [id]);
+
+    // Validar y transformar URLs
+    if (course) {
+      course.image_url = course.image_url || defaultImages.course;
+      course.logo_url = course.logo_url || defaultImages.logo;
+    }
+
+    return course;
+  } catch (error) {
+    console.error('Error en getCourseById:', error);
+    throw error;
+  }
+};
+
+const getCourseContent = async (id) => {
+  const [content] = await pool.query(`
+    SELECT * FROM course_content
+    WHERE curso_id = ?
+    ORDER BY slide_order
+  `, [id]);
+
+  return content;
+};
+
+// Agregar progreso del usuario
+const saveProgress = async (userId, courseId, progress) => {
+  const [result] = await pool.query(`
+    INSERT INTO course_progress 
+    (user_id, curso_id, current_slide, completed_slides)
+    VALUES (?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE
+    current_slide = ?, completed_slides = ?
+  `, [userId, courseId, progress.currentSlide, JSON.stringify(progress.completedSlides),
+      progress.currentSlide, JSON.stringify(progress.completedSlides)]);
+  
+  return result;
+};
+
+// Agregar resultados de quiz
+const saveQuizResults = async (userId, courseId, slideId, results) => {
+  const [result] = await pool.query(`
+    UPDATE course_progress
+    SET quiz_scores = JSON_SET(
+      COALESCE(quiz_scores, '{}'),
+      ?, CAST(? AS JSON)
+    )
+    WHERE user_id = ? AND curso_id = ?
+  `, [`$.${slideId}`, JSON.stringify(results), userId, courseId]);
+  
+  return result;
+};
+
 module.exports = {
   initializeTables,
   getCategories,
@@ -378,4 +452,8 @@ module.exports = {
   createCourse,
   updateCourse,
   deleteCourse,
+  getCourseById,
+  getCourseContent,
+  saveProgress,
+  saveQuizResults,
 };

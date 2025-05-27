@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createCourse, updateCourse } from '../../../services/api';
 
 // Estructura inicial de un slide vacío
 const emptySlide = {
@@ -68,12 +69,25 @@ const CourseBuilder = () => {
     setSlides(newSlides);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const errs = validateSlide(slides[selectedSlide]);
     setErrors(errs);
+    
     if (Object.keys(errs).length === 0) {
-      alert("¡Lección válida y lista para guardar!");
-      // Aquí iría la lógica de guardado real
+      try {
+        if (courseId) {
+          await updateCourse(courseId, slides[selectedSlide]);
+        } else {
+          await createCourse({
+            ...courseData,
+            slides: slides
+          });
+        }
+        // Mostrar mensaje de éxito
+      } catch (error) {
+        // Manejar error
+        console.error('Error saving course:', error);
+      }
     }
   };
 

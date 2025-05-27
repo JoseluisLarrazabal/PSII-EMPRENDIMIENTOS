@@ -210,6 +210,57 @@ const getAllCourses = async (req, res, next) => {
   }
 };
 
+// Obtener detalles de un curso por ID
+const getCourseById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const course = await moocModel.getCourseById(id);
+    
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: 'Curso no encontrado'
+      });
+    }
+
+    // Transformar URLs si es necesario
+    if (course.image_url && !course.image_url.startsWith('http')) {
+      course.image_url = `${process.env.BASE_URL}/images/${course.image_url}`;
+    }
+    if (course.logo_url && !course.logo_url.startsWith('http')) {
+      course.logo_url = `${process.env.BASE_URL}/images/${course.logo_url}`;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: course
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Obtener contenido de un curso
+const getCourseContent = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const content = await moocModel.getCourseContent(id);
+    
+    if (!content) {
+      return res.status(404).json({
+        success: false,
+        message: 'Contenido no encontrado'
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      data: content
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 
 // Actualizar module.exports para incluir getAllCourses
@@ -223,4 +274,6 @@ module.exports = {
   updateCourse,
   deleteCourse,
   getAllCourses,
+  getCourseById,
+  getCourseContent,
 };

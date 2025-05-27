@@ -1,13 +1,41 @@
 import React from 'react';
 
+// URLs de respaldo actualizadas
+const defaultLogo = 'https://placehold.co/200x100/8B0D37/FFFFFF?text=Logo';
+const defaultBg = 'https://placehold.co/1920x1080/8B0D37/FFFFFF?text=Course+Image';
+
 // Componente que muestra el banner principal del curso con información destacada
 const CourseHero = ({ course }) => {
   if (!course) return null;
 
+  // Manejo seguro de URLs desde la base de datos
+  const logoUrl = course?.logo_url || defaultLogo;
+  const bgUrl = course?.image_url || defaultBg;
+  
+  // Validación mejorada de URLs
+  const validateUrl = (url) => {
+    if (!url) return defaultLogo;
+    
+    try {
+      if (url.startsWith('http')) {
+        return url;
+      }
+      // Si es una ruta relativa, convertir a URL completa
+      return `${process.env.REACT_APP_API_URL}/images/${url}`;
+    } catch (error) {
+      console.error('Error validating URL:', error);
+      return url === logoUrl ? defaultLogo : defaultBg;
+    }
+  };
+
   return (
     <div 
       className="relative h-80 md:h-96 bg-cover bg-center bg-gray-800" 
-      style={{ backgroundImage: `url(${course.image_url})` }}
+      style={{ 
+        backgroundImage: `url(${validateUrl(bgUrl)})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}
     >
       {/* Overlay para mejorar legibilidad del texto sobre la imagen */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30">
@@ -15,9 +43,14 @@ const CourseHero = ({ course }) => {
           {/* Logo del proveedor */}
           <div className="mb-4">
             <img 
-              src={course.logo_url} 
-              alt={`${course.provider} logo`} 
+              src={validateUrl(logoUrl)}
+              alt={course.provider || 'Logo del curso'} 
               className="h-10 sm:h-12 object-contain bg-white/90 p-1 rounded"
+              onError={(e) => {
+                console.log('Error cargando imagen:', e.target.src);
+                e.target.src = defaultLogo;
+                e.target.onerror = null;
+              }}
             />
           </div>
           
