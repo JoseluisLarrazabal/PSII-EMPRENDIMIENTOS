@@ -1,20 +1,33 @@
+const jwt = require('jsonwebtoken');
+
 const authMiddleware = (req, res, next) => {
-    // Esta es una versión básica que puedes expandir más adelante
-    // cuando integres con el sistema de autenticación
-    
-    // Por ahora, solo verificamos si hay un header de autorización
     const authHeader = req.headers.authorization;
-    
     if (!authHeader) {
       return res.status(401).json({ 
         success: false, 
         message: 'Acceso no autorizado. Token no proporcionado.' 
       });
     }
-    
-    // Aquí iría la validación del token
-    // Por ahora, dejamos pasar todas las solicitudes
-    next();
+  
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Token no válido.' 
+      });
+    }
+  
+    try {
+      // Cambia 'TU_SECRETO' por tu clave secreta real
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'TU_SECRETO');
+      req.user = decoded; // Ahora tienes req.user.id disponible
+      next();
+    } catch (err) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Token inválido o expirado.' 
+      });
+    }
   };
   
   module.exports = authMiddleware;

@@ -96,3 +96,16 @@ export const updateCourse = async (id, courseData) => {
     throw error;
   }
 };
+
+export const enrollInCourse = async (courseId, token) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/courses/${courseId}/enroll`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};

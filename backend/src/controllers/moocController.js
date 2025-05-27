@@ -1,4 +1,5 @@
 const moocModel = require('../models/moocModel');
+const jwt = require('jsonwebtoken');
 
 // Inicializar tablas
 const initializeTables = async (req, res, next) => {
@@ -160,8 +161,6 @@ const deleteCourse = async (req, res, next) => {
   }
 };
 
-// Añadir en moocController.js
-
 // Obtener todos los cursos agrupados por categoría
 const getAllCourses = async (req, res, next) => {
   try {
@@ -262,6 +261,47 @@ const getCourseContent = async (req, res, next) => {
   }
 };
 
+// Añadir inscripción de usuario a curso
+const enrollUserInCourse = async (req, res, next) => {
+  try {
+    const userId = req.user.id; // Debes tener el user en req.user (middleware de auth)
+    const { id: courseId } = req.params;
+    const success = await moocModel.enrollUserInCourse(userId, courseId);
+
+    if (!success) {
+      return res.status(409).json({ success: false, message: "Ya estás inscrito en este curso." });
+    }
+
+    res.status(201).json({ success: true, message: "Inscripción exitosa." });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Al autenticar:
+const authenticateUser = async (req, res, next) => {
+  try {
+    const { username, password } = req.body;
+    
+    // Validar credenciales
+    const usuario = await moocModel.validateUserCredentials(username, password);
+    
+    if (!usuario) {
+      return res.status(401).json({ success: false, message: 'Credenciales inválidas' });
+    }
+    
+    // Generar token
+    const token = jwt.sign({ id: usuario.id, usuario: usuario.usuario, rol: usuario.rol }, process.env.JWT_SECRET || 'TU_SECRETO', { expiresIn: '7d' });
+    
+    res.status(200).json({
+      success: true,
+      message: 'Autenticación exitosa',
+      data: { token }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // Actualizar module.exports para incluir getAllCourses
 module.exports = {
@@ -276,4 +316,6 @@ module.exports = {
   getAllCourses,
   getCourseById,
   getCourseContent,
+  enrollUserInCourse,
+  authenticateUser,
 };

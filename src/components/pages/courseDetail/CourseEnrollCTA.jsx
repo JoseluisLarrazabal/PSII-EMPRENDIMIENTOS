@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { enrollInCourse } from '../../../services/api'; // Ajusta la ruta si es necesario
 
 const CourseEnrollCTA = ({ course }) => {
   const [visible, setVisible] = useState(false);
@@ -12,6 +13,21 @@ const CourseEnrollCTA = ({ course }) => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleEnroll = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      localStorage.setItem("pendingEnrollCourse", course.id);
+      navigate("/login");
+      return;
+    }
+    try {
+      await enrollInCourse(course.id, token);
+      navigate(`/curso/${course.id}/contenido`);
+    } catch (error) {
+      alert(error.message || "No se pudo inscribir al curso.");
+    }
+  };
 
   if (!course) return null;
 
@@ -38,10 +54,7 @@ const CourseEnrollCTA = ({ course }) => {
         </div>
         <button 
           className="w-full sm:w-auto bg-[#8B0D37] hover:bg-[#6E0B2A] text-white font-medium py-3 px-6 rounded-md transition duration-200 flex items-center justify-center"
-          onClick={() => {
-            console.log('Inscripción al curso:', course.id);
-            // navigate(`/moocs/enrolled/${course.id}`);
-          }}
+          onClick={handleEnroll}
         >
           <span>Inscríbete Ahora</span>
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">

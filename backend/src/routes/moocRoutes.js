@@ -16,5 +16,6 @@ router.get('/courses/:id/content', moocController.getCourseContent);
 // Rutas protegidas (requieren autenticación)
 router.post('/courses', authMiddleware, moocController.createCourse);
 router.put('/courses/:id', authMiddleware, moocController.updateCourse);
+router.post('/courses/:id/enroll', authMiddleware, moocController.enrollUserInCourse);
 
 module.exports = router;

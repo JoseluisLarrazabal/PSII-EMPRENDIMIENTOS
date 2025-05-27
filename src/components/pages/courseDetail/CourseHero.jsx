@@ -1,4 +1,6 @@
 import React from 'react';
+import { useNavigate } from "react-router-dom";
+import { enrollInCourse } from '../../../services/api'; // Ajusta la ruta si es necesario
 
 // URLs de respaldo actualizadas
 const defaultLogo = 'https://placehold.co/200x100/8B0D37/FFFFFF?text=Logo';
@@ -6,6 +8,8 @@ const defaultBg = 'https://placehold.co/1920x1080/8B0D37/FFFFFF?text=Course+Imag
 
 // Componente que muestra el banner principal del curso con información destacada
 const CourseHero = ({ course }) => {
+  const navigate = useNavigate();
+
   if (!course) return null;
 
   // Manejo seguro de URLs desde la base de datos
@@ -25,6 +29,21 @@ const CourseHero = ({ course }) => {
     } catch (error) {
       console.error('Error validating URL:', error);
       return url === logoUrl ? defaultLogo : defaultBg;
+    }
+  };
+
+  const handleEnroll = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      localStorage.setItem("pendingEnrollCourse", course.id);
+      navigate("/login");
+      return;
+    }
+    try {
+      await enrollInCourse(course.id, token);
+      navigate(`/curso/${course.id}/contenido`);
+    } catch (error) {
+      alert(error.message || "No se pudo inscribir al curso.");
     }
   };
 
@@ -105,7 +124,10 @@ const CourseHero = ({ course }) => {
           </div>
           
           {/* Botón de inscripción */}
-          <button className="bg-[#8B0D37] hover:bg-[#6E0B2A] text-white font-medium py-3 px-6 rounded-md transition duration-200 w-full sm:w-auto max-w-xs">
+          <button
+            className="bg-[#8B0D37] hover:bg-[#6E0B2A] text-white font-medium py-3 px-6 rounded-md transition duration-200 w-full sm:w-auto max-w-xs"
+            onClick={handleEnroll}
+          >
             Inscríbete Ahora
           </button>
         </div>

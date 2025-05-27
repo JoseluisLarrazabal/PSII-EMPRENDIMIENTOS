@@ -440,6 +440,16 @@ const saveQuizResults = async (userId, courseId, slideId, results) => {
   return result;
 };
 
+// Inscribir a un usuario en un curso
+const enrollUserInCourse = async (userId, courseId) => {
+  const [result] = await pool.query(
+    `INSERT IGNORE INTO course_enrollments (user_id, course_id, enrolled_at)
+     VALUES (?, ?, NOW())`,
+    [userId, courseId]
+  );
+  return result.affectedRows > 0;
+};
+
 module.exports = {
   initializeTables,
   getCategories,
@@ -456,4 +466,5 @@ module.exports = {
   getCourseContent,
   saveProgress,
   saveQuizResults,
+  enrollUserInCourse,
 };

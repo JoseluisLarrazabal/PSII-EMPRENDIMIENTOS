@@ -3,9 +3,23 @@ import React from "react";
 import LoginBackground from "../login/LoginBackground"; // Asegúrate de que coincida con la estructura real
 import LoginForm from "../login/LoginForm"; 
 import Registrer from "../login/Register";
+import { useNavigate } from "react-router-dom"; // Asegúrate de tener esto si usas navigate
 
 
 function Login() {
+  const navigate = useNavigate();
+
+  // Redirigir después de un posible registro
+  React.useEffect(() => {
+    const pendingCourse = localStorage.getItem("pendingEnrollCourse");
+    if (pendingCourse) {
+      localStorage.removeItem("pendingEnrollCourse");
+      navigate(`/curso/${pendingCourse}/contenido`);
+    } else {
+      navigate("/"); // o la ruta por defecto
+    }
+  }, [navigate]);
+
   // Podríamos ocultar Navbar, SubNav y Footer para esta página
   React.useEffect(() => {
     // Ocultar elementos de navegación solo en la página de login
