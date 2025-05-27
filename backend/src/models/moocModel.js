@@ -369,8 +369,9 @@ const deleteCourse = async (id) => {
 // Optimizar getCourseById para manejar mejor las URLs de imágenes
 const getCourseById = async (id) => {
   try {
-    const [course] = await pool.query(`
+    const [rows] = await pool.query(`
       SELECT 
+        mc.id,
         mc.*,
         COALESCE(c.image_url, mc.image_url) as image_url,
         COALESCE(c.logo_url, mc.logo_url) as logo_url,
@@ -388,14 +389,7 @@ const getCourseById = async (id) => {
       LEFT JOIN curso c ON mc.curso_id = c.id
       WHERE mc.id = ?
     `, [id]);
-
-    // Validar y transformar URLs
-    if (course) {
-      course.image_url = course.image_url || defaultImages.course;
-      course.logo_url = course.logo_url || defaultImages.logo;
-    }
-
-    return course;
+    return rows[0]; // <-- CORRECTO: Devuelves el objeto, no el array
   } catch (error) {
     console.error('Error en getCourseById:', error);
     throw error;

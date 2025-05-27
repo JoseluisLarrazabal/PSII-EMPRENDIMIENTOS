@@ -36,7 +36,6 @@ const CourseDetail = () => {
           fetchCourseById(courseId),
           fetchCourseContent(courseId)
         ]);
-        
         setCourseData(courseData);
         setCourseContent(courseContent);
         
