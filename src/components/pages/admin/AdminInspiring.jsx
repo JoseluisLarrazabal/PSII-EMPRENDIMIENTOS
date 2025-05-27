@@ -30,13 +30,6 @@ const AdminInspiring = ({
     closeDeleteModal();
   };
 
-  // Función para manejar el clic en "Agregar Nuevo"
-  const handleAddNew = () => {
-    resetForm();
-    handleEdit(null); // Limpiar cualquier edición en curso
-    setShowForm(true);
-  };
-
   // Función para resetear el formulario
   const resetForm = () => {
     setFormData({
@@ -49,11 +42,21 @@ const AdminInspiring = ({
     });
   };
 
-    const handleCancel = () => {
-    setShowForm(false);      // Cierra el formulario
-    resetForm();             // Limpia el formulario
-    handleEdit(null);        // Elimina el estado de edición actual
-    };
+  // Función para manejar el clic en "Agregar Nuevo"
+  const handleAddNew = () => {
+    resetForm();
+    setShowForm(true);
+    handleEdit(null);
+  };
+
+  // Función mejorada para manejar la cancelación
+  const handleCancel = () => {
+    resetForm();
+    setShowForm(false);
+    if (currentInspiring) {
+      handleEdit(null); // Solo llamar a handleEdit si hay un currentInspiring
+    }
+  };
 
   return (
     <div className="p-4 max-w-full overflow-x-hidden">
@@ -223,7 +226,10 @@ const AdminInspiring = ({
                   <td className="py-3 px-4">
                     <div className="flex gap-2 flex-wrap">
                       <button
-                        onClick={() => handleEdit(item)}
+                        onClick={() => {
+                          handleEdit(item);
+                          setShowForm(true);
+                        }}
                         className="bg-[#66B5CB] text-white px-3 py-1 rounded-lg font-medium cursor-pointer hover:opacity-90 text-sm"
                       >
                         Editar

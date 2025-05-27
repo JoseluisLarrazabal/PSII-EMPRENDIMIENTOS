@@ -100,27 +100,37 @@ const [learningFormData, setLearningFormData] = useState({
 
 
 
-// Update fetchLearning function
 const fetchLearning = async () => {
   try {
-    const response = await fetch("http://localhost:5000/api/moocs/all-courses");
+    const response = await fetch("http://localhost:8000/api/moocs/all-courses");
     if (!response.ok) throw new Error("Error al obtener MOOCs");
     const data = await response.json();
     
-    // Flatten all courses into a single array
-    const allCourses = [];
-    for (const category in data.coursesByCategory) {
-      allCourses.push(...data.coursesByCategory[category]);
+    console.log("Datos recibidos de la API:", data); // Para depuración
+    
+    // Verificamos si data.coursesByCategory existe y es un objeto
+    if (data.coursesByCategory && typeof data.coursesByCategory === 'object') {
+      // Aplanamos todos los cursos en un solo array
+      const allCourses = Object.values(data.coursesByCategory).flat();
+      console.log("Cursos aplanados:", allCourses); // Para depuración
+      setLearningList(allCourses);
+    } else {
+      console.error("Estructura de datos inesperada:", data);
+      setLearningList([]);
     }
-    setLearningList(allCourses);
   } catch (err) {
+    console.error("Error al obtener MOOCs:", err);
     setError(err.message);
+    setLearningList([]);
+  } finally {
+    setLoading(false);
   }
 };
+
   // Fetch de datos
   const fetchMentors = async () => {
     try {
-      const response = await fetch("http://localhost:8000/mentors");
+      const response = await fetch("http://localhost:8000/api/mentors");
       if (!response.ok) throw new Error("Error al obtener mentores");
       const data = await response.json();
       setMentors(data);
@@ -196,8 +206,8 @@ const fetchLearning = async () => {
     e.preventDefault();
     try {
       const url = currentMentor 
-        ? `http://localhost:8000/mentors/${currentMentor.id}`
-        : "http://localhost:8000/mentors";
+        ? `http://localhost:8000/api/mentors/${currentMentor.id}`
+        : "http://localhost:8000/api/mentors";
       
       const method = currentMentor ? "PUT" : "POST";
       
@@ -238,7 +248,7 @@ const fetchLearning = async () => {
 
   const handleMentorDelete = async (id) => {
     try {
-      const response = await fetch(`http://localhost:8000/mentors/${id}`, {
+      const response = await fetch(`http://localhost:8000/api/mentors/${id}`, {
         method: "DELETE"
       });
 
@@ -526,8 +536,8 @@ const handleLearningSubmit = async (e) => {
   e.preventDefault();
   try {
     const url = currentLearning 
-      ? `http://localhost:5000/api/moocs/${currentLearning.id}`
-      : "http://localhost:5000/api/moocs";
+      ? `http://localhost:8000/api/moocs/${currentLearning.id}`
+      : "http://localhost:8000/api/moocs";
     
     const method = currentLearning ? "PUT" : "POST";
     
@@ -581,7 +591,7 @@ const handleLearningEdit = (mooc) => {
 };
 const handleLearningDelete = async (id) => {
   try {
-    const response = await fetch(`http://localhost:5000/api/moocs/${id}`, {
+    const response = await fetch(`http://localhost:8000/api/moocs/${id}`, {
       method: "DELETE"
     });
 
@@ -680,12 +690,6 @@ const handleLearningDelete = async (id) => {
           >
             Gestión de Challenger
           </button>
-          <button
-            onClick={() => setActiveSection('learning')}
-            className={`px-4 py-2 rounded hover:bg-[#6d0a2b] hover:text-white ${activeSection === 'learning' ? 'bg-[#8B0D37] text-white' : 'bg-gray-200 text-gray-800'}`}
-          >
-            Gestión de Learning
-          </button>
         </div>
 
         {activeSection === 'mentors' && (
@@ -759,19 +763,6 @@ const handleLearningDelete = async (id) => {
           />
         )}
 
-        {activeSection === 'learning' && (
-          <AdminLearning
-            learningList={learningList}
-            showForm={showLearningForm}
-            currentLearning={currentLearning}
-            formData={learningFormData}
-            handleInputChange={handleLearningInputChange}
-            handleSubmit={handleLearningSubmit}
-            setShowForm={setShowLearningForm}
-            handleEdit={handleLearningEdit}
-            handleDelete={handleLearningDelete}
-          />
-        )}
       </div>
     </div>
   );

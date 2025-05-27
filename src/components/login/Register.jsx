@@ -99,7 +99,7 @@ function RegisterForm() {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/usuario", {
+      const response = await fetch("http://localhost:8000/api/usuario", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

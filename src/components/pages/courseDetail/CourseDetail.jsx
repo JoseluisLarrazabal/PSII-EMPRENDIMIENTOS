@@ -17,8 +17,8 @@ const mockCourseData = {
   provider: "HarvardX",
   school_name: "Harvard University",
   image_url:
-    "https://courses.edx.org/asset-v1:HarvardX+CS50+X+type@thumbnail+block@course_image-375x200.jpg",
-  logo_url: "https://www.edx.org/images/school/logos/harvardx-logo-200x101.png",
+    "../../cs50.png",
+  logo_url: "../../harvard.png",
   description:
     "This is Harvard University's introduction to the intellectual enterprises of computer science and the art of programming. This course teaches students how to think algorithmically and solve problems efficiently. Topics include abstraction, algorithms, data structures, encapsulation, resource management, security, and software engineering. Languages include C, Python, and SQL plus HTML, CSS, and JavaScript.",
   start_date: "2023-11-15T00:00:00",

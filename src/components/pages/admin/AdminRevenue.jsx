@@ -37,10 +37,22 @@ const AdminRevenue = ({
   };
 
   const handleCancel = () => {
-    setShowForm(false);     // Ocultar formulario
-    handleEdit(null);       // Cancelar edición
-    setFormData({});        // ✅ Limpiar campos
+    setShowForm(false);     // Cierra el formulario
+    resetForm();            // Limpia todos los campos
+    if (currentRevenue) {
+      handleEdit(null);     // Limpia el estado de edición si existe
+    }
   };
+
+  const resetForm = () => {
+  setFormData({
+    imagen_url: "",
+    titulo: "",
+    subtitulo: "",
+    descripcion: "",
+    servicios: ""
+  });
+};
 
   return (
     <div className="p-4 max-w-full overflow-x-hidden">
@@ -138,7 +150,11 @@ const AdminRevenue = ({
               <button type="submit" className="bg-[#8B0D37] text-white px-4 py-2 rounded hover:bg-[#6d0a2b]">
                 {currentRevenue ? "Actualizar" : "Guardar"}
               </button>
-              <button type="button" onClick={handleCancel} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+              <button 
+                type="button" 
+                onClick={handleCancel}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
                 Cancelar
               </button>
             </div>
