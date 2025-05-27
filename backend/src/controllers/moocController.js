@@ -160,8 +160,6 @@ const deleteCourse = async (req, res, next) => {
   }
 };
 
-// Añadir en moocController.js
-
 // Obtener todos los cursos agrupados por categoría
 const getAllCourses = async (req, res, next) => {
   try {
@@ -210,7 +208,20 @@ const getAllCourses = async (req, res, next) => {
   }
 };
 
-
+// Obtener un curso por ID
+const getCourseById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const course = await moocModel.getCourseById(id);
+    console.log("Resultado del modelo getCourseById:", course); // <-- Agrega esto
+    if (!course) {
+      return res.status(404).json({ success: false, message: "Curso no encontrado" });
+    }
+    res.status(200).json({ success: true, data: course });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // Actualizar module.exports para incluir getAllCourses
 module.exports = {
@@ -223,4 +234,5 @@ module.exports = {
   updateCourse,
   deleteCourse,
   getAllCourses,
+  getCourseById,
 };

@@ -9,30 +9,9 @@ import CourseSyllabus from "./Tabs/CourseSyllabus";
 import CourseInstructors from "./Tabs/CourseInstructors";
 import CourseEnrollCTA from "./CourseEnrollCTA";
 import LoadingSpinner from "../../LoadingSpinner"; // Usar el spinner existente
+import { fetchCourseById } from "../../../services/api"; // Ajusta el path si es necesario
 
-// Datos mock para desarrollo inicial
-const mockCourseData = {
-  id: 1,
-  title: "CS50's Introduction to Computer Science",
-  provider: "HarvardX",
-  school_name: "Harvard University",
-  image_url:
-    "../../cs50.png",
-  logo_url: "../../harvard.png",
-  description:
-    "This is Harvard University's introduction to the intellectual enterprises of computer science and the art of programming. This course teaches students how to think algorithmically and solve problems efficiently. Topics include abstraction, algorithms, data structures, encapsulation, resource management, security, and software engineering. Languages include C, Python, and SQL plus HTML, CSS, and JavaScript.",
-  start_date: "2023-11-15T00:00:00",
-  duration: "12 semanas",
-  effort_hours: 6,
-  language: "Inglés",
-  level: "Principiante",
-  prerequisites: "No se requieren conocimientos previos de programación.",
-  enrollment_count: 2500000,
-  rating: 4.8,
-  video_preview_url: "https://www.youtube.com/embed/WOvhPzWGGc",
-  has_certificate: true,
-  // Añadiremos más datos en próximos pasos
-};
+
 
 const CourseDetail = () => {
   const { courseId } = useParams();
@@ -51,14 +30,18 @@ const CourseDetail = () => {
 
   // Efecto para cargar datos del curso
   useEffect(() => {
-    // Simulación de carga (reemplazar con API real más adelante)
     setLoading(true);
-    setTimeout(() => {
-      setCourseData(mockCourseData);
-      setLoading(false);
-    }, 800);
-
-    // Implementaremos la llamada API real en un paso posterior
+    setError(null);
+    fetchCourseById(courseId)
+      .then((data) => {
+        console.log("Datos del curso recuperados:", data); // <-- Depuración
+        setCourseData(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError("No se pudo cargar el curso.");
+        setLoading(false);
+      });
   }, [courseId]);
 
   // Función para renderizar el contenido según la pestaña activa

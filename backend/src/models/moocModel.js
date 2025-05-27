@@ -366,6 +366,13 @@ const deleteCourse = async (id) => {
   return result.affectedRows > 0;
 };
 
+// Obtener un curso por ID
+const getCourseById = async (id) => {
+  const [rows] = await pool.query("SELECT * FROM mooc_catalog WHERE id = ?", [Number(id)]);
+  return rows[0] || null;
+};
+
+
 module.exports = {
   initializeTables,
   getCategories,
@@ -378,4 +385,5 @@ module.exports = {
   createCourse,
   updateCourse,
   deleteCourse,
+  getCourseById,
 };

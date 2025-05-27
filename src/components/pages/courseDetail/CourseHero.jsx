@@ -54,7 +54,13 @@ const CourseHero = ({ course }) => {
                     </svg>
                   ))}
                 </span>
-                <span>{course.rating.toFixed(1)}</span>
+                <span>
+                  {typeof course.rating === "number"
+                    ? course.rating.toFixed(1)
+                    : course.rating
+                    ? Number(course.rating).toFixed(1)
+                    : "Sin calificación"}
+                </span>
               </div>
             )}
             
