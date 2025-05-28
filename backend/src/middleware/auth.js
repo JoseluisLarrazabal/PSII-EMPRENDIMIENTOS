@@ -18,7 +18,7 @@ const authMiddleware = (req, res, next) => {
     try {
       const decoded = jwt.verify(token, 'tu_clave_secreta_fuerte_para_desarrollo_123');
       req.user = decoded; // Así puedes acceder a req.user en los controladores
-      next();
+    next();
     } catch (err) {
       return res.status(401).json({ 
         success: false, 

@@ -88,11 +88,11 @@ const createCourse = async (req, res, next) => {
     const requiredFields = ['title', 'provider', 'image_url', 'logo_url', 'type', 'category'];
     for (const field of requiredFields) {
       if (!courseData[field]) {
-        return res.status(400).json({
-          success: false,
+      return res.status(400).json({
+        success: false,
           message: `El campo ${field} es obligatorio`
-        });
-      }
+      });
+    }
     }
     
     // Validaciones adicionales (ejemplo: tipo de datos, formato de fechas, etc.)
