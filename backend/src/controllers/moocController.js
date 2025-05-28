@@ -223,6 +223,20 @@ const getCourseById = async (req, res, next) => {
   }
 };
 
+
+
+// Obtener slides por ID de curso
+const getSlidesByCourseId = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const slides = await moocModel.getSlidesByCourseId(id);
+    res.status(200).json({ success: true, data: slides });
+  } catch (error) {
+    console.error("Error en getSlidesByCourseId:", error);
+    next(error);
+  }
+};
+
 // Actualizar module.exports para incluir getAllCourses
 module.exports = {
   initializeTables,
@@ -235,4 +249,5 @@ module.exports = {
   deleteCourse,
   getAllCourses,
   getCourseById,
+  getSlidesByCourseId,
 };

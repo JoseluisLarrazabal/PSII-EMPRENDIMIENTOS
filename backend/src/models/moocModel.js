@@ -405,6 +405,28 @@ const getCourseById = async (id) => {
   return rows[0] || null;
 };
 
+// Obtener slides por ID de curso
+const getSlidesByCourseId = async (courseId) => {
+  const [rows] = await pool.query(
+    `SELECT id, title, content, video_url AS videoUrl, embed_url AS embedUrl, quiz, resources, slide_order
+     FROM mooc_course_slides
+     WHERE course_id = ?
+     ORDER BY slide_order ASC`,
+    [courseId]
+  );
+  // Parsear quiz y resources de JSON SOLO si son string
+  return rows.map(slide => ({
+    ...slide,
+    quiz:
+      typeof slide.quiz === "string"
+        ? (slide.quiz.trim() === "" ? [] : JSON.parse(slide.quiz))
+        : (Array.isArray(slide.quiz) ? slide.quiz : []),
+    resources:
+      typeof slide.resources === "string"
+        ? (slide.resources.trim() === "" ? [] : JSON.parse(slide.resources))
+        : (Array.isArray(slide.resources) ? slide.resources : []),
+  }));
+};
 
 module.exports = {
   initializeTables,
@@ -419,4 +441,5 @@ module.exports = {
   updateCourse,
   deleteCourse,
   getCourseById,
+  getSlidesByCourseId,
 };

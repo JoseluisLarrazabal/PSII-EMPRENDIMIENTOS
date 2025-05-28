@@ -72,3 +72,8 @@ export const createCourse = async (courseData, token) => {
   );
   return response.data;
 };
+
+export const fetchSlidesByCourseId = async (id) => {
+  const response = await axios.get(`http://localhost:8000/api/moocs/courses/${id}/slides`);
+  return response.data.data;
+};

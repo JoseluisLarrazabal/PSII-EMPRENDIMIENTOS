@@ -6,6 +6,7 @@ const router = express.Router();
 
 // Rutas públicas
 router.get('/categories', moocController.getCategories);
+router.get('/courses/:id/slides', moocController.getSlidesByCourseId);
 router.get('/courses/:id', moocController.getCourseById);
 router.get('/subjects', moocController.getSubjects);
 router.get('/schools', moocController.getSchools);
