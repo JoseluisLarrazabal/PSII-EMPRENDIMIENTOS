@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { createCourse } from "../../../services/api";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { createCourse, fetchCourseById, fetchSlidesByCourseId, updateCourse } from "../../../services/api";
 
 // Estructura inicial de un slide vacío
 const emptySlide = {
@@ -71,12 +72,46 @@ const validateSlide = (slide) => {
   return errs;
 };
 
+// Utilidad para formatear la fecha a yyyy-MM-dd
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  try {
+    return new Date(dateString).toISOString().split("T")[0];
+  } catch {
+    return "";
+  }
+};
+
 const CourseBuilder = () => {
   const [course, setCourse] = useState({ ...emptyCourse });
   const [slides, setSlides] = useState([{ ...emptySlide }]);
   const [selectedSlide, setSelectedSlide] = useState(0);
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const courseId = searchParams.get("id");
+
+  // Cargar datos si es edición
+  useEffect(() => {
+    const loadCourse = async () => {
+      if (!courseId) return;
+      setIsEdit(true);
+      try {
+        const data = await fetchCourseById(courseId);
+        setCourse({ ...emptyCourse, ...data });
+        const slidesData = await fetchSlidesByCourseId(courseId);
+        setSlides(slidesData.length > 0 ? slidesData : [{ ...emptySlide }]);
+        setSelectedSlide(0);
+      } catch (err) {
+        alert("Error al cargar el curso para edición");
+        navigate("/mis-cursos");
+      }
+    };
+    loadCourse();
+    // eslint-disable-next-line
+  }, [courseId]);
 
   // Funciones para agregar, eliminar y actualizar slides
   const addSlide = () => {
@@ -118,11 +153,23 @@ const CourseBuilder = () => {
     setSaving(true);
     try {
       const token = localStorage.getItem("token");
-      const courseToSave = { ...course, slides };
-      const response = await createCourse(courseToSave, token);
-      alert("Curso creado exitosamente con ID: " + response.data.id);
+      // Formatear la fecha antes de enviar
+      let startDate = course.start_date;
+      if (startDate && startDate.includes("T")) {
+        startDate = startDate.split("T")[0];
+      }
+      const courseToSave = { ...course, slides, start_date: startDate };
+      let response;
+      if (isEdit && courseId) {
+        response = await updateCourse(courseId, courseToSave, token);
+        alert("Curso actualizado exitosamente");
+      } else {
+        response = await createCourse(courseToSave, token);
+        alert("Curso creado exitosamente con ID: " + response.data.id);
+      }
+      navigate("/mis-cursos");
     } catch (error) {
-      alert("Error al crear el curso: " + (error.response?.data?.message || error.message));
+      alert("Error al guardar el curso: " + (error.response?.data?.message || error.message));
     }
     setSaving(false);
   };
@@ -165,13 +212,18 @@ const CourseBuilder = () => {
 
       {/* Panel principal */}
       <main className="flex-1 p-8">
+        {isEdit && (
+          <div className="mb-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded">
+            <strong>Modo edición:</strong> Estás editando un curso existente.
+          </div>
+        )}
         {/* Editor de slide */}
         <h3 className="text-xl font-bold mb-4">Editar lección</h3>
         <div className="mb-4">
           <label className="block font-semibold mb-1">Título</label>
           <input
-            className="w-full border rounded px-3 py-2"
-            value={slides[selectedSlide].title}
+            className={`w-full border rounded px-3 py-2 ${errors.title ? 'border-red-500' : ''}`}
+            value={slides[selectedSlide].title || ""}
             onChange={(e) => updateSlide("title", e.target.value)}
             placeholder="Título de la lección"
           />
@@ -181,7 +233,7 @@ const CourseBuilder = () => {
           <label className="block font-semibold mb-1">Contenido</label>
           <textarea
             className="w-full border rounded px-3 py-2"
-            value={slides[selectedSlide].content}
+            value={slides[selectedSlide].content || ""}
             onChange={(e) => updateSlide("content", e.target.value)}
             placeholder="Contenido textual o instrucciones"
             rows={4}
@@ -191,7 +243,7 @@ const CourseBuilder = () => {
           <label className="block font-semibold mb-1">Video de YouTube (opcional)</label>
           <input
             className="w-full border rounded px-3 py-2"
-            value={slides[selectedSlide].videoUrl}
+            value={slides[selectedSlide].videoUrl || ""}
             onChange={(e) => updateSlide("videoUrl", e.target.value)}
             placeholder="URL de YouTube"
           />
@@ -233,7 +285,7 @@ const CourseBuilder = () => {
             <div key={qIdx} className="border rounded p-3 mb-3 bg-gray-50">
               <input
                 className="w-full border rounded px-2 py-1 mb-2"
-                value={q.question}
+                value={q.question || ""}
                 onChange={(e) => {
                   const quiz = slides[selectedSlide].quiz.map((item, idx) =>
                     idx === qIdx ? { ...item, question: e.target.value } : item
@@ -250,7 +302,7 @@ const CourseBuilder = () => {
                   <div key={oIdx} className="flex items-center mb-1">
                     <input
                       className="flex-1 border rounded px-2 py-1"
-                      value={opt}
+                      value={opt || ""}
                       onChange={(e) => {
                         const quiz = slides[selectedSlide].quiz.map((item, idx) =>
                           idx === qIdx
@@ -362,7 +414,7 @@ const CourseBuilder = () => {
             <div key={rIdx} className="flex items-center mb-2">
               <input
                 className="flex-1 border rounded px-2 py-1 mr-2"
-                value={res.name}
+                value={res.name || ""}
                 onChange={(e) => {
                   const resources = slides[selectedSlide].resources.map((item, idx) =>
                     idx === rIdx ? { ...item, name: e.target.value } : item
@@ -373,7 +425,7 @@ const CourseBuilder = () => {
               />
               <input
                 className="flex-1 border rounded px-2 py-1 mr-2"
-                value={res.url}
+                value={res.url || ""}
                 onChange={(e) => {
                   const resources = slides[selectedSlide].resources.map((item, idx) =>
                     idx === rIdx ? { ...item, url: e.target.value } : item
@@ -421,7 +473,7 @@ const CourseBuilder = () => {
               <label className="block font-semibold mb-1">Título *</label>
               <input
                 className="w-full border rounded px-3 py-2"
-                value={course.title}
+                value={course.title || ""}
                 onChange={e => setCourse({ ...course, title: e.target.value })}
                 placeholder="Título del curso"
                 required
@@ -431,7 +483,7 @@ const CourseBuilder = () => {
               <label className="block font-semibold mb-1">Proveedor *</label>
               <input
                 className="w-full border rounded px-3 py-2"
-                value={course.provider}
+                value={course.provider || ""}
                 onChange={e => setCourse({ ...course, provider: e.target.value })}
                 placeholder="Proveedor"
                 required
@@ -441,7 +493,7 @@ const CourseBuilder = () => {
               <label className="block font-semibold mb-1">Imagen (URL) *</label>
               <input
                 className="w-full border rounded px-3 py-2"
-                value={course.image_url}
+                value={course.image_url || ""}
                 onChange={e => setCourse({ ...course, image_url: e.target.value })}
                 placeholder="URL de la imagen"
                 required
@@ -451,7 +503,7 @@ const CourseBuilder = () => {
               <label className="block font-semibold mb-1">Logo (URL) *</label>
               <input
                 className="w-full border rounded px-3 py-2"
-                value={course.logo_url}
+                value={course.logo_url || ""}
                 onChange={e => setCourse({ ...course, logo_url: e.target.value })}
                 placeholder="URL del logo"
                 required
@@ -461,7 +513,7 @@ const CourseBuilder = () => {
               <label className="block font-semibold mb-1">Tipo *</label>
               <input
                 className="w-full border rounded px-3 py-2"
-                value={course.type}
+                value={course.type || ""}
                 onChange={e => setCourse({ ...course, type: e.target.value })}
                 placeholder="Tipo de curso"
                 required
@@ -471,7 +523,7 @@ const CourseBuilder = () => {
               <label className="block font-semibold mb-1">Categoría *</label>
               <input
                 className="w-full border rounded px-3 py-2"
-                value={course.category}
+                value={course.category || ""}
                 onChange={e => setCourse({ ...course, category: e.target.value })}
                 placeholder="Categoría"
                 required
@@ -481,7 +533,7 @@ const CourseBuilder = () => {
               <label className="block font-semibold mb-1">Descripción</label>
               <textarea
                 className="w-full border rounded px-3 py-2"
-                value={course.description}
+                value={course.description || ""}
                 onChange={e => setCourse({ ...course, description: e.target.value })}
                 placeholder="Descripción del curso"
                 rows={3}
@@ -492,7 +544,7 @@ const CourseBuilder = () => {
               <input
                 type="date"
                 className="w-full border rounded px-3 py-2"
-                value={course.start_date}
+                value={formatDate(course.start_date)}
                 onChange={e => setCourse({ ...course, start_date: e.target.value })}
               />
             </div>
@@ -500,7 +552,7 @@ const CourseBuilder = () => {
               <label className="block font-semibold mb-1">Idioma</label>
               <input
                 className="w-full border rounded px-3 py-2"
-                value={course.language}
+                value={course.language || ""}
                 onChange={e => setCourse({ ...course, language: e.target.value })}
                 placeholder="Idioma"
               />
@@ -534,7 +586,7 @@ const CourseBuilder = () => {
               <input
                 type="number"
                 className="w-full border rounded px-3 py-2"
-                value={course.course_count}
+                value={course.course_count || ""}
                 onChange={e => setCourse({ ...course, course_count: e.target.value })}
                 placeholder="Cantidad de cursos"
               />
@@ -543,7 +595,7 @@ const CourseBuilder = () => {
               <label className="block font-semibold mb-1">Duración</label>
               <input
                 className="w-full border rounded px-3 py-2"
-                value={course.duration}
+                value={course.duration || ""}
                 onChange={e => setCourse({ ...course, duration: e.target.value })}
                 placeholder="Duración"
               />
@@ -553,7 +605,7 @@ const CourseBuilder = () => {
               <input
                 type="number"
                 className="w-full border rounded px-3 py-2"
-                value={course.effort_hours}
+                value={course.effort_hours || ""}
                 onChange={e => setCourse({ ...course, effort_hours: e.target.value })}
                 placeholder="Horas por semana"
               />
@@ -562,7 +614,7 @@ const CourseBuilder = () => {
               <label className="block font-semibold mb-1">Nivel</label>
               <input
                 className="w-full border rounded px-3 py-2"
-                value={course.level}
+                value={course.level || ""}
                 onChange={e => setCourse({ ...course, level: e.target.value })}
                 placeholder="Nivel"
               />
@@ -571,7 +623,7 @@ const CourseBuilder = () => {
               <label className="block font-semibold mb-1">Prerrequisitos</label>
               <textarea
                 className="w-full border rounded px-3 py-2"
-                value={course.prerequisites}
+                value={course.prerequisites || ""}
                 onChange={e => setCourse({ ...course, prerequisites: e.target.value })}
                 placeholder="Prerrequisitos"
                 rows={2}
@@ -583,7 +635,7 @@ const CourseBuilder = () => {
                 type="number"
                 step="0.01"
                 className="w-full border rounded px-3 py-2"
-                value={course.rating}
+                value={course.rating || ""}
                 onChange={e => setCourse({ ...course, rating: e.target.value })}
                 placeholder="Calificación"
               />
@@ -600,11 +652,11 @@ const CourseBuilder = () => {
           </div>
           <div className="flex justify-end mt-6">
             <button
-              className="px-6 py-2 bg-[#8B0D37] text-white rounded font-semibold"
+              className={`px-6 py-2 bg-[#8B0D37] text-white rounded font-semibold ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
               onClick={handleSaveCourse}
               disabled={saving}
             >
-              {saving ? "Guardando..." : "Guardar curso completo"}
+              {saving ? (isEdit ? 'Guardando cambios...' : 'Guardando...') : (isEdit ? 'Guardar cambios' : 'Guardar curso completo')}
             </button>
           </div>
         </div>

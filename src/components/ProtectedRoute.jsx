@@ -1,19 +1,14 @@
 // src/components/ProtectedRoute.jsx
 import React from 'react';
 import { Navigate } from 'react-router-dom';
+import { useAuth } from './login/AuthContext';
 
-const ProtectedRoute = ({ children, adminOnly = false }) => {
-  const user = JSON.parse(localStorage.getItem('user'));
-  
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
-  
-  if (adminOnly && user.rol !== 'Administrador') {
-    return <Navigate to="/" />;
-  }
-  
-  return children;
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) return null; // o un spinner
+
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;

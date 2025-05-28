@@ -85,15 +85,22 @@ const createCourse = async (req, res, next) => {
     const courseData = req.body;
     
     // Validación básica
-    if (!courseData.title || !courseData.provider || !courseData.image_url || 
-        !courseData.logo_url || !courseData.type || !courseData.category) {
-      return res.status(400).json({
-        success: false,
-        message: 'Faltan campos obligatorios'
-      });
+    const requiredFields = ['title', 'provider', 'image_url', 'logo_url', 'type', 'category'];
+    for (const field of requiredFields) {
+      if (!courseData[field]) {
+        return res.status(400).json({
+          success: false,
+          message: `El campo ${field} es obligatorio`
+        });
+      }
     }
     
-    const courseId = await moocModel.createCourse(courseData);
+    // Validaciones adicionales (ejemplo: tipo de datos, formato de fechas, etc.)
+    
+    const courseId = await moocModel.createCourse({
+      ...courseData,
+      mentor_id: req.user.id // Enlazar curso al mentor (usuario)
+    });
     
     res.status(201).json({
       success: true,
@@ -237,6 +244,20 @@ const getSlidesByCourseId = async (req, res, next) => {
   }
 };
 
+// Obtener los cursos creados por el mentor autenticado
+const getMyCourses = async (req, res, next) => {
+  try {
+    const mentorId = req.user.id;
+    if (!mentorId) {
+      return res.status(403).json({ success: false, message: 'No autorizado' });
+    }
+    const myCourses = await moocModel.getCoursesByMentorId(mentorId);
+    res.status(200).json({ success: true, data: myCourses });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Actualizar module.exports para incluir getAllCourses
 module.exports = {
   initializeTables,
@@ -250,4 +271,5 @@ module.exports = {
   getAllCourses,
   getCourseById,
   getSlidesByCourseId,
+  getMyCourses,
 };

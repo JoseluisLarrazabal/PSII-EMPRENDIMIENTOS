@@ -128,6 +128,24 @@ const SubNav = () => {
       >
         Mi perfil
       </Link>
+      {user?.rol === 'Mentor' && (
+        <>
+          <Link
+            to="/course-builder"
+            className="block px-4 py-2 text-sm text-[#8B0D37] hover:bg-gray-100 font-semibold"
+            onClick={() => setIsUserDropdownOpen(false)}
+          >
+            Crear curso
+          </Link>
+          <Link
+            to="/mis-cursos"
+            className="block px-4 py-2 text-sm text-[#8B0D37] hover:bg-gray-100 font-semibold"
+            onClick={() => setIsUserDropdownOpen(false)}
+          >
+            Mis cursos
+          </Link>
+        </>
+      )}
       <button
         onClick={handleLogout}
         disabled={loading}

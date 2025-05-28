@@ -77,3 +77,24 @@ export const fetchSlidesByCourseId = async (id) => {
   const response = await axios.get(`http://localhost:8000/api/moocs/courses/${id}/slides`);
   return response.data.data;
 };
+
+export const fetchMyCourses = async (token) => {
+  const response = await axios.get('http://localhost:8000/api/moocs/my-courses', {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data.data;
+};
+
+export const updateCourse = async (id, courseData, token) => {
+  const response = await axios.put(
+    `http://localhost:8000/api/moocs/courses/${id}`,
+    courseData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};

@@ -34,8 +34,8 @@ router.get('/verify-auth', (req, res) => {
   if (!token) return res.json({ isAuthenticated: false });
 
   try {
-    jwt.verify(token, 'tu_clave_secreta_fuerte_para_desarrollo_123');
-    res.json({ isAuthenticated: true });
+    const decoded = jwt.verify(token, 'tu_clave_secreta_fuerte_para_desarrollo_123');
+    res.json({ isAuthenticated: true, user: decoded });
   } catch {
     res.json({ isAuthenticated: false });
   }
