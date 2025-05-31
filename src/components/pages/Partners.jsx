@@ -1,13 +1,18 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../login/AuthContext';
+=======
+import React from 'react';
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 import partnerImage from '/oratoria.jpg';
 import expert1 from '/experto1.jpg';
 import expert2 from '/experto2.jpg';
 import expert3 from '/experto3.jpg';
 import expert4 from '/experto4.jpg';
 import expert5 from '/experto5.png';
+<<<<<<< HEAD
 import profile1 from '/tinder.jpg'; 
 import icon1 from '/icon1.png';
 import icon2 from '/icon2.png';
@@ -145,6 +150,40 @@ const PartnerSection = () => {
   if (!expertsData.length) {
     return <div>Loading...</div>;
   }
+=======
+import profile1 from '/profile1.jpg'; 
+import profile2 from '/profile2.jpg';
+import profile3 from '/profile3.jpg';
+import profile5 from '/profile5.jpg';
+import profile6 from '/profile6.jpg';
+import profile7 from '/profile7.jpg';
+import profile8 from '/profile8.jpg';
+import profile9 from '/profile9.jpg';
+import profile10 from '/profile10.jpg';
+import profile11 from '/profile11.jpg';
+import icon1 from '/icon1.png';
+import icon2 from '/icon2.png';
+import icon3 from '/icon3.png';
+
+import '../../styles/Partners.css';
+
+const expertsData = [
+  { image: profile1, name: 'María Fernández', price: '$80 por sesión', role: 'Fundadora de EcoVision' },
+  { image: profile2, name: 'Carlos Díaz', price: '$90 por sesión', role: 'Fundador de FinTechPro' },
+  { image: profile3, name: 'Laura Gómez', price: '$70 por sesión', role: 'Fundadora de HealthWay' },
+  { image: profile5, name: 'Sofía Ramos', price: '$85 por sesión', role: 'Fundadora de EduPlus' },
+  { image: profile6, name: 'Daniela Ruiz', price: '$75 por sesión', role: 'Fundadora de TravelNow' },
+  { image: profile7, name: 'Martín Gómez', price: '$80 por sesión', role: 'Fundador de FinTechUp' },
+  { image: profile8, name: 'Camila Ortega', price: '$70 por sesión', role: 'Fundadora de HealthFirst' },
+  { image: profile9, name: 'Luis Fernández', price: '$90 por sesión', role: 'Fundador de EduPro' },
+  { image: profile10, name: 'Valeria Soto', price: '$85 por sesión', role: 'Fundadora de GreenImpact' },
+  { image: profile11, name: 'Diego Rivas', price: '$95 por sesión', role: 'Fundador de LegalFlow' }  
+];
+
+const PartnerSection = () => {
+  const firstSixExperts = expertsData.slice(0, 5);
+  const lastExperts = expertsData.slice(5);
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 
   return (
     <div>
@@ -157,7 +196,11 @@ const PartnerSection = () => {
         <div className="partner-text">
           <h2>
             Reserva a un Partner solicitado <br />
+<<<<<<< HEAD
             y genera un trabajo COlaborativo para sacar adelante tu emprendimiento
+=======
+            y poder tener un trabajo COlaborativo para poder sacar adelante tu emprendimiento
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
           </h2>
         </div>
       </div>
@@ -166,7 +209,11 @@ const PartnerSection = () => {
       <div className="partner-experts">
         <div className="partner-bottom">
           <p className="partner-subtext">
+<<<<<<< HEAD
             Elige a tu socio para hacer match! y recibir su colaboración
+=======
+            Elige un experto para hacer match! y recibir su colaboración
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
           </p>
           <div className="expert-circles">
             <div className="circle" style={{ backgroundImage: `url(${expert1})` }}>
@@ -187,6 +234,7 @@ const PartnerSection = () => {
           </div>
         </div>
       </div>
+<<<<<<< HEAD
       {/* Sección texto */}
       <div className="expert-info bg-white text-center py-10 px-5 mt-8">
         <h3 className="font-montserrat text-3xl font-bold text-black mb-2 text-left">
@@ -329,6 +377,66 @@ const PartnerSection = () => {
       )}
 
        {/* Línea final */}
+=======
+
+      {/* Texto nivel experto */}
+      <div className="expert-info">
+        <h3>Partners de primer nivel. Acceder a las mejores soluciones nunca fue tan fácil y accesible</h3>
+        <div className="ver-mas">
+          <span>Ver más</span>
+          <span className="flecha">➜</span>
+        </div>
+      </div>
+
+      {/* Cards de expertos 1 al 6 */}
+      <div className="expert-cards-container">
+        {firstSixExperts.map((expert, index) => (
+          <div key={index} className="expert-card">
+            <div className="image-container">
+              <img src={expert.image} alt={expert.name} className="expert-image" />
+              <div className="favorite-icon">❤️</div>
+            </div>
+            <h4 className="expert-name">{expert.name} ✔</h4>
+            <p className="expert-price">{expert.price}</p>
+            <p className="expert-role">{expert.role}</p>
+            <div className="expert-buttons">
+              <button className="btn-interesa">Me interesa</button>
+              <button className="btn-no-interesa">No me interesa</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Texto final */}
+      <div className="expert-info">
+        <h3>Inicia. Accede a una red de partners dispuestos a poder ayudarte en tú negocio!</h3>
+        <div className="ver-mas">
+          <span>Ver más</span>
+          <span className="flecha">➜</span>
+        </div>
+      </div>
+
+      {/* Cards de expertos 7 al 11 */}
+      <div className="expert-cards-container">
+        {lastExperts.map((expert, index) => (
+          <div key={index} className="expert-card">
+            <div className="image-container">
+              <img src={expert.image} alt={expert.name} className="expert-image" />
+              <div className="favorite-icon">❤️</div>
+            </div>
+            <h4 className="expert-name">{expert.name} ✔</h4>
+            <p className="expert-price">{expert.price}</p>
+            <p className="expert-role">{expert.role}</p>
+            <div className="expert-buttons">
+              <button className="btn-interesa">Me interesa</button>
+              <button className="btn-no-interesa">No me interesa</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Línea final */}
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
       <div className="revenue-line"></div>
 
       {/* Nueva sección con imágenes y texto */}
@@ -357,8 +465,16 @@ const PartnerSection = () => {
           </div>
         </div>
       </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
     </div>
   );
 };
 
+<<<<<<< HEAD
 export default PartnerSection;
+=======
+export default PartnerSection;
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf

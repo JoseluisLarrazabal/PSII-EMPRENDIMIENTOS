@@ -1,9 +1,14 @@
 // src/components/pages/Login.jsx
 import React from "react";
+<<<<<<< HEAD
 import LoginBackground from "../login/LoginBackground"; // Asegúrate de que coincida con la estructura real
 import LoginForm from "../login/LoginForm"; 
 import Registrer from "../login/Register";
 
+=======
+import LoginBackground from "./LoginBackground"; // Asegúrate de que coincida con la estructura real
+import LoginForm from "./LoginForm"; 
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 
 function Login() {
   // Podríamos ocultar Navbar, SubNav y Footer para esta página
