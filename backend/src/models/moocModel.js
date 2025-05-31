@@ -245,8 +245,8 @@ const createCourse = async (courseData) => {
           course_count, category, is_popular, is_new, is_trending,
           school_id, administrador_id, description, start_date, duration,
           effort_hours, language, level, prerequisites, enrollment_count,
-          rating, video_preview_url, has_certificate
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          rating, video_preview_url, has_certificate, mentor_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         courseData.title,
@@ -272,6 +272,7 @@ const createCourse = async (courseData) => {
         courseData.rating || null,
         courseData.video_preview_url || null,
         courseData.has_certificate || false,
+        courseData.mentor_id || null,
       ]
     );
 
