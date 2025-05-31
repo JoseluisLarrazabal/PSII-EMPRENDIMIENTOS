@@ -1,6 +1,5 @@
 // src/components/pages/moocs/CourseCategory.jsx
 import React from 'react';
-import { Link } from "react-router-dom";
 import CourseCard from './CourseCard';
 // No es necesario importar transitions.css aquí ya que lo importamos en MoocsPage
 
@@ -18,9 +17,7 @@ const CourseCategory = ({ title, courses }) => {
               className="stagger-item"
               style={{ animationDelay: `${index * 0.05}s` }}
             >
-              <Link to={`/servicios/moocs/${course.id}`} className="block text-current no-underline">
-                <CourseCard course={course} />
-              </Link>
+              <CourseCard key={index} course={course} />
             </div>
           ))}
         </div>
