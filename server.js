@@ -9,13 +9,12 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path'; //solución
 
-<<<<<<< HEAD
+
 // Obtener __dirname en ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 =======
 const PORT = config.port || 8000;
->>>>>>> JoseLuisBackend
 
 // Cargar el archivo .env desde /backend
 dotenv.config({ path: path.resolve(__dirname, 'backend', '.env') });
