@@ -5,10 +5,7 @@ const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 
-<<<<<<< HEAD
-// Login route (existing)
-=======
->>>>>>> origin/mainBackend
+
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -33,28 +30,21 @@ router.post('/login', async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
+
 // Verify auth route (existing)
-=======
->>>>>>> origin/mainBackend
 router.get('/verify-auth', (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.json({ isAuthenticated: false });
 
   try {
-<<<<<<< HEAD
     jwt.verify(token, 'tu_clave_secreta_fuerte_para_desarrollo_123');
     res.json({ isAuthenticated: true });
-=======
-    const decoded = jwt.verify(token, 'tu_clave_secreta_fuerte_para_desarrollo_123');
-    res.json({ isAuthenticated: true, user: decoded });
->>>>>>> origin/mainBackend
   } catch {
     res.json({ isAuthenticated: false });
   }
 });
 
-<<<<<<< HEAD
+
 // New routes for password reset
 router.post('/verify-email', async (req, res) => {
   const { email } = req.body;
@@ -115,6 +105,4 @@ router.post('/reset-password', async (req, res) => {
 });
 
 module.exports = router;
-=======
-module.exports = router;
->>>>>>> origin/mainBackend
+

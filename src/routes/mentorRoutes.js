@@ -4,11 +4,9 @@ const pool = require('../config/database');
 const router = express.Router();
 
 // Obtener todos los mentores
-<<<<<<< HEAD
+
 router.get('/mentor', async (req, res) => {
-=======
-router.get('/mentors', async (req, res) => {
->>>>>>> origin/mainBackend
+
   try {
     const connection = await pool.getConnection();
     const [rows] = await connection.query(`
@@ -24,11 +22,9 @@ router.get('/mentors', async (req, res) => {
 });
 
 // Crear nuevo mentor
-<<<<<<< HEAD
+
 router.post('/mentor', async (req, res) => {
-=======
-router.post('/mentors', async (req, res) => {
->>>>>>> origin/mainBackend
+
   try {
     const { nombre, telefono, area_experiencia, disponibilidad, image_url } = req.body;
     const connection = await pool.getConnection();
@@ -44,12 +40,9 @@ router.post('/mentors', async (req, res) => {
   }
 });
 
-// Actualizar mentor
-<<<<<<< HEAD
+
 router.put('/mentor/:id', async (req, res) => {
-=======
-router.put('/mentors/:id', async (req, res) => {
->>>>>>> origin/mainBackend
+
   try {
     const { id } = req.params;
     const { nombre, telefono, area_experiencia, disponibilidad, image_url } = req.body;
@@ -67,11 +60,10 @@ router.put('/mentors/:id', async (req, res) => {
 });
 
 // Eliminar mentor
-<<<<<<< HEAD
+
 router.delete('/mentor/:id', async (req, res) => {
-=======
-router.delete('/mentors/:id', async (req, res) => {
->>>>>>> origin/mainBackend
+
+
   try {
     const { id } = req.params;
     const connection = await pool.getConnection();
