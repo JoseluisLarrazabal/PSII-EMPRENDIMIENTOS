@@ -31,7 +31,7 @@ const PartnerSection = () => {
     try {
       const token = localStorage.getItem('token');
       if (token) {
-        const response = await axios.get('http://localhost:8000/verify-auth', {
+        const response = await axios.get('http://localhost:8000/api/verify-auth', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setIsAuthenticated(response.data.isAuthenticated);
@@ -54,7 +54,7 @@ const PartnerSection = () => {
   useEffect(() => {
     const fetchMentors = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/mentors');
+        const response = await axios.get('http://localhost:8000/api/mentor');
         console.log('Datos obtenidos:', response.data);
         if (Array.isArray(response.data)) {
           setExpertsData(response.data);
@@ -81,7 +81,7 @@ const PartnerSection = () => {
 
       try {
         // Insertar la selección en la tabla mentoring
-        await axios.post('http://localhost:8000/mentoring', {
+        await axios.post('http://localhost:8000/api/mentoring', {
           mentorId: mentorId,
           meInteresa: isInterested
         }, {
@@ -157,7 +157,7 @@ const PartnerSection = () => {
         <div className="partner-text">
           <h2>
             Reserva a un Partner solicitado <br />
-            y poder tener un trabajo COlaborativo para poder sacar adelante tu emprendimiento
+            y genera un trabajo COlaborativo para sacar adelante tu emprendimiento
           </h2>
         </div>
       </div>
@@ -166,7 +166,7 @@ const PartnerSection = () => {
       <div className="partner-experts">
         <div className="partner-bottom">
           <p className="partner-subtext">
-            Elige un experto para hacer match! y recibir su colaboración
+            Elige a tu socio para hacer match! y recibir su colaboración
           </p>
           <div className="expert-circles">
             <div className="circle" style={{ backgroundImage: `url(${expert1})` }}>
@@ -190,7 +190,7 @@ const PartnerSection = () => {
       {/* Sección texto */}
       <div className="expert-info bg-white text-center py-10 px-5 mt-8">
         <h3 className="font-montserrat text-3xl font-bold text-black mb-2 text-left">
-          Partners de primer nivel. Acceder a las mejores soluciones nunca fue tan fácil y accesible
+          Partners al alcance de un Click. Acceder a las mejores soluciones nunca fue tan fácil y accesible
         </h3>
         <div
           className="ver-mas flex items-center justify-start gap-3 mt-4 cursor-pointer transition-transform duration-300 ease-in-out text-left pl-0"
@@ -243,7 +243,7 @@ const PartnerSection = () => {
               </div>
               
               <h4 className="text-xl font-semibold text-gray-800 my-3">{mentor.nombre} ✔</h4>
-              <p className="text-base text-gray-600 my-1">Tel: {mentor.telefono}</p>
+              <p className="text-base text-gray-600 my-1">Teléfono: {mentor.telefono}</p>
               <p className="text-base text-gray-600 my-1">Área: {mentor.area_experiencia}</p>
               <p className="text-base text-gray-600 my-1">Disponibilidad: {mentor.disponibilidad}</p>
               
@@ -289,7 +289,7 @@ const PartnerSection = () => {
                   }}
                   className="bg-[#880043] hover:bg-[#6a0034] text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200"
                 >
-                  Registrar datos del partner
+                  Registrar datos
                 </button>
                 
                 <button

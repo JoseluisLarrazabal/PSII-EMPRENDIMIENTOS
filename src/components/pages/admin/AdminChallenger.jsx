@@ -30,16 +30,49 @@ const AdminChallenger = ({
     closeDeleteModal();
   };
 
+  // Función para formatear la fecha al formato YYYY-MM-DD para el input date
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Función para resetear el formulario a valores iniciales
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      image_url: "",
+      fecha: "",
+      hora_inicio: "",
+      hora_fin: "",
+      contacto_email: "",
+      destacado: false
+    });
+  };
+
   const handleAddNew = () => {
     handleEdit(null);
-    setFormData({});
+    resetForm();
     setShowForm(true);
   };
 
+  // Función para manejar la cancelación
   const handleCancel = () => {
     setShowForm(false);
-    handleEdit(null);
-    setFormData({});
+  };
+
+  // Manejar edición de un challenger existente
+  const handleEditChallenger = (challenger) => {
+    // Formatear la fecha antes de pasarla al formulario
+    const challengerToEdit = {
+      ...challenger,
+      fecha: formatDateForInput(challenger.fecha)
+    };
+    handleEdit(challengerToEdit);
+    setShowForm(true);
   };
 
   return (
@@ -237,7 +270,7 @@ const AdminChallenger = ({
                   <td className="py-3 px-4">
                     <div className="flex gap-2">
                       <button 
-                        onClick={() => handleEdit(item)} 
+                        onClick={() => handleEditChallenger(item)} 
                         className="bg-[#66B5CB] text-white px-4 py-2 rounded-lg font-medium cursor-pointer hover:opacity-90"
                       >
                         Editar

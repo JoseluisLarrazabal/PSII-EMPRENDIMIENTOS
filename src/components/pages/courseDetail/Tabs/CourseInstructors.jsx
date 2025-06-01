@@ -7,7 +7,7 @@ const mockInstructors = [
     name: "David J. Malan",
     title: "Gordon McKay Professor of the Practice of Computer Science",
     bio: "David J. Malan es profesor de Ciencias de la Computación en Harvard University, donde imparte el popular curso CS50. Sus intereses de investigación incluyen ciberseguridad, tecnología digital forense y pedagogía informática. Se graduó de Harvard con un A.B. en Ciencias de la Computación y obtuvo su Ph.D. en la misma área.",
-    image_url: "https://cs50.harvard.edu/college/2021/fall/assets/instructors/dmalan.png",
+    image_url: "../../david.jpg",
     institution: "Harvard University",
     credentials: "Ph.D. in Computer Science, Harvard University",
     mentor_id: 5
@@ -17,7 +17,7 @@ const mockInstructors = [
     name: "Brian Yu",
     title: "Senior Lecturer on Computer Science",
     bio: "Brian Yu es un instructor senior en Harvard University, donde enseña cursos de desarrollo web y móvil. Antes de unirse a Harvard, trabajó como ingeniero de software en Facebook. Es graduado de Harvard College y ha dedicado su carrera a hacer que la educación en informática sea más accesible para todos.",
-    image_url: "https://cs50.harvard.edu/college/2021/fall/assets/instructors/brianyu.jpg",
+    image_url: "../../brian.png",
     institution: "Harvard University",
     credentials: "A.B. in Computer Science, Harvard College",
     mentor_id: null

@@ -7,6 +7,7 @@ import AdminRevenue from "../admin/AdminRevenue";
 import AdminEvents from "../admin/AdminEvents";
 import AdminChallenger from "../admin/AdminChallenger";
 import AdminLearning from "../admin/AdminLearning";
+import AdminContacto from "../admin/AdminContacto";
 import axios from "axios";
 
 function AdminDashboard() {
@@ -97,30 +98,54 @@ const [learningFormData, setLearningFormData] = useState({
   const [showLearningForm, setShowLearningForm] = useState(false);
   const [currentLearning, setCurrentLearning] = useState(null);
   const [logoutLoading, setLogoutLoading] = useState(false);
+  const [contactos, setContactos] = useState([]);
+  const [contactosLoading, setContactosLoading] = useState(true);
 
+// Add to your useEffect
+const fetchContactos = async () => {
+  try {
+    const response = await fetch("http://localhost:8000/api/contacto");
+    if (!response.ok) throw new Error("Error al obtener contactos");
+    const data = await response.json();
+    setContactos(data);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setContactosLoading(false);
+  }
+};
 
-
-// Update fetchLearning function
 const fetchLearning = async () => {
   try {
-    const response = await fetch("http://localhost:5000/api/moocs/all-courses");
+    const response = await fetch("http://localhost:8000/api/moocs/all-courses");
     if (!response.ok) throw new Error("Error al obtener MOOCs");
     const data = await response.json();
     
-    // Flatten all courses into a single array
-    const allCourses = [];
-    for (const category in data.coursesByCategory) {
-      allCourses.push(...data.coursesByCategory[category]);
+    console.log("Datos recibidos de la API:", data); // Para depuración
+    
+    // Verificamos si data.coursesByCategory existe y es un objeto
+    if (data.coursesByCategory && typeof data.coursesByCategory === 'object') {
+      // Aplanamos todos los cursos en un solo array
+      const allCourses = Object.values(data.coursesByCategory).flat();
+      console.log("Cursos aplanados:", allCourses); // Para depuración
+      setLearningList(allCourses);
+    } else {
+      console.error("Estructura de datos inesperada:", data);
+      setLearningList([]);
     }
-    setLearningList(allCourses);
   } catch (err) {
+    console.error("Error al obtener MOOCs:", err);
     setError(err.message);
+    setLearningList([]);
+  } finally {
+    setLoading(false);
   }
 };
+
   // Fetch de datos
   const fetchMentors = async () => {
     try {
-      const response = await fetch("http://localhost:8000/mentors");
+      const response = await fetch("http://localhost:8000/api/mentor");
       if (!response.ok) throw new Error("Error al obtener mentores");
       const data = await response.json();
       setMentors(data);
@@ -184,6 +209,7 @@ const fetchLearning = async () => {
     fetchEvents();
     fetchChallengers();
     fetchLearning();
+    fetchContactos();
   }, []);
 
   // Handlers para Mentores
@@ -196,8 +222,8 @@ const fetchLearning = async () => {
     e.preventDefault();
     try {
       const url = currentMentor 
-        ? `http://localhost:8000/mentors/${currentMentor.id}`
-        : "http://localhost:8000/mentors";
+        ? `http://localhost:8000/api/mentor/${currentMentor.id}`
+        : "http://localhost:8000/api/mentor";
       
       const method = currentMentor ? "PUT" : "POST";
       
@@ -238,7 +264,7 @@ const fetchLearning = async () => {
 
   const handleMentorDelete = async (id) => {
     try {
-      const response = await fetch(`http://localhost:8000/mentors/${id}`, {
+      const response = await fetch(`http://localhost:8000/api/mentor/${id}`, {
         method: "DELETE"
       });
 
@@ -516,6 +542,20 @@ const fetchLearning = async () => {
     }
   };
 
+
+  const handleContactoDelete = async (id) => {
+  try {
+    const response = await fetch(`http://localhost:8000/api/contacto/${id}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) throw new Error("Error al eliminar el contacto");
+
+    fetchContactos();
+  } catch (err) {
+    setError(err.message);
+  }
+};
     // Add these handlers with other handlers
   const handleLearningInputChange = (e) => {
     const { name, value } = e.target;
@@ -526,8 +566,8 @@ const handleLearningSubmit = async (e) => {
   e.preventDefault();
   try {
     const url = currentLearning 
-      ? `http://localhost:5000/api/moocs/${currentLearning.id}`
-      : "http://localhost:5000/api/moocs";
+      ? `http://localhost:8000/api/moocs/${currentLearning.id}`
+      : "http://localhost:8000/api/moocs";
     
     const method = currentLearning ? "PUT" : "POST";
     
@@ -581,7 +621,7 @@ const handleLearningEdit = (mooc) => {
 };
 const handleLearningDelete = async (id) => {
   try {
-    const response = await fetch(`http://localhost:5000/api/moocs/${id}`, {
+    const response = await fetch(`http://localhost:8000/api/moocs/${id}`, {
       method: "DELETE"
     });
 
@@ -680,13 +720,23 @@ const handleLearningDelete = async (id) => {
           >
             Gestión de Challenger
           </button>
+
           <button
-            onClick={() => setActiveSection('learning')}
-            className={`px-4 py-2 rounded hover:bg-[#6d0a2b] hover:text-white ${activeSection === 'learning' ? 'bg-[#8B0D37] text-white' : 'bg-gray-200 text-gray-800'}`}
+            onClick={() => setActiveSection('contactos')}
+            className={`px-4 py-2 rounded hover:bg-[#6d0a2b] hover:text-white ${activeSection === 'contactos' ? 'bg-[#8B0D37] text-white' : 'bg-gray-200 text-gray-800'}`}
           >
-            Gestión de Learning
+            Gestión de Contactos
           </button>
         </div>
+
+        {activeSection === 'contactos' && (
+          <AdminContacto
+            contactos={contactos}
+            loading={contactosLoading}
+            error={error}
+            handleDelete={handleContactoDelete}
+          />
+        )}
 
         {activeSection === 'mentors' && (
           <AdminMentors
@@ -759,19 +809,6 @@ const handleLearningDelete = async (id) => {
           />
         )}
 
-        {activeSection === 'learning' && (
-          <AdminLearning
-            learningList={learningList}
-            showForm={showLearningForm}
-            currentLearning={currentLearning}
-            formData={learningFormData}
-            handleInputChange={handleLearningInputChange}
-            handleSubmit={handleLearningSubmit}
-            setShowForm={setShowLearningForm}
-            handleEdit={handleLearningEdit}
-            handleDelete={handleLearningDelete}
-          />
-        )}
       </div>
     </div>
   );

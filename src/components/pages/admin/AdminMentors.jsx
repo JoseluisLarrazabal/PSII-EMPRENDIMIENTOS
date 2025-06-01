@@ -92,11 +92,19 @@ function AdminMentors({
                   type="text"
                   name="telefono"
                   value={formData.telefono}
-                  onChange={handleInputChange}
+                  onChange={(e) =>
+                    handleInputChange({
+                      target: {
+                        name: 'telefono',
+                        value: e.target.value.replace(/\D/g, '') // ❗ elimina todo lo que no sea número
+                      }
+                    })
+                  }
                   className="w-full px-3 py-2 border rounded"
                   required
                 />
               </div>
+
               <div>
                 <label className="block text-gray-700 mb-2">Área de Experiencia</label>
                 <input

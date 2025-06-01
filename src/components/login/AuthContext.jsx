@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) =>  {
     try {
       const token = localStorage.getItem('token');
       if (token) {
-        const response = await axios.get('http://localhost:8000/verify-auth', {
+        const response = await axios.get('http://localhost:8000/api/verify-auth', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setIsAuthenticated(response.data.isAuthenticated);

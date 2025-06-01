@@ -10,7 +10,7 @@ const AdminRevenue = ({
   setShowForm,
   handleEdit,
   handleDelete,
-  setFormData, // ✅ Necesario para limpiar el formulario
+  setFormData,
 }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [revenueToDelete, setRevenueToDelete] = useState(null);
@@ -31,15 +31,27 @@ const AdminRevenue = ({
   };
 
   const handleAddNew = () => {
-    handleEdit(null);       // Reset editing
-    setFormData({});        // ✅ Limpiar el formulario
-    setShowForm(true);      // Mostrar formulario
+    handleEdit(null);
+    setFormData({});
+    setShowForm(true);
   };
 
   const handleCancel = () => {
-    setShowForm(false);     // Ocultar formulario
-    handleEdit(null);       // Cancelar edición
-    setFormData({});        // ✅ Limpiar campos
+    setShowForm(false);
+    resetForm();
+    if (currentRevenue) {
+      handleEdit(null);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      imagen_url: "",
+      titulo: "",
+      subtitulo: "",
+      descripcion: "",
+      servicios: ""
+    });
   };
 
   return (
@@ -82,7 +94,6 @@ const AdminRevenue = ({
                   value={formData.imagen_url || ""}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border rounded"
-                  required
                 />
               </div>
               <div>
@@ -138,7 +149,11 @@ const AdminRevenue = ({
               <button type="submit" className="bg-[#8B0D37] text-white px-4 py-2 rounded hover:bg-[#6d0a2b]">
                 {currentRevenue ? "Actualizar" : "Guardar"}
               </button>
-              <button type="button" onClick={handleCancel} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+              <button 
+                type="button" 
+                onClick={handleCancel}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
                 Cancelar
               </button>
             </div>
@@ -167,7 +182,7 @@ const AdminRevenue = ({
                     {item.imagen_url ? (
                       <img
                         src={item.imagen_url}
-                        
+                        alt={item.titulo}
                         className="w-16 h-16 object-cover rounded"
                         onError={(e) => {
                           e.target.onerror = null;
@@ -175,8 +190,8 @@ const AdminRevenue = ({
                         }}
                       />
                     ) : (
-                      <div className="w-16 h-16 bg-gray-300 rounded flex items-center justify-center">
-                        {item.titulo.charAt(0)}
+                      <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center text-gray-500 text-xs">
+                        Sin imagen
                       </div>
                     )}
                   </td>

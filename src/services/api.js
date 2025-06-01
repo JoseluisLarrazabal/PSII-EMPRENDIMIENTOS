@@ -1,7 +1,7 @@
 // src/services/api.js
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000/api/moocs"; // Ajustar según tu configuración
+const BASE_URL = "http://localhost:8000/api/moocs"; // Ajustar según tu configuración
 
 export const fetchCategories = async () => {
   try {

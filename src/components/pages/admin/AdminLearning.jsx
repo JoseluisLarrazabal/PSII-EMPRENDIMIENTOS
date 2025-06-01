@@ -12,7 +12,7 @@ const AdminLearning = ({
   handleDelete,
 }) => {
   return (
-    <div>
+    <div className="p-4">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-[#8B0D37]">Gestión de MOOCs</h2>
         <button
@@ -33,7 +33,7 @@ const AdminLearning = ({
           </h3>
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              {/* Inputs */}
+              {/* Input fields */}
               {[
                 ["Título", "title"],
                 ["Proveedor", "provider"],
@@ -49,10 +49,10 @@ const AdminLearning = ({
                   <input
                     type="text"
                     name={name}
-                    value={formData[name]}
+                    value={formData[name] || ''}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    required
+                    required={name !== "course_count"}
                   />
                 </div>
               ))}
@@ -71,24 +71,26 @@ const AdminLearning = ({
               </div>
 
               {/* Checkbox fields */}
-              {[
-                ["Popular", "is_popular"],
-                ["Nuevo", "is_new"],
-                ["Tendencia", "is_trending"],
-              ].map(([label, name]) => (
-                <div key={name} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name={name}
-                    checked={formData[name] || false}
-                    onChange={handleInputChange}
-                    className="h-4 w-4 text-[#8B0D37] focus:ring-[#8B0D37] border-gray-300 rounded"
-                  />
-                  <label className="ml-2 block text-sm text-gray-700">
-                    {label}
-                  </label>
-                </div>
-              ))}
+              <div className="col-span-2 grid grid-cols-3 gap-4">
+                {[
+                  ["Popular", "is_popular"],
+                  ["Nuevo", "is_new"],
+                  ["Tendencia", "is_trending"],
+                ].map(([label, name]) => (
+                  <div key={name} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name={name}
+                      checked={formData[name] || false}
+                      onChange={handleInputChange}
+                      className="h-4 w-4 text-[#8B0D37] focus:ring-[#8B0D37] border-gray-300 rounded"
+                    />
+                    <label className="ml-2 block text-sm text-gray-700">
+                      {label}
+                    </label>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="flex justify-end space-x-2">
@@ -110,9 +112,9 @@ const AdminLearning = ({
         </div>
       )}
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white text-sm">
-          <thead>
+      <div className="overflow-x-auto bg-white rounded-lg shadow">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
             <tr>
               {[
                 "Título",
@@ -127,64 +129,100 @@ const AdminLearning = ({
               ].map((header) => (
                 <th
                   key={header}
-                  className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left font-semibold text-gray-700"
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   {header}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody>
-            {learningList.map((mooc) => (
-              <tr key={mooc.id}>
-                <td className="py-2 px-4 border-b border-gray-200">{mooc.title}</td>
-                <td className="py-2 px-4 border-b border-gray-200">{mooc.provider}</td>
-                <td className="py-2 px-4 border-b border-gray-200">{mooc.category}</td>
-                <td className="py-2 px-4 border-b border-gray-200">{mooc.type}</td>
-                <td className="py-2 px-4 border-b border-gray-200">{mooc.course_count}</td>
-                <td className="py-2 px-4 border-b border-gray-200">
-                  {mooc.logo_url && (
-                    <img src={mooc.logo_url} alt="Logo" className="h-10 w-auto object-contain" />
-                  )}
-                </td>
-                <td className="py-2 px-4 border-b border-gray-200">
-                  {mooc.image_url && (
-                    <img src={mooc.image_url} alt="Imagen" className="h-10 w-auto object-contain" />
-                  )}
-                </td>
-                <td className="py-2 px-4 border-b border-gray-200">
-                  {mooc.is_popular && (
-                    <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded mr-1">
-                      Popular
-                    </span>
-                  )}
-                  {mooc.is_new && (
-                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mr-1">
-                      Nuevo
-                    </span>
-                  )}
-                  {mooc.is_trending && (
-                    <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">
-                      Tendencia
-                    </span>
-                  )}
-                </td>
-                <td className="py-2 px-4 border-b border-gray-200">
-                  <button
-                    onClick={() => handleEdit(mooc)}
-                    className="mr-2 text-blue-600 hover:text-blue-800"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => handleDelete(mooc.id)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    Eliminar
-                  </button>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {learningList && learningList.length > 0 ? (
+              learningList.map((mooc) => (
+                <tr key={mooc.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {mooc.title}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {mooc.provider}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {mooc.category}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {mooc.type}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {mooc.course_count || "-"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {mooc.logo_url ? (
+                      <img
+                        src={mooc.logo_url}
+                        alt="Logo"
+                        className="h-10 w-10 object-contain"
+                      />
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {mooc.image_url ? (
+                      <img
+                        src={mooc.image_url}
+                        alt="Course"
+                        className="h-10 w-10 object-contain"
+                      />
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex space-x-1">
+                      {mooc.is_popular && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          Popular
+                        </span>
+                      )}
+                      {mooc.is_new && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          Nuevo
+                        </span>
+                      )}
+                      {mooc.is_trending && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          Tendencia
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      onClick={() => handleEdit(mooc)}
+                      className="text-indigo-600 hover:text-indigo-900 mr-3"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => handleDelete(mooc.id)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="9"
+                  className="px-6 py-4 text-center text-sm text-gray-500"
+                >
+                  No hay MOOCs disponibles
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

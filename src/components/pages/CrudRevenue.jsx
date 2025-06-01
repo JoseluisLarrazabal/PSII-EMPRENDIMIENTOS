@@ -29,7 +29,7 @@ const CrudRevenue = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:8000/revenue', {
+      const response = await fetch('http://localhost:8000/api/revenue', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,16 +73,41 @@ const CrudRevenue = () => {
           />
         </div>
 
+        {/* Contacto */}
         <div className="mb-4">
-          <label className="block mb-1 text-[#8d8d8d]">Nro de contacto</label>
-          <input
-            type="text"
-            name="contacto"
-            value={formData.contacto}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-[#ccc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#66b5cb]"
-            required
-          />
+          <label className="block mb-1 text-[#8d8d8d]">Contacto</label>
+          <div className="flex space-x-2">
+            <select
+              name="codigo_pais"
+              value={formData.codigo_pais || '+591'}
+              onChange={(e) => setFormData({ ...formData, codigo_pais: e.target.value })}
+              className="px-3 py-2 border border-[#ccc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#66b5cb]"
+              required
+            >
+              <option value="+591">🇧🇴 +591</option>
+              <option value="+54">🇦🇷 +54</option>
+              <option value="+56">🇨🇱 +56</option>
+              <option value="+57">🇨🇴 +57</option>
+              <option value="+52">🇲🇽 +52</option>
+              <option value="+1">🇺🇸 +1</option>
+              {/* Puedes agregar más países aquí */}
+            </select>
+            <input
+              type="tel"
+              name="contacto"
+              value={formData.contacto}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (/^\d*$/.test(val)) {
+                  setFormData((prev) => ({ ...prev, contacto: val }));
+                }
+              }}
+              placeholder="Ej: 77712345"
+              className="flex-1 px-4 py-2 border border-[#ccc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#66b5cb]"
+              maxLength={15}
+              required
+            />
+          </div>
         </div>
 
         <div className="mb-4">

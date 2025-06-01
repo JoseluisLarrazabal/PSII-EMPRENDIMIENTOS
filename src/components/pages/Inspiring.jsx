@@ -92,7 +92,7 @@ const Inspiring = () => {
           Inspiring Talks
         </h2>
         <p className="text-center text-lg text-[#8d8d8d] mb-12">
-          Descubre charlas inspiradoras al estilo TEDx para motivarte y transformar tu visión.
+          Descubre charlas inspiradoras para motivarte y transformar tu visión como emprendedor.
         </p>
 
         {/* Grid de Tarjetas */}

@@ -1,4 +1,3 @@
-// ServiceCards.jsx
 const ServiceCards = () => {
   const services = [
     {
@@ -19,19 +18,24 @@ const ServiceCards = () => {
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-6"> {/* Reducimos el gap a 6 */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {services.map((service, index) => (
         <div 
           key={index} 
-          className="relative overflow-hidden rounded-lg cursor-pointer"
+          className="relative overflow-hidden rounded-lg cursor-pointer group"
         >
-          <img 
-            src={service.image} 
-            alt={service.title}
-            className="w-full h-[180px] object-cover" // Ajustamos altura
-          />
-          <div className={`absolute bottom-0 left-0 right-0 ${service.bgColor} py-3 text-white text-center`}>
-            <h3 className="text-lg font-medium tracking-wide">{service.title}</h3>
+          <div className="relative overflow-hidden rounded-lg h-[180px]">
+            <img 
+              src={service.image} 
+              alt={service.title}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-20 transition-opacity duration-300 group-hover:bg-opacity-30"></div>
+          </div>
+          <div className={`absolute bottom-0 left-0 right-0 ${service.bgColor} py-3 text-white text-center transition-all duration-300 group-hover:py-4`}>
+            <h3 className="text-lg font-medium tracking-wide transform transition-transform duration-300 group-hover:scale-105">
+              {service.title}
+            </h3>
           </div>
         </div>
       ))}

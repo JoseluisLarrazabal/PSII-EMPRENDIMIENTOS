@@ -10,7 +10,7 @@ import QuienesSomos from "./components/pages/quienesSomos/QuienesSomos";
 import Login from "./components/pages/Login";
 import Register from "./components/login/Register";
 import Mentoring from "./components/pages/Mentoring";
-import Contact from "./components/pages/Contact";
+import Contact from  "./components/pages/Contact";
 import Revenue from "./components/pages/Revenue";
 import Partners from "./components/pages/Partners";
 import Inspiring from "./components/pages/Inspiring";
