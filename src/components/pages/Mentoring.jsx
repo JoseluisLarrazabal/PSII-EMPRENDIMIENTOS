@@ -11,7 +11,7 @@ const MentoringPage = () => {
     const fetchMentors = async () => {
       try {
         const apiUrl = process.env.NODE_ENV === 'development' 
-          ? 'http://localhost:8000/api/mentors'
+          ? 'http://localhost:8000/api/mentor'
           : '/api/mentors';
         
         const response = await fetch(apiUrl, {

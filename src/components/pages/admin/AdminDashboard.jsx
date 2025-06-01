@@ -130,7 +130,7 @@ const fetchLearning = async () => {
   // Fetch de datos
   const fetchMentors = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/mentors");
+      const response = await fetch("http://localhost:8000/api/mentor");
       if (!response.ok) throw new Error("Error al obtener mentores");
       const data = await response.json();
       setMentors(data);
@@ -206,8 +206,8 @@ const fetchLearning = async () => {
     e.preventDefault();
     try {
       const url = currentMentor 
-        ? `http://localhost:8000/api/mentors/${currentMentor.id}`
-        : "http://localhost:8000/api/mentors";
+        ? `http://localhost:8000/api/mentor/${currentMentor.id}`
+        : "http://localhost:8000/api/mentor";
       
       const method = currentMentor ? "PUT" : "POST";
       
@@ -248,7 +248,7 @@ const fetchLearning = async () => {
 
   const handleMentorDelete = async (id) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/mentors/${id}`, {
+      const response = await fetch(`http://localhost:8000/api/mentor/${id}`, {
         method: "DELETE"
       });
 
