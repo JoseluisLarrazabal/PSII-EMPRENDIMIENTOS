@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+<<<<<<< HEAD
+import "../moocs/transitions.css";
+=======
 import "../../pages/moocs/transitions.css";
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 import CourseHero from "./CourseHero";
 import CourseInfoCards from "./CourseInfoCards";
 import CourseNavTabs from "./CourseNavTabs";
@@ -9,6 +13,11 @@ import CourseSyllabus from "./Tabs/CourseSyllabus";
 import CourseInstructors from "./Tabs/CourseInstructors";
 import CourseEnrollCTA from "./CourseEnrollCTA";
 import LoadingSpinner from "../../LoadingSpinner"; // Usar el spinner existente
+<<<<<<< HEAD
+import { fetchCourseById } from "../../../services/api"; // Ajusta el path si es necesario
+
+
+=======
 
 // Datos mock para desarrollo inicial
 const mockCourseData = {
@@ -33,6 +42,7 @@ const mockCourseData = {
   has_certificate: true,
   // Añadiremos más datos en próximos pasos
 };
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 
 const CourseDetail = () => {
   const { courseId } = useParams();
@@ -51,6 +61,20 @@ const CourseDetail = () => {
 
   // Efecto para cargar datos del curso
   useEffect(() => {
+<<<<<<< HEAD
+    setLoading(true);
+    setError(null);
+    fetchCourseById(courseId)
+      .then((data) => {
+        console.log("Datos del curso recuperados:", data); // <-- Depuración
+        setCourseData(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError("No se pudo cargar el curso.");
+        setLoading(false);
+      });
+=======
     // Simulación de carga (reemplazar con API real más adelante)
     setLoading(true);
     setTimeout(() => {
@@ -59,6 +83,7 @@ const CourseDetail = () => {
     }, 800);
 
     // Implementaremos la llamada API real en un paso posterior
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
   }, [courseId]);
 
   // Función para renderizar el contenido según la pestaña activa

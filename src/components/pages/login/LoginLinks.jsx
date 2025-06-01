@@ -12,8 +12,16 @@ function LoginLinks() {
       </div>
       
       <div className="text-center">
+<<<<<<< HEAD
+        <Link 
+          to="/forgot-password" 
+          className="text-[#8B0D37] hover:text-[#6d0a2b] text-sm font-medium"
+        >
+          ¿Olvidaste tu contraseña?
+=======
         <Link to="/forgot-password" className="text-blue-600 hover:text-blue-800 text-sm">
           Olvidé mi Contraseña!
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
         </Link>
       </div>
       

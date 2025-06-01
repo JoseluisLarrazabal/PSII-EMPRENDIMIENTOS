@@ -1,10 +1,46 @@
 import React, { useState, useEffect } from "react";
+<<<<<<< HEAD
+import { useParams } from "react-router-dom";
+import "../moocs/transitions.css";
+=======
 import "../../pages/moocs/transitions.css";
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 import Quiz from "./components/Quiz.jsx";
 import Resources from "./components/Resources.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import SlideContent from "./components/SlideContent.jsx";
 import VideoPlayer from "./components/VideoPlayer.jsx";
+<<<<<<< HEAD
+import { fetchSlidesByCourseId, fetchCourseById } from "../../../services/api";
+
+const CourseContent = () => {
+  const { courseId } = useParams();
+  const [slides, setSlides] = useState([]);
+  const [course, setCourse] = useState(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const [slidesData, courseData] = await Promise.all([
+          fetchSlidesByCourseId(courseId),
+          fetchCourseById(courseId),
+        ]);
+        setSlides(slidesData);
+        setCourse(courseData);
+        setCurrentSlide(0);
+      } catch (error) {
+        setSlides([]);
+        setCourse(null);
+      }
+      setLoading(false);
+    };
+    loadData();
+  }, [courseId]);
+=======
 
 // Simulación de slides/lecciones del curso
 const mockSlides = [
@@ -56,12 +92,24 @@ const CourseContent = () => {
   const slide = mockSlides[currentSlide];
   const totalSlides = mockSlides.length;
   const progress = ((currentSlide + 1) / totalSlides) * 100;
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 
   // Scroll automático al cambiar de slide
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentSlide]);
 
+<<<<<<< HEAD
+  if (loading) return <div className="p-8">Cargando...</div>;
+  if (!course) return <div className="p-8">Curso no encontrado</div>;
+  if (!slides.length) return <div className="p-8">Este curso aún no tiene lecciones.</div>;
+
+  const slide = slides[currentSlide];
+  const totalSlides = slides.length;
+  const progress = ((currentSlide + 1) / totalSlides) * 100;
+
+=======
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
   return (
     <div className="flex bg-gray-50 min-h-screen">
       {/* Botón hamburguesa solo en móvil */}
@@ -76,7 +124,11 @@ const CourseContent = () => {
 
       {/* Sidebar responsivo */}
       <Sidebar
+<<<<<<< HEAD
+        slides={slides}
+=======
         slides={mockSlides}
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
         currentSlide={currentSlide}
         setCurrentSlide={setCurrentSlide}
         className={`fixed top-0 left-0 h-full z-40 bg-white transition-transform duration-300 md:static md:translate-x-0 ${
@@ -108,7 +160,12 @@ const CourseContent = () => {
         {/* Encabezado con título y progreso */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 border-b pb-4">
           <div>
+<<<<<<< HEAD
+            <h1 className="text-2xl font-bold text-[#8B0D37] mb-1">{course.title}</h1>
+            <h2 className="text-lg text-gray-700 mb-1">{slide.title}</h2>
+=======
             <h2 className="text-2xl font-bold text-[#8B0D37] mb-1">{slide.title}</h2>
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
             <span className="text-sm text-gray-600">
               Lección {currentSlide + 1} de {totalSlides}
             </span>
@@ -125,9 +182,32 @@ const CourseContent = () => {
         </div>
 
         {/* Video */}
+<<<<<<< HEAD
+        {slide.videoUrl && (
+          <div className="mb-8 shadow rounded bg-white">
+            <VideoPlayer videoUrl={slide.videoUrl} title={slide.title} />
+          </div>
+        )}
+
+        {/* Presentación embebida */}
+        {slide.embedUrl && (
+          <div className="mb-8 shadow rounded bg-white">
+            <iframe
+              src={slide.embedUrl}
+              title="Presentación embebida"
+              width="100%"
+              height="400"
+              frameBorder="0"
+              allowFullScreen
+              className="rounded"
+            ></iframe>
+          </div>
+        )}
+=======
         <div className="mb-8 shadow rounded bg-white">
           <VideoPlayer videoUrl={slide.videoUrl} title={slide.title} />
         </div>
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 
         {/* Contenido */}
         <div className="mb-8 shadow rounded bg-white p-6">
@@ -135,6 +215,21 @@ const CourseContent = () => {
         </div>
 
         {/* Quiz */}
+<<<<<<< HEAD
+        {slide.quiz && slide.quiz.length > 0 && (
+          <div className="mb-8 shadow rounded bg-white p-6">
+            <h4 className="font-semibold mb-2">Quiz</h4>
+            <Quiz quiz={slide.quiz} />
+          </div>
+        )}
+
+        {/* Recursos */}
+        {slide.resources && slide.resources.length > 0 && (
+          <div className="mb-8 shadow rounded bg-white p-6">
+            <Resources resources={slide.resources} />
+          </div>
+        )}
+=======
         <div className="mb-8 shadow rounded bg-white p-6">
           <h4 className="font-semibold mb-2">Quiz</h4>
           <Quiz quiz={slide.quiz} />
@@ -144,6 +239,7 @@ const CourseContent = () => {
         <div className="mb-8 shadow rounded bg-white p-6">
           <Resources resources={slide.resources} />
         </div>
+>>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 
         {/* Navegación entre lecciones */}
         <div className="flex justify-between mt-8">
