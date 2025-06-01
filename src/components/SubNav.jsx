@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-<<<<<<< HEAD
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -18,24 +17,11 @@ const SubNav = () => {
     const userData = localStorage.getItem('user');
     return userData ? JSON.parse(userData) : null;
   });
-=======
-import { Link, useLocation } from 'react-router-dom';
-
-const SubNav = () => {
-  const location = useLocation();
-  const [activeItem, setActiveItem] = useState(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 
   const menuItems = [
     { name: 'Acerca de nosotros', path: '/quienes-somos' },
     { name: 'Nuestros servicios', path: '/servicios', isDropdown: true },
-<<<<<<< HEAD
     { name: 'Crowd Funding', path: '/crowdfunding' },
-=======
-    { name: 'CrowdFunding', path: '/crowdfunding' },
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
     { name: 'Mentores', path: '/mentoring' },
     { name: 'Eventos', path: '/eventos' }
   ];
@@ -59,12 +45,9 @@ const SubNav = () => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setIsDropdownOpen(false);
       }
-<<<<<<< HEAD
       if (userDropdownRef.current && !userDropdownRef.current.contains(e.target)) {
         setIsUserDropdownOpen(false);
       }
-=======
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
@@ -77,19 +60,15 @@ const SubNav = () => {
     setIsDropdownOpen(prev => !prev);
   };
 
-<<<<<<< HEAD
   const handleUserDropdownClick = (e) => {
     e.preventDefault();
     setIsUserDropdownOpen(prev => !prev);
   };
 
-=======
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
   const handleOptionClick = () => {
     setIsDropdownOpen(false);
   };
 
-<<<<<<< HEAD
   const handleLogout = async () => {
     try {
       setLoading(true);
@@ -111,8 +90,6 @@ const SubNav = () => {
     }
   };
 
-=======
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
   const renderDropdown = () => (
     <div
       className={`absolute top-full left-0 w-56 bg-white shadow-lg rounded-md mt-2 z-50 transform transition-all duration-300 ease-in-out ${
@@ -134,7 +111,6 @@ const SubNav = () => {
     </div>
   );
 
-<<<<<<< HEAD
   const renderUserDropdown = () => (
     <div
       className={`absolute top-full right-0 w-48 bg-white shadow-lg rounded-md mt-2 z-50 transform transition-all duration-300 ease-in-out ${
@@ -188,8 +164,6 @@ const SubNav = () => {
     </div>
   );
 
-=======
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
   return (
     <div className="w-full bg-white border-b border-gray-100">
       <div className="max-w-[1200px] mx-auto flex items-center justify-between px-6 md:px-12">
@@ -201,17 +175,10 @@ const SubNav = () => {
           />
         </Link>
 
-<<<<<<< HEAD
         <nav className="flex items-center h-20 relative gap-2">
           {menuItems.map((item, index) => (
             item.isDropdown ? (
               <div key={index} className="relative flex items-center gap-1 md:gap-1.5" ref={dropdownRef}>
-=======
-        <nav className="flex items-center h-20 relative gap-2" ref={dropdownRef}>
-          {menuItems.map((item, index) => (
-            item.isDropdown ? (
-              <div key={index} className="relative flex items-center gap-1 md:gap-1.5">
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
                 <Link
                   to={item.path}
                   className="px-3 h-20 flex items-center text-sm md:text-base font-medium relative"
@@ -255,7 +222,6 @@ const SubNav = () => {
             )
           ))}
 
-<<<<<<< HEAD
           {user ? (
             <div className="relative ml-2 md:ml-4" ref={userDropdownRef}>
               <button
@@ -289,26 +255,10 @@ const SubNav = () => {
               </svg>
             </Link>
           )}
-=======
-          <Link
-            to="/login"
-            className="ml-2 md:ml-4 px-4 py-2 bg-[#8B0D37] text-white rounded-md font-medium hover:bg-[#6E0B2A] transition-colors duration-200 flex items-center"
-            onClick={() => setIsDropdownOpen(false)}
-          >
-            <span>Login</span>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
-          </Link>
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
         </nav>
       </div>
     </div>
   );
 };
 
-<<<<<<< HEAD
 export default SubNav;
-=======
-export default SubNav;
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf

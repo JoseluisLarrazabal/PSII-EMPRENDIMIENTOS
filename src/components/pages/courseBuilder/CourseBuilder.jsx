@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { createCourse, fetchCourseById, fetchSlidesByCourseId, updateCourse } from "../../../services/api";
-=======
-import React, { useState } from "react";
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 
 // Estructura inicial de un slide vacío
 const emptySlide = {
@@ -16,7 +12,6 @@ const emptySlide = {
   resources: [],
 };
 
-<<<<<<< HEAD
 // Estructura inicial para el curso
 const emptyCourse = {
   title: "",
@@ -48,12 +43,6 @@ const emptyCourse = {
 // Validación simple al intentar guardar
 const validateEmbedUrl = (url) => {
   if (!url) return true; // Campo opcional
-=======
-// Validación simple al intentar guardar
-const validateEmbedUrl = (url) => {
-  if (!url) return true; // Campo opcional
-  // Ejemplo: Google Slides, Canva, PowerPoint Online (puedes agregar más patrones)
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
   const patterns = [
     /^https:\/\/docs\.google\.com\/presentation\/d\/e\/.+\/embed\?start=/,
     /^https:\/\/www\.canva\.com\/design\/.+\/view\?embed/,
@@ -83,7 +72,6 @@ const validateSlide = (slide) => {
   return errs;
 };
 
-<<<<<<< HEAD
 // Utilidad para formatear la fecha a yyyy-MM-dd
 const formatDate = (dateString) => {
   if (!dateString) return "";
@@ -124,12 +112,6 @@ const CourseBuilder = () => {
     loadCourse();
     // eslint-disable-next-line
   }, [courseId]);
-=======
-const CourseBuilder = () => {
-  const [slides, setSlides] = useState([{ ...emptySlide }]);
-  const [selectedSlide, setSelectedSlide] = useState(0);
-  const [errors, setErrors] = useState({});
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 
   // Funciones para agregar, eliminar y actualizar slides
   const addSlide = () => {
@@ -151,7 +133,6 @@ const CourseBuilder = () => {
     setSlides(newSlides);
   };
 
-<<<<<<< HEAD
   // Guardar todo el curso y sus slides
   const handleSaveCourse = async () => {
     // Validación básica de campos obligatorios del curso
@@ -191,15 +172,6 @@ const CourseBuilder = () => {
       alert("Error al guardar el curso: " + (error.response?.data?.message || error.message));
     }
     setSaving(false);
-=======
-  const handleSave = () => {
-    const errs = validateSlide(slides[selectedSlide]);
-    setErrors(errs);
-    if (Object.keys(errs).length === 0) {
-      alert("¡Lección válida y lista para guardar!");
-      // Aquí iría la lógica de guardado real
-    }
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
   };
 
   return (
@@ -238,7 +210,6 @@ const CourseBuilder = () => {
         </button>
       </aside>
 
-<<<<<<< HEAD
       {/* Panel principal */}
       <main className="flex-1 p-8">
         {isEdit && (
@@ -247,29 +218,12 @@ const CourseBuilder = () => {
           </div>
         )}
         {/* Editor de slide */}
-=======
-      {/* Editor de slide */}
-      <main className="flex-1 p-8">
-        <div className="flex justify-end mb-4">
-          <button
-            className="px-4 py-2 bg-[#8B0D37] text-white rounded font-semibold"
-            onClick={handleSave}
-          >
-            Guardar lección (demo)
-          </button>
-        </div>
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
         <h3 className="text-xl font-bold mb-4">Editar lección</h3>
         <div className="mb-4">
           <label className="block font-semibold mb-1">Título</label>
           <input
-<<<<<<< HEAD
             className={`w-full border rounded px-3 py-2 ${errors.title ? 'border-red-500' : ''}`}
             value={slides[selectedSlide].title || ""}
-=======
-            className="w-full border rounded px-3 py-2"
-            value={slides[selectedSlide].title}
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
             onChange={(e) => updateSlide("title", e.target.value)}
             placeholder="Título de la lección"
           />
@@ -279,11 +233,7 @@ const CourseBuilder = () => {
           <label className="block font-semibold mb-1">Contenido</label>
           <textarea
             className="w-full border rounded px-3 py-2"
-<<<<<<< HEAD
             value={slides[selectedSlide].content || ""}
-=======
-            value={slides[selectedSlide].content}
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
             onChange={(e) => updateSlide("content", e.target.value)}
             placeholder="Contenido textual o instrucciones"
             rows={4}
@@ -293,11 +243,7 @@ const CourseBuilder = () => {
           <label className="block font-semibold mb-1">Video de YouTube (opcional)</label>
           <input
             className="w-full border rounded px-3 py-2"
-<<<<<<< HEAD
             value={slides[selectedSlide].videoUrl || ""}
-=======
-            value={slides[selectedSlide].videoUrl}
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
             onChange={(e) => updateSlide("videoUrl", e.target.value)}
             placeholder="URL de YouTube"
           />
@@ -339,11 +285,7 @@ const CourseBuilder = () => {
             <div key={qIdx} className="border rounded p-3 mb-3 bg-gray-50">
               <input
                 className="w-full border rounded px-2 py-1 mb-2"
-<<<<<<< HEAD
                 value={q.question || ""}
-=======
-                value={q.question}
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
                 onChange={(e) => {
                   const quiz = slides[selectedSlide].quiz.map((item, idx) =>
                     idx === qIdx ? { ...item, question: e.target.value } : item
@@ -360,11 +302,7 @@ const CourseBuilder = () => {
                   <div key={oIdx} className="flex items-center mb-1">
                     <input
                       className="flex-1 border rounded px-2 py-1"
-<<<<<<< HEAD
                       value={opt || ""}
-=======
-                      value={opt}
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
                       onChange={(e) => {
                         const quiz = slides[selectedSlide].quiz.map((item, idx) =>
                           idx === qIdx
@@ -476,11 +414,7 @@ const CourseBuilder = () => {
             <div key={rIdx} className="flex items-center mb-2">
               <input
                 className="flex-1 border rounded px-2 py-1 mr-2"
-<<<<<<< HEAD
                 value={res.name || ""}
-=======
-                value={res.name}
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
                 onChange={(e) => {
                   const resources = slides[selectedSlide].resources.map((item, idx) =>
                     idx === rIdx ? { ...item, name: e.target.value } : item
@@ -491,11 +425,7 @@ const CourseBuilder = () => {
               />
               <input
                 className="flex-1 border rounded px-2 py-1 mr-2"
-<<<<<<< HEAD
                 value={res.url || ""}
-=======
-                value={res.url}
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
                 onChange={(e) => {
                   const resources = slides[selectedSlide].resources.map((item, idx) =>
                     idx === rIdx ? { ...item, url: e.target.value } : item
@@ -534,7 +464,6 @@ const CourseBuilder = () => {
             + Agregar recurso
           </button>
         </div>
-<<<<<<< HEAD
 
         {/* Datos generales del curso */}
         <div className="mt-12 bg-white rounded shadow p-6">
@@ -731,8 +660,6 @@ const CourseBuilder = () => {
             </button>
           </div>
         </div>
-=======
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
       </main>
     </div>
   );
