@@ -8,6 +8,7 @@ import AdminEvents from "../admin/AdminEvents";
 import AdminChallenger from "../admin/AdminChallenger";
 import AdminLearning from "../admin/AdminLearning";
 import AdminContacto from "../admin/AdminContacto";
+
 import axios from "axios";
 
 function AdminDashboard() {
@@ -98,6 +99,7 @@ const [learningFormData, setLearningFormData] = useState({
   const [showLearningForm, setShowLearningForm] = useState(false);
   const [currentLearning, setCurrentLearning] = useState(null);
   const [logoutLoading, setLogoutLoading] = useState(false);
+
   const [contactos, setContactos] = useState([]);
   const [contactosLoading, setContactosLoading] = useState(true);
 
@@ -210,6 +212,7 @@ const fetchLearning = async () => {
     fetchChallengers();
     fetchLearning();
     fetchContactos();
+
   }, []);
 
   // Handlers para Mentores
@@ -556,6 +559,7 @@ const fetchLearning = async () => {
     setError(err.message);
   }
 };
+
     // Add these handlers with other handlers
   const handleLearningInputChange = (e) => {
     const { name, value } = e.target;
@@ -721,6 +725,7 @@ const handleLearningDelete = async (id) => {
             Gestión de Challenger
           </button>
 
+
           <button
             onClick={() => setActiveSection('contactos')}
             className={`px-4 py-2 rounded hover:bg-[#6d0a2b] hover:text-white ${activeSection === 'contactos' ? 'bg-[#8B0D37] text-white' : 'bg-gray-200 text-gray-800'}`}
@@ -737,6 +742,7 @@ const handleLearningDelete = async (id) => {
             handleDelete={handleContactoDelete}
           />
         )}
+
 
         {activeSection === 'mentors' && (
           <AdminMentors

@@ -31,6 +31,9 @@ import CourseContent from "./components/pages/courseContent/CourseContent";
 import CourseBuilder from "./components/pages/CourseBuilder/CourseBuilder";
 import Profile from './components/pages/Profile';
 
+import MyCourses from './components/pages/moocs/MyCourses';
+
+
 
 // Componente para controlar la visualización de elementos de navegación
 function AppContent() {
@@ -67,9 +70,23 @@ function AppContent() {
           <Route path="/crud-revenue" element={<CrudRevenue />} />
           <Route path="/crud-partner" element={<CrudPartner />} />
           <Route path="/crowdfunding" element={<CrowdFunding />} />
+
           <Route path="/curso/:courseId/contenido" element={<CourseContent />} />
           <Route path="/course-builder" element={<CourseBuilder />} />
           <Route path="/perfil" element={<Profile />} />
+
+          <Route 
+            path="/curso/:courseId/contenido" 
+            element={
+              <ProtectedRoute>
+                <CourseContent />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/course-builder" element={<CourseBuilder />} />
+          <Route path="/perfil" element={<Profile />} />
+          <Route path="/mis-cursos" element={<MyCourses />} />
+
           <Route 
             path="/admin-dashboard" 
             element={
