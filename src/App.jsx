@@ -1,16 +1,9 @@
-<<<<<<< HEAD
 // src/App.jsx
 import React from "react";
-=======
-// src/App.jsx (versión alternativa)
-import React from "react";
-import './styles/accessibility.css';
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import SubNav from "./components/SubNav";
 import Footer from "./components/Footer";
-<<<<<<< HEAD
 
 import Home from "./components/pages/Home";
 import QuienesSomos from "./components/pages/quienesSomos/QuienesSomos";
@@ -20,21 +13,11 @@ import Mentoring from "./components/pages/Mentoring";
 import Contact from "./components/pages/Contact";
 import Revenue from "./components/pages/Revenue";
 import Partners from "./components/pages/Partners";
-=======
-import Home from "./components/pages/home/Home";
-import QuienesSomos from "./components/pages/quienesSomos/QuienesSomos";
-import Login from "./components/pages/login/Login";
-import Mentoring from "./components/pages/Mentoring";
-import Contact from "./components/pages/Contact";
-import Revenue from "./components/pages/Revenue";
-import Partners from  "./components/pages/Partners";
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 import Inspiring from "./components/pages/Inspiring";
 import Challengers from "./components/pages/Challengers";
 import Eventos from "./components/pages/Eventos";
 import Servicios from "./components/pages/Servicios";
 import MoocsPage from "./components/pages/moocs/MoocsPage";
-<<<<<<< HEAD
 import CrudRevenue from "./components/pages/CrudRevenue";
 import CrudPartner from "./components/pages/CrudPartner";
 import AdminDashboard from "./components/pages/admin/AdminDashboard";
@@ -49,16 +32,10 @@ import CourseBuilder from "./components/pages/courseBuilder/CourseBuilder";
 import Profile from './components/pages/Profile';
 import MyCourses from './components/pages/moocs/MyCourses';
 
-=======
-import CourseDetail from "./components/pages/courseDetail/CourseDetail";
-import CourseContent from "./components/pages/courseContent/CourseContent";
-import CourseBuilder from "./components/pages/CourseBuilder/CourseBuilder";
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 
 // Componente para controlar la visualización de elementos de navegación
 function AppContent() {
   const location = useLocation();
-<<<<<<< HEAD
   const hideNavAndFooter = location.pathname === "/login" || 
                          location.pathname === "/register" || 
                          location.pathname === "/admin-dashboard" || 
@@ -70,32 +47,20 @@ function AppContent() {
       {!hideNavAndFooter && <Navbar />}
       {!hideNavAndFooter && <SubNav />}
       
-=======
-  const isLoginPage = location.pathname === "/login";
-  
-  return (
-    <div>
-      {!isLoginPage && <Navbar />}
-      {!isLoginPage && <SubNav />}
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/quienes-somos" element={<QuienesSomos />} />
           <Route path="/login" element={<Login />} />
-<<<<<<< HEAD
           <Route path="/register" element={<Register />} /> 
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/help" element={<Help />} />
-=======
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
           <Route path="/mentoring" element={<Mentoring />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/eventos" element={<Eventos />} />
           <Route path="/servicios" element={<Servicios />} />
           <Route path="/servicios/revenue" element={<Revenue />} />
           <Route path="/servicios/partners" element={<Partners />} />
-<<<<<<< HEAD
           <Route path="/servicios/inspiring" element={<Inspiring />} />
           <Route path="/servicios/challengers" element={<Challengers />} />
           <Route path="/servicios/moocs" element={<MoocsPage />} />
@@ -126,17 +91,6 @@ function AppContent() {
       </main>
 
       {!hideNavAndFooter && <Footer />}
-=======
-          <Route path="/servicios/inspiring" element={<Inspiring />} />         
-          <Route path="/servicios/challengers" element={<Challengers />} />
-          <Route path="/servicios/moocs" element={<MoocsPage />} />
-          <Route path="/servicios/moocs/:courseId" element={<CourseDetail />} />
-          <Route path="/curso/:courseId/contenido" element={<CourseContent />} />
-          <Route path="/course-builder" element={<CourseBuilder />} />
-        </Routes>
-      </main>
-      {!isLoginPage && <Footer />}
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
     </div>
   );
 }
@@ -144,13 +98,9 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter>
-<<<<<<< HEAD
       <AuthProvider>
         <AppContent />
       </AuthProvider>
-=======
-      <AppContent />
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
     </BrowserRouter>
   );
 }

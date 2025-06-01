@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-// src/components/UniversityProfile.jsx
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 import React from 'react';
 
 const UniversityProfile = () => {
@@ -43,15 +39,9 @@ const UniversityProfile = () => {
               en un patrimonio que se transmite de una generación a otra.
             </p>
             
-<<<<<<< HEAD
             {/* Imagen circular perfectamente centrada */}
             <div className="flex justify-center">
               <div className="w-56 h-56 rounded-full overflow-hidden border-4 border-white shadow-lg mx-auto">
-=======
-            {/* Imagen circular */}
-            <div className="flex justify-center md:justify-start">
-              <div className="w-56 h-56 rounded-full overflow-hidden border-4 border-white shadow-lg">
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
                 <img 
                   src="/founder.png" 
                   alt="Fundador de Univalle" 

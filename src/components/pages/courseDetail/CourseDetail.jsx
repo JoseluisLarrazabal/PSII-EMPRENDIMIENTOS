@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-<<<<<<< HEAD
 import "../moocs/transitions.css";
-=======
-import "../../pages/moocs/transitions.css";
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 import CourseHero from "./CourseHero";
 import CourseInfoCards from "./CourseInfoCards";
 import CourseNavTabs from "./CourseNavTabs";
@@ -13,36 +9,9 @@ import CourseSyllabus from "./Tabs/CourseSyllabus";
 import CourseInstructors from "./Tabs/CourseInstructors";
 import CourseEnrollCTA from "./CourseEnrollCTA";
 import LoadingSpinner from "../../LoadingSpinner"; // Usar el spinner existente
-<<<<<<< HEAD
 import { fetchCourseById } from "../../../services/api"; // Ajusta el path si es necesario
 
 
-=======
-
-// Datos mock para desarrollo inicial
-const mockCourseData = {
-  id: 1,
-  title: "CS50's Introduction to Computer Science",
-  provider: "HarvardX",
-  school_name: "Harvard University",
-  image_url:
-    "https://courses.edx.org/asset-v1:HarvardX+CS50+X+type@thumbnail+block@course_image-375x200.jpg",
-  logo_url: "https://www.edx.org/images/school/logos/harvardx-logo-200x101.png",
-  description:
-    "This is Harvard University's introduction to the intellectual enterprises of computer science and the art of programming. This course teaches students how to think algorithmically and solve problems efficiently. Topics include abstraction, algorithms, data structures, encapsulation, resource management, security, and software engineering. Languages include C, Python, and SQL plus HTML, CSS, and JavaScript.",
-  start_date: "2023-11-15T00:00:00",
-  duration: "12 semanas",
-  effort_hours: 6,
-  language: "Inglés",
-  level: "Principiante",
-  prerequisites: "No se requieren conocimientos previos de programación.",
-  enrollment_count: 2500000,
-  rating: 4.8,
-  video_preview_url: "https://www.youtube.com/embed/WOvhPzWGGc",
-  has_certificate: true,
-  // Añadiremos más datos en próximos pasos
-};
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
 
 const CourseDetail = () => {
   const { courseId } = useParams();
@@ -61,7 +30,6 @@ const CourseDetail = () => {
 
   // Efecto para cargar datos del curso
   useEffect(() => {
-<<<<<<< HEAD
     setLoading(true);
     setError(null);
     fetchCourseById(courseId)
@@ -74,16 +42,6 @@ const CourseDetail = () => {
         setError("No se pudo cargar el curso.");
         setLoading(false);
       });
-=======
-    // Simulación de carga (reemplazar con API real más adelante)
-    setLoading(true);
-    setTimeout(() => {
-      setCourseData(mockCourseData);
-      setLoading(false);
-    }, 800);
-
-    // Implementaremos la llamada API real en un paso posterior
->>>>>>> edcf309b50af2762a25fad97f381424ce31ededf
   }, [courseId]);
 
   // Función para renderizar el contenido según la pestaña activa
