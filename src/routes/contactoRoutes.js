@@ -1,16 +1,9 @@
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/mainBackend
 const express = require('express');
 const pool = require('../config/database');
 
 const router = express.Router();
 
-<<<<<<< HEAD
-// Existing POST route
-=======
->>>>>>> origin/mainBackend
 router.post('/contacto', async (req, res) => {
   const { nombre, email, telefono, tipo_consulta, mensaje } = req.body;
   try {
@@ -27,7 +20,6 @@ router.post('/contacto', async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
 // New GET route for admin
 router.get('/contacto', async (req, res) => {
   try {
@@ -59,6 +51,5 @@ router.delete('/contacto/:id', async (req, res) => {
   }
 });
 
-=======
->>>>>>> origin/mainBackend
+
 module.exports = router;
