@@ -237,13 +237,16 @@ const createCourse = async (courseData) => {
   try {
     await connection.beginTransaction();
 
+    // 1. Insertar curso principal
     const [result] = await connection.query(
       `
         INSERT INTO mooc_catalog (
           title, provider, image_url, logo_url, type, 
           course_count, category, is_popular, is_new, is_trending,
-          school_id, administrador_id
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          school_id, administrador_id, description, start_date, duration,
+          effort_hours, language, level, prerequisites, enrollment_count,
+          rating, video_preview_url, has_certificate, mentor_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         courseData.title,
@@ -258,20 +261,51 @@ const createCourse = async (courseData) => {
         courseData.is_trending || false,
         courseData.school_id || null,
         courseData.administrador_id || null,
+        courseData.description || null,
+        courseData.start_date || null,
+        courseData.duration || null,
+        courseData.effort_hours || null,
+        courseData.language || null,
+        courseData.level || null,
+        courseData.prerequisites || null,
+        courseData.enrollment_count || null,
+        courseData.rating || null,
+        courseData.video_preview_url || null,
+        courseData.has_certificate || false,
+        courseData.mentor_id || null,
       ]
     );
 
     const courseId = result.insertId;
 
-    // Si hay temas asociados, los insertamos
+    // 2. Insertar materias asociadas
     if (courseData.subjects && courseData.subjects.length > 0) {
       for (const subjectId of courseData.subjects) {
         await connection.query(
-          `
-          INSERT INTO mooc_course_subjects (catalog_id, subject_id)
-          VALUES (?, ?)
-        `,
+          `INSERT INTO mooc_course_subjects (catalog_id, subject_id) VALUES (?, ?)`,
           [courseId, subjectId]
+        );
+      }
+    }
+
+    // 3. Insertar slides/lecciones
+    if (courseData.slides && courseData.slides.length > 0) {
+      for (let i = 0; i < courseData.slides.length; i++) {
+        const slide = courseData.slides[i];
+        await connection.query(
+          `INSERT INTO mooc_course_slides 
+            (course_id, title, content, video_url, embed_url, quiz, resources, slide_order)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            courseId,
+            slide.title,
+            slide.content,
+            slide.videoUrl || null,
+            slide.embedUrl || null,
+            JSON.stringify(slide.quiz || []),
+            JSON.stringify(slide.resources || []),
+            i
+          ]
         );
       }
     }
@@ -293,6 +327,7 @@ const updateCourse = async (id, courseData) => {
   try {
     await connection.beginTransaction();
 
+    // Actualizar todos los campos relevantes del curso
     await connection.query(
       `
       UPDATE mooc_catalog SET
@@ -305,7 +340,21 @@ const updateCourse = async (id, courseData) => {
         category = ?,
         is_popular = ?,
         is_new = ?,
-        is_trending = ?
+        is_trending = ?,
+        school_id = ?,
+        administrador_id = ?,
+        description = ?,
+        start_date = ?,
+        duration = ?,
+        effort_hours = ?,
+        language = ?,
+        level = ?,
+        prerequisites = ?,
+        enrollment_count = ?,
+        rating = ?,
+        video_preview_url = ?,
+        has_certificate = ?,
+        mentor_id = ?
       WHERE id = ?
     `,
       [
@@ -319,6 +368,20 @@ const updateCourse = async (id, courseData) => {
         courseData.is_popular || false,
         courseData.is_new || false,
         courseData.is_trending || false,
+        courseData.school_id || null,
+        courseData.administrador_id || null,
+        courseData.description || null,
+        courseData.start_date || null,
+        courseData.duration || null,
+        courseData.effort_hours || null,
+        courseData.language || null,
+        courseData.level || null,
+        courseData.prerequisites || null,
+        courseData.enrollment_count || null,
+        courseData.rating || null,
+        courseData.video_preview_url || null,
+        courseData.has_certificate || false,
+        courseData.mentor_id || null,
         id,
       ]
     );
@@ -340,6 +403,32 @@ const updateCourse = async (id, courseData) => {
           VALUES (?, ?)
         `,
           [id, subjectId]
+        );
+      }
+    }
+
+    // Actualizar slides: eliminar los existentes e insertar los nuevos
+    if (courseData.slides) {
+      await connection.query(
+        `DELETE FROM mooc_course_slides WHERE course_id = ?`,
+        [id]
+      );
+      for (let i = 0; i < courseData.slides.length; i++) {
+        const slide = courseData.slides[i];
+        await connection.query(
+          `INSERT INTO mooc_course_slides 
+            (course_id, title, content, video_url, embed_url, quiz, resources, slide_order)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)` ,
+          [
+            id,
+            slide.title,
+            slide.content,
+            slide.videoUrl || null,
+            slide.embedUrl || null,
+            JSON.stringify(slide.quiz || []),
+            JSON.stringify(slide.resources || []),
+            i
+          ]
         );
       }
     }
@@ -366,6 +455,44 @@ const deleteCourse = async (id) => {
   return result.affectedRows > 0;
 };
 
+// Obtener un curso por ID
+const getCourseById = async (id) => {
+  const [rows] = await pool.query("SELECT * FROM mooc_catalog WHERE id = ?", [Number(id)]);
+  return rows[0] || null;
+};
+
+// Obtener slides por ID de curso
+const getSlidesByCourseId = async (courseId) => {
+  const [rows] = await pool.query(
+    `SELECT id, title, content, video_url AS videoUrl, embed_url AS embedUrl, quiz, resources, slide_order
+     FROM mooc_course_slides
+     WHERE course_id = ?
+     ORDER BY slide_order ASC`,
+    [courseId]
+  );
+  // Parsear quiz y resources de JSON SOLO si son string
+  return rows.map(slide => ({
+    ...slide,
+    quiz:
+      typeof slide.quiz === "string"
+        ? (slide.quiz.trim() === "" ? [] : JSON.parse(slide.quiz))
+        : (Array.isArray(slide.quiz) ? slide.quiz : []),
+    resources:
+      typeof slide.resources === "string"
+        ? (slide.resources.trim() === "" ? [] : JSON.parse(slide.resources))
+        : (Array.isArray(slide.resources) ? slide.resources : []),
+  }));
+};
+
+// Obtener cursos por mentor (administrador_id)
+const getCoursesByMentorId = async (mentorId) => {
+  const [rows] = await pool.query(
+    `SELECT * FROM mooc_catalog WHERE mentor_id = ? ORDER BY id DESC`,
+    [mentorId]
+  );
+  return await getCoursesWithSubjects(rows);
+};
+
 module.exports = {
   initializeTables,
   getCategories,
@@ -378,4 +505,7 @@ module.exports = {
   createCourse,
   updateCourse,
   deleteCourse,
+  getCourseById,
+  getSlidesByCourseId,
+  getCoursesByMentorId,
 };
