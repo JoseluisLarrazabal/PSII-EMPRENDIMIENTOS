@@ -9,6 +9,7 @@ function RegisterForm() {
     password: "",
     confirmPassword: "",
     rol: ""
+
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -266,6 +267,7 @@ function RegisterForm() {
                 className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#8B0D37]"
                 required
               >
+
                 <option value="" disabled>Selecciona un rol</option>
                 <option value="Mentor">Mentor</option>
                 <option value="Emprendedor">Emprendedor</option>

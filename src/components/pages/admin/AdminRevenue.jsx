@@ -10,7 +10,7 @@ const AdminRevenue = ({
   setShowForm,
   handleEdit,
   handleDelete,
-  setFormData, // ✅ Necesario para limpiar el formulario
+  setFormData,
 }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [revenueToDelete, setRevenueToDelete] = useState(null);
@@ -31,28 +31,28 @@ const AdminRevenue = ({
   };
 
   const handleAddNew = () => {
-    handleEdit(null);       // Reset editing
-    setFormData({});        // ✅ Limpiar el formulario
-    setShowForm(true);      // Mostrar formulario
+    handleEdit(null);
+    setFormData({});
+    setShowForm(true);
   };
 
   const handleCancel = () => {
-    setShowForm(false);     // Cierra el formulario
-    resetForm();            // Limpia todos los campos
+    setShowForm(false);
+    resetForm();
     if (currentRevenue) {
-      handleEdit(null);     // Limpia el estado de edición si existe
+      handleEdit(null);
     }
   };
 
   const resetForm = () => {
-  setFormData({
-    imagen_url: "",
-    titulo: "",
-    subtitulo: "",
-    descripcion: "",
-    servicios: ""
-  });
-};
+    setFormData({
+      imagen_url: "",
+      titulo: "",
+      subtitulo: "",
+      descripcion: "",
+      servicios: ""
+    });
+  };
 
   return (
     <div className="p-4 max-w-full overflow-x-hidden">
@@ -94,7 +94,6 @@ const AdminRevenue = ({
                   value={formData.imagen_url || ""}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border rounded"
-                  required
                 />
               </div>
               <div>
@@ -183,7 +182,7 @@ const AdminRevenue = ({
                     {item.imagen_url ? (
                       <img
                         src={item.imagen_url}
-                        
+                        alt={item.titulo}
                         className="w-16 h-16 object-cover rounded"
                         onError={(e) => {
                           e.target.onerror = null;
@@ -191,8 +190,8 @@ const AdminRevenue = ({
                         }}
                       />
                     ) : (
-                      <div className="w-16 h-16 bg-gray-300 rounded flex items-center justify-center">
-                        {item.titulo.charAt(0)}
+                      <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center text-gray-500 text-xs">
+                        Sin imagen
                       </div>
                     )}
                   </td>

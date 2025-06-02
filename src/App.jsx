@@ -10,7 +10,7 @@ import QuienesSomos from "./components/pages/quienesSomos/QuienesSomos";
 import Login from "./components/pages/Login";
 import Register from "./components/login/Register";
 import Mentoring from "./components/pages/Mentoring";
-import Contact from "./components/pages/Contact";
+import Contact from  "./components/pages/Contact";
 import Revenue from "./components/pages/Revenue";
 import Partners from "./components/pages/Partners";
 import Inspiring from "./components/pages/Inspiring";
@@ -28,9 +28,11 @@ import CrowdFunding from "./components/pages/CrowdFunding";
 import { AuthProvider } from './components/login/AuthContext';
 import CourseDetail from "./components/pages/courseDetail/CourseDetail";
 import CourseContent from "./components/pages/courseContent/CourseContent";
-import CourseBuilder from "./components/pages/courseBuilder/CourseBuilder";
+import CourseBuilder from "./components/pages/CourseBuilder/CourseBuilder";
 import Profile from './components/pages/Profile';
+
 import MyCourses from './components/pages/moocs/MyCourses';
+
 
 
 // Componente para controlar la visualización de elementos de navegación
@@ -68,6 +70,11 @@ function AppContent() {
           <Route path="/crud-revenue" element={<CrudRevenue />} />
           <Route path="/crud-partner" element={<CrudPartner />} />
           <Route path="/crowdfunding" element={<CrowdFunding />} />
+
+          <Route path="/curso/:courseId/contenido" element={<CourseContent />} />
+          <Route path="/course-builder" element={<CourseBuilder />} />
+          <Route path="/perfil" element={<Profile />} />
+
           <Route 
             path="/curso/:courseId/contenido" 
             element={
@@ -79,6 +86,7 @@ function AppContent() {
           <Route path="/course-builder" element={<CourseBuilder />} />
           <Route path="/perfil" element={<Profile />} />
           <Route path="/mis-cursos" element={<MyCourses />} />
+
           <Route 
             path="/admin-dashboard" 
             element={
