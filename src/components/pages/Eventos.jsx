@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 export default function Eventos() {
   const [eventos, setEventos] = useState({});
@@ -12,36 +10,6 @@ export default function Eventos() {
   const [asistenciasRegistradas, setAsistenciasRegistradas] = useState(new Set());
   const [eventoConfirmado, setEventoConfirmado] = useState(null);
   const [registrandoAsistencia, setRegistrandoAsistencia] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const response = await axios.get('http://localhost:8000/api/verify-auth', {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          setIsAuthenticated(response.data.isAuthenticated);
-        } else {
-          setIsAuthenticated(false);
-        }
-      } catch (error) {
-        console.error('Error al verificar autenticación:', error);
-        setIsAuthenticated(false);
-      }
-    };
-
-    const handleStorageChange = () => {
-      checkAuth();
-    };
-
-    checkAuth();
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
 
   useEffect(() => {
     const fetchEventos = async () => {
@@ -98,11 +66,6 @@ export default function Eventos() {
   }, []);
 
   const handleAsistencia = async (eventoId, eventoTitulo) => {
-    if (!isAuthenticated) {
-      setShowLoginModal(true);
-      return;
-    }
-
     if (!asistenciasRegistradas.has(eventoId)) {
       setRegistrandoAsistencia(true);
       
@@ -115,11 +78,6 @@ export default function Eventos() {
       setShowModal(true);
       setTimeout(() => setShowModal(false), 3000);
     }
-  };
-
-  const handleNavigateToLogin = () => {
-    navigate('/login');
-    setShowLoginModal(false);
   };
 
   // Función para obtener los eventos con asistencia registrada por mes
@@ -250,30 +208,6 @@ export default function Eventos() {
             <p className="text-gray-700 mb-4">Has confirmado tu asistencia al evento:</p>
             <p className="font-semibold text-lg text-gray-900 mb-4">"{eventoConfirmado}"</p>
             <p className="text-gray-600">Gracias por tu participación.</p>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de Login Requerido */}
-      {showLoginModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full">
-            <h3 className="text-2xl font-bold mb-4">Inicio de sesión requerido</h3>
-            <p className="mb-4">Debes iniciar sesión para registrar tu asistencia a los eventos.</p>
-            <div className="flex flex-col space-y-3">
-              <button
-                onClick={handleNavigateToLogin}
-                className="bg-[#880043] text-white px-4 py-2 rounded-lg font-medium"
-              >
-                Ir a Iniciar Sesión
-              </button>
-              <button
-                onClick={() => setShowLoginModal(false)}
-                className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium"
-              >
-                Cancelar
-              </button>
-            </div>
           </div>
         </div>
       )}

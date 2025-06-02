@@ -54,7 +54,7 @@ const PartnerSection = () => {
   useEffect(() => {
     const fetchMentors = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/mentor');
+        const response = await axios.get('http://localhost:8000/api/mentors');
         console.log('Datos obtenidos:', response.data);
         if (Array.isArray(response.data)) {
           setExpertsData(response.data);
