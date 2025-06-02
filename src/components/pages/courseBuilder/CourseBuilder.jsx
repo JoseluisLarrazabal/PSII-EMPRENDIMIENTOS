@@ -20,6 +20,8 @@ import {
   CheckCircle2,
   AlertCircle,
   X,
+  Check,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +35,168 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createCourse, fetchCourseById, fetchSlidesByCourseId, updateCourse } from "../../../services/api";
 import { cn } from "@/lib/utils";
+
+// 🔥 VALIDACIONES MEJORADAS
+const validationRules = {
+  // Validar URLs
+  isValidUrl: (url) => {
+    const stringUrl = String(url || '');
+    if (!stringUrl.trim()) return true; // URLs opcionales
+    try {
+      new URL(stringUrl);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  // Validar URL de YouTube
+  isValidYouTubeUrl: (url) => {
+    const stringUrl = String(url || '');
+    if (!stringUrl.trim()) return true;
+    const patterns = [/^https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)/];
+    return patterns.some((pattern) => pattern.test(stringUrl));
+  },
+
+  // Validar URL de presentación embebida
+  isValidEmbedUrl: (url) => {
+    const stringUrl = String(url || '');
+    if (!stringUrl.trim()) return true;
+    const patterns = [
+      /^https:\/\/docs\.google\.com\/presentation\/d\/e\/.+\/embed/,
+      /^https:\/\/www\.canva\.com\/design\/.+\/view\?embed/,
+      /^https:\/\/onedrive\.live\.com\/embed\?resid=.+/,
+      /^https:\/\/view\.genial\.ly\/.+/,
+      /^https:\/\/prezi\.com\/embed\/.+/,
+    ];
+    return patterns.some((pattern) => pattern.test(stringUrl));
+  },
+
+  // Validar fecha
+  isValidDate: (dateString) => {
+    const stringDate = String(dateString || '');
+    if (!stringDate.trim()) return true;
+    const date = new Date(stringDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date >= today && !isNaN(date.getTime());
+  },
+
+  // Validar rating
+  isValidRating: (rating) => {
+    const stringRating = String(rating || '');
+    if (!stringRating.trim()) return true;
+    const num = Number.parseFloat(stringRating);
+    return !isNaN(num) && num >= 0 && num <= 5;
+  },
+
+  // Validar número positivo
+  isValidPositiveNumber: (value) => {
+    const stringValue = String(value || '');
+    if (!stringValue.trim()) return true;
+    const num = Number.parseFloat(stringValue);
+    return !isNaN(num) && num > 0;
+  },
+}
+
+// 🔥 FUNCIÓN DE VALIDACIÓN COMPLETA
+const validateField = (field, value, context = {}) => {
+  const errors = []
+
+  // Convertir value a string para aplicar trim y otras validaciones de string
+  const stringValue = String(value || '');
+
+  switch (field) {
+    case "title":
+      if (!stringValue.trim()) {
+        errors.push("El título es obligatorio")
+      } else if (stringValue.trim().length < 3) {
+        errors.push("El título debe tener al menos 3 caracteres")
+      } else if (context.checkDuplicates && context.existingTitles?.includes(stringValue.trim())) {
+        errors.push("Ya existe una lección con este título")
+      }
+      break
+
+    case "videoUrl":
+      if (stringValue.trim() && !validationRules.isValidYouTubeUrl(stringValue)) {
+        errors.push("URL de YouTube no válida. Usa: https://youtube.com/watch?v=...")
+      }
+      break
+
+    case "embedUrl":
+      if (stringValue.trim() && !validationRules.isValidEmbedUrl(stringValue)) {
+        errors.push("URL de presentación no válida. Usa enlaces de inserción de Google Slides, Canva, etc.")
+      }
+      break
+
+    case "image_url":
+    case "logo_url":
+      if (!stringValue.trim()) {
+        errors.push("Este campo es obligatorio")
+      } else if (!validationRules.isValidUrl(stringValue)) {
+        errors.push("URL no válida")
+      }
+      break
+
+    case "start_date":
+      if (stringValue.trim() && !validationRules.isValidDate(stringValue)) {
+        errors.push("La fecha debe ser hoy o posterior")
+      }
+      break
+
+    case "rating":
+      if (stringValue.trim() && !validationRules.isValidRating(stringValue)) {
+        errors.push("La calificación debe estar entre 0 y 5")
+      }
+      break
+
+    case "effort_hours":
+      if (stringValue.trim() && !validationRules.isValidPositiveNumber(stringValue)) {
+        errors.push("Debe ser un número positivo")
+      }
+      break
+
+    case "resourceUrl":
+      if (stringValue.trim() && !validationRules.isValidUrl(stringValue)) {
+        errors.push("URL de recurso no válida")
+      }
+      break
+
+    default:
+      if (context.required && !stringValue.trim()) {
+        errors.push("Este campo es obligatorio")
+      }
+  }
+
+  return errors
+}
+
+// 🔥 COMPONENTE DE FEEDBACK VISUAL
+const FieldFeedback = ({ errors, success, className }) => {
+  if (errors?.length > 0) {
+    return (
+      <div className={cn("space-y-1", className)}>
+        {errors.map((error, idx) => (
+          <p key={idx} className="text-red-600 text-sm flex items-center gap-1">
+            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            {error}
+          </p>
+        ))}
+      </div>
+    )
+  }
+
+  if (success) {
+    return (
+      <p className={cn("text-green-600 text-sm flex items-center gap-1", className)}>
+        <Check className="h-4 w-4" />
+        {success}
+      </p>
+    )
+  }
+
+  return null
+}
 
 // Estructura inicial de un slide vacío
 const emptySlide = {
@@ -72,57 +236,6 @@ const emptyCourse = {
   subjects: [],
 };
 
-// Validación simple al intentar guardar
-const validateEmbedUrl = (url) => {
-  if (!url) return true; // Campo opcional
-  const patterns = [
-    /^https:\/\/docs\.google\.com\/presentation\/d\/e\/.+\/embed\?start=/,
-    /^https:\/\/www\.canva\.com\/design\/.+\/view\?embed/,
-    /^https:\/\/onedrive\.live\.com\/embed\?resid=.+/,
-  ];
-  return patterns.some((regex) => regex.test(url));
-};
-
-const isValidUrl = (url) => {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
-};
-
-const getYoutubeEmbedUrl = (url) => {
-  const match = url.match(
-    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/
-  );
-  return match ? `https://www.youtube.com/embed/${match[1]}` : url;
-};
-
-const validateSlide = (slide) => {
-  const errs = {};
-  if (!slide.title.trim()) errs.title = "El título es obligatorio.";
-  if (slide.embedUrl && !validateEmbedUrl(slide.embedUrl)) {
-    errs.embedUrl = "El enlace de inserción no es válido. Usa el enlace de 'insertar' de Google Slides, Canva o PowerPoint Online.";
-  }
-  if (slide.videoUrl && !isValidUrl(slide.videoUrl)) {
-    errs.videoUrl = "El enlace de video no es una URL válida.";
-  }
-  slide.quiz.forEach((q, idx) => {
-    if (!q.question.trim()) errs[`quiz-q${idx}`] = "La pregunta es obligatoria.";
-    if (q.options.length < 2) errs[`quiz-opt${idx}`] = "Debe haber al menos 2 opciones.";
-    if (typeof q.answer !== "number" || q.answer < 0 || q.answer >= q.options.length) {
-      errs[`quiz-ans${idx}`] = "Debe marcar una respuesta correcta.";
-    }
-  });
-  slide.resources.forEach((r, idx) => {
-    if ((r.name && !r.url) || (!r.name && r.url)) {
-      errs[`res${idx}`] = "Completa ambos campos del recurso.";
-    }
-  });
-  return errs;
-};
-
 // Utilidad para formatear la fecha a yyyy-MM-dd
 const formatDate = (dateString) => {
   if (!dateString) return "";
@@ -133,33 +246,154 @@ const formatDate = (dateString) => {
   }
 };
 
-const validateCourse = (course) => {
-  const errs = {};
-  if (!isValidUrl(course.image_url)) errs.image_url = "La URL de la imagen no es válida.";
-  if (!isValidUrl(course.logo_url)) errs.logo_url = "La URL del logo no es válida.";
-  if (course.rating && (Number(course.rating) < 0 || Number(course.rating) > 5)) errs.rating = "El rating debe estar entre 0 y 5.";
-  if (course.start_date) {
-    const startDate = new Date(course.start_date);
-    const today = new Date();
-    // Comparar solo la fecha, ignorando la hora
-    today.setHours(0, 0, 0, 0);
-    if (startDate < today) {
-      errs.start_date = "La fecha de inicio no puede ser en el pasado.";
-    }
-  }
-  return errs;
-};
-
 const CourseBuilder = () => {
   const [course, setCourse] = useState({ ...emptyCourse });
   const [slides, setSlides] = useState([{ ...emptySlide }]);
   const [selectedSlide, setSelectedSlide] = useState(0);
-  const [errors, setErrors] = useState({});
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [fieldSuccess, setFieldSuccess] = useState({});
   const [saving, setSaving] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const courseId = searchParams.get("id");
+
+  // 🔥 VALIDACIÓN EN TIEMPO REAL
+  const validateFieldRealTime = (field, value, slideIndex = null) => {
+    const fieldKey = slideIndex !== null ? `${field}_${slideIndex}` : field;
+
+    // Contexto para validaciones
+    const context = {
+      checkDuplicates: field === "title",
+      existingTitles: slides.map((slide, idx) => (idx !== slideIndex ? String(slide.title || '').trim() : '')).filter(Boolean),
+      required: ["title", "provider", "image_url", "logo_url", "type", "category"].includes(field),
+    };
+
+    const errors = validateField(field, value, context);
+
+    setFieldErrors((prev) => ({
+      ...prev,
+      [fieldKey]: errors.length > 0 ? errors : undefined,
+    }));
+
+    // Mostrar éxito si no hay errores y el campo tiene contenido válido
+    if (errors.length === 0 && String(value || '').trim()) {
+      let successMessage = "";
+      if (field === "videoUrl" && validationRules.isValidYouTubeUrl(value)) {
+        successMessage = "URL de YouTube válida";
+      } else if (field === "embedUrl" && validationRules.isValidEmbedUrl(value)) {
+        successMessage = "URL de presentación válida";
+      } else if (["image_url", "logo_url"].includes(field) && validationRules.isValidUrl(value)) {
+        successMessage = "URL válida";
+      } else if (field === "rating" && validationRules.isValidRating(value)) {
+        successMessage = "Calificación válida";
+      }
+
+      setFieldSuccess((prev) => ({
+        ...prev,
+        [fieldKey]: successMessage || undefined,
+      }));
+    } else {
+      setFieldSuccess((prev) => ({
+        ...prev,
+        [fieldKey]: undefined,
+      }));
+    }
+  };
+
+  // 🔥 VALIDACIÓN COMPLETA ANTES DE GUARDAR
+  const validateAllFields = () => {
+    const errors = {};
+    let hasErrors = false;
+
+    // Validar campos del curso
+    const courseFields = [
+      { field: "title", value: course.title, required: true },
+      { field: "provider", value: course.provider, required: true },
+      { field: "image_url", value: course.image_url, required: true },
+      { field: "logo_url", value: course.logo_url, required: true },
+      { field: "type", value: course.type, required: true },
+      { field: "category", value: course.category, required: true },
+      { field: "start_date", value: course.start_date },
+      { field: "rating", value: course.rating },
+      { field: "effort_hours", value: course.effort_hours },
+    ];
+
+    courseFields.forEach(({ field, value, required }) => {
+      const fieldErrors = validateField(field, value, { required });
+      if (fieldErrors.length > 0) {
+        errors[field] = fieldErrors;
+        hasErrors = true;
+      }
+    });
+
+    // Validar slides
+    const existingTitles = [];
+    slides.forEach((slide, slideIndex) => {
+      // Verificar títulos duplicados, asegurando que el título es un string
+      const slideTitle = String(slide.title || '');
+      if (slideTitle.trim()) {
+        if (existingTitles.includes(slideTitle.trim())) {
+          errors[`title_${slideIndex}`] = ["Título duplicado"];
+          hasErrors = true;
+        } else {
+          existingTitles.push(slideTitle.trim());
+        }
+      }
+
+      // Validar campos de slide
+      const slideFields = [
+        { field: "title", value: slide.title },
+        { field: "videoUrl", value: slide.videoUrl },
+        { field: "embedUrl", value: slide.embedUrl },
+      ];
+
+      slideFields.forEach(({ field, value }) => {
+        const fieldErrors = validateField(field, value, {
+          required: field === "title",
+          checkDuplicates: false,
+        });
+        if (fieldErrors.length > 0) {
+          errors[`${field}_${slideIndex}`] = fieldErrors;
+          hasErrors = true;
+        }
+      });
+
+      // Validar quiz
+      slide.quiz.forEach((q, qIdx) => {
+        if (!String(q.question || '').trim()) {
+          errors[`quiz-q${slideIndex}-${qIdx}`] = ["La pregunta es obligatoria"];
+          hasErrors = true;
+        }
+        if (q.options.length < 2) {
+          errors[`quiz-opt${slideIndex}-${qIdx}`] = ["Debe haber al menos 2 opciones"];
+          hasErrors = true;
+        }
+        if (typeof q.answer !== "number" || q.answer < 0 || q.answer >= q.options.length) {
+          errors[`quiz-ans${slideIndex}-${qIdx}`] = ["Debe marcar una respuesta correcta"];
+          hasErrors = true;
+        }
+      });
+
+      // Validar recursos
+      slide.resources.forEach((res, rIdx) => {
+        const resName = String(res.name || '');
+        const resUrl = String(res.url || '');
+
+        if ((resName.trim() && !resUrl.trim()) || (!resName.trim() && resUrl.trim())) {
+          errors[`res${slideIndex}-${rIdx}`] = ["Completa ambos campos del recurso"];
+          hasErrors = true;
+        }
+        if (resUrl.trim() && !validationRules.isValidUrl(resUrl)) {
+          errors[`resourceUrl_${slideIndex}-${rIdx}`] = ["URL de recurso no válida"];
+          hasErrors = true;
+        }
+      });
+    });
+
+    setFieldErrors(errors);
+    return !hasErrors;
+  };
 
   // Cargar datos si es edición
   useEffect(() => {
@@ -192,6 +426,15 @@ const CourseBuilder = () => {
     const newSlides = slides.filter((_, i) => i !== idx);
     setSlides(newSlides);
     setSelectedSlide(Math.max(0, idx - 1));
+
+    // Limpiar errores del slide eliminado
+    const newErrors = { ...fieldErrors };
+    Object.keys(newErrors).forEach((key) => {
+      if (key.includes(`_${idx}`)) {
+        delete newErrors[key];
+      }
+    });
+    setFieldErrors(newErrors);
   };
 
   const updateSlide = (field, value) => {
@@ -199,35 +442,27 @@ const CourseBuilder = () => {
       idx === selectedSlide ? { ...slide, [field]: value } : slide
     );
     setSlides(newSlides);
+
+    // Validar en tiempo real
+    validateFieldRealTime(field, value, selectedSlide);
+  };
+
+  // 🔥 RENOMBRADA PARA EVITAR CONFLICTO CON updateCourse DE LA API
+  const updateCourseField = (field, value) => {
+    setCourse((prev) => ({ ...prev, [field]: value }));
+    validateFieldRealTime(field, value);
   };
 
   // Guardar todo el curso y sus slides
   const handleSaveCourse = async () => {
-    // Validación básica de campos obligatorios del curso
-    if (!course.title || !course.provider || !course.image_url || !course.logo_url || !course.type || !course.category) {
-      alert("Completa todos los campos obligatorios del curso.");
+    if (!validateAllFields()) {
+      alert("Por favor corrige todos los errores antes de guardar el curso.");
       return;
     }
-    // Validar todas las slides
-    for (let i = 0; i < slides.length; i++) {
-      const errs = validateSlide(slides[i]);
-      if (Object.keys(errs).length > 0) {
-        setSelectedSlide(i);
-        setErrors(errs);
-        alert(`Corrige los errores en la lección ${i + 1} antes de guardar el curso.`);
-        return;
-      }
-    }
-    const courseErrs = validateCourse(course);
-    if (Object.keys(courseErrs).length > 0) {
-      setErrors(courseErrs);
-      alert("Corrige los errores en los datos del curso antes de guardar.");
-      return;
-    }
+
     setSaving(true);
     try {
       const token = localStorage.getItem("token");
-      // Formatear la fecha antes de enviar
       let startDate = course.start_date;
       if (startDate && startDate.includes("T")) {
         startDate = startDate.split("T")[0];
@@ -374,7 +609,7 @@ const CourseBuilder = () => {
             </div>
 
             <Tabs defaultValue="lesson" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="lesson" className="flex items-center gap-2">
                   <Edit3 className="h-4 w-4" />
                   Editar Lección
@@ -398,87 +633,69 @@ const CourseBuilder = () => {
                   </CardHeader>
                   <CardContent className="space-y-6">
                     {/* Título y contenido */}
-                    <div className="grid grid-cols-1 gap-6">
+                    <div className="space-y-4">
                       <div>
-                        <Label htmlFor="title" className="text-base font-medium">
-                          Título de la lección
-                        </Label>
+                        <Label htmlFor={`slide-title-${selectedSlide}`}>Título de la lección</Label>
                         <Input
-                          id="title"
-                          value={slides[selectedSlide].title || ""}
+                          id={`slide-title-${selectedSlide}`}
+                          value={String(slides[selectedSlide].title || "")}
                           onChange={(e) => updateSlide("title", e.target.value)}
-                          placeholder="Ingresa el título de la lección"
-                          className={`mt-2 ${errors.title ? "border-red-500" : ""}`}
+                          placeholder="Título de la lección"
+                          className={`mt-2 ${fieldErrors[`title_${selectedSlide}`] ? "border-red-500" : fieldSuccess[`title_${selectedSlide}`] ? "border-green-500" : ""}`}
                         />
-                        {errors.title && (
-                          <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                            <AlertCircle className="h-4 w-4" />
-                            {errors.title}
-                          </p>
-                        )}
+                        <FieldFeedback
+                          errors={fieldErrors[`title_${selectedSlide}`]}
+                          success={fieldSuccess[`title_${selectedSlide}`]}
+                        />
+                      </div>
+
+                      {/* 🔥 CAMPO CONTENT QUE FALTABA */}
+                      <div>
+                        <Label htmlFor={`slide-content-${selectedSlide}`}>Contenido de la lección</Label>
+                        <Textarea
+                          id={`slide-content-${selectedSlide}`}
+                          value={String(slides[selectedSlide].content || "")}
+                          onChange={(e) => updateSlide("content", e.target.value)}
+                          placeholder="Contenido textual o instrucciones"
+                          rows={4}
+                          className="mt-2"
+                        />
                       </div>
 
                       <div>
-                        <Label htmlFor="content" className="text-base font-medium">
-                          Contenido
-                        </Label>
-                        <Textarea
-                          id="content"
-                          value={slides[selectedSlide].content || ""}
-                          onChange={(e) => updateSlide("content", e.target.value)}
-                          placeholder="Describe el contenido de esta lección..."
-                          rows={4}
-                          className="mt-2"
+                        <Label htmlFor={`slide-video-${selectedSlide}`}>URL del video (YouTube)</Label>
+                        <Input
+                          id={`slide-video-${selectedSlide}`}
+                          value={String(slides[selectedSlide].videoUrl || "")}
+                          onChange={(e) => updateSlide("videoUrl", e.target.value)}
+                          placeholder="https://www.youtube.com/watch?v=..."
+                          className={`mt-2 ${fieldErrors[`videoUrl_${selectedSlide}`] ? "border-red-500" : fieldSuccess[`videoUrl_${selectedSlide}`] ? "border-green-500" : ""}`}
+                        />
+                        <FieldFeedback
+                          errors={fieldErrors[`videoUrl_${selectedSlide}`]}
+                          success={fieldSuccess[`videoUrl_${selectedSlide}`]}
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor={`slide-embed-${selectedSlide}`}>URL de presentación embebida</Label>
+                        <Input
+                          id={`slide-embed-${selectedSlide}`}
+                          value={String(slides[selectedSlide].embedUrl || "")}
+                          onChange={(e) => updateSlide("embedUrl", e.target.value)}
+                          placeholder="https://docs.google.com/presentation/d/..."
+                          className={`mt-2 ${fieldErrors[`embedUrl_${selectedSlide}`] ? "border-red-500" : fieldSuccess[`embedUrl_${selectedSlide}`] ? "border-green-500" : ""}`}
+                        />
+                        <FieldFeedback
+                          errors={fieldErrors[`embedUrl_${selectedSlide}`]}
+                          success={fieldSuccess[`embedUrl_${selectedSlide}`]}
                         />
                       </div>
                     </div>
 
                     <Separator />
 
-                    {/* Video y presentación */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      <div>
-                        <Label htmlFor="video" className="text-base font-medium flex items-center gap-2">
-                          <Play className="h-4 w-4" />
-                          Video de YouTube
-                        </Label>
-                        <Input
-                          id="video"
-                          value={slides[selectedSlide].videoUrl || ""}
-                          onChange={(e) => updateSlide("videoUrl", e.target.value)}
-                          placeholder="https://youtube.com/watch?v=..."
-                          className="mt-2"
-                        />
-                        {errors.videoUrl && (
-                          <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                            <AlertCircle className="h-4 w-4" />
-                            {errors.videoUrl}
-                          </p>
-                        )}
-                      </div>
-
-                      <div>
-                        <Label htmlFor="embed" className="text-base font-medium flex items-center gap-2">
-                          <Link className="h-4 w-4" />
-                          Presentación embebida
-                        </Label>
-                        <Input
-                          id="embed"
-                          value={slides[selectedSlide].embedUrl || ""}
-                          onChange={(e) => updateSlide("embedUrl", e.target.value)}
-                          placeholder="https://docs.google.com/presentation/..."
-                          className={`mt-2 ${errors.embedUrl ? "border-red-500" : ""}`}
-                        />
-                        {errors.embedUrl && (
-                          <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                            <AlertCircle className="h-4 w-4" />
-                            {errors.embedUrl}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Preview de presentación */}
+                    {/* Preview de presentación - CORREGIDO */}
                     {slides[selectedSlide].embedUrl && (
                       <Card className="bg-slate-50">
                         <CardHeader>
@@ -487,7 +704,7 @@ const CourseBuilder = () => {
                         <CardContent>
                           <div className="aspect-video rounded-lg overflow-hidden bg-white shadow-sm">
                             <iframe
-                              src={getYoutubeEmbedUrl(slides[selectedSlide].videoUrl)}
+                              src={String(slides[selectedSlide].embedUrl || "")}
                               title="Presentación embebida"
                               width="100%"
                               height="100%"
@@ -533,20 +750,20 @@ const CourseBuilder = () => {
                           </div>
 
                           <Input
-                            value={q.question || ""}
+                            value={String(q.question || "")}
                             onChange={(e) => {
                               const quiz = slides[selectedSlide].quiz.map((item, idx) =>
-                                idx === qIdx ? { ...item, question: e.target.value } : item,
+                                idx === qIdx ? { ...item, question: e.target.value } : item
                               );
                               updateSlide("quiz", quiz);
                             }}
                             placeholder="Escribe tu pregunta aquí..."
-                            className={errors[`quiz-q${qIdx}`] ? "border-red-500" : ""}
+                            className={fieldErrors[`quiz-q${selectedSlide}-${qIdx}`] ? "border-red-500" : ""}
                           />
-                          {errors[`quiz-q${qIdx}`] && (
+                          {fieldErrors[`quiz-q${selectedSlide}-${qIdx}`] && (
                             <p className="text-red-600 text-sm flex items-center gap-1">
                               <AlertCircle className="h-4 w-4" />
-                              {errors[`quiz-q${qIdx}`]}
+                              {fieldErrors[`quiz-q${selectedSlide}-${qIdx}`]}
                             </p>
                           )}
 
@@ -557,11 +774,11 @@ const CourseBuilder = () => {
                                 <div className="flex items-center gap-2">
                                   <input
                                     type="radio"
-                                    name={`correct-${qIdx}`}
+                                    name={`correct-${selectedSlide}-${qIdx}`}
                                     checked={q.answer === oIdx}
                                     onChange={() => {
                                       const quiz = slides[selectedSlide].quiz.map((item, idx) =>
-                                        idx === qIdx ? { ...item, answer: oIdx } : item,
+                                        idx === qIdx ? { ...item, answer: oIdx } : item
                                       );
                                       updateSlide("quiz", quiz);
                                     }}
@@ -572,7 +789,7 @@ const CourseBuilder = () => {
                                   />
                                 </div>
                                 <Input
-                                  value={opt || ""}
+                                  value={String(opt || "")}
                                   onChange={(e) => {
                                     const quiz = slides[selectedSlide].quiz.map((item, idx) =>
                                       idx === qIdx
@@ -580,7 +797,7 @@ const CourseBuilder = () => {
                                             ...item,
                                             options: item.options.map((o, oi) => (oi === oIdx ? e.target.value : o)),
                                           }
-                                        : item,
+                                        : item
                                     );
                                     updateSlide("quiz", quiz);
                                   }}
@@ -604,7 +821,7 @@ const CourseBuilder = () => {
                                                     ? item.answer - 1
                                                     : item.answer,
                                             }
-                                          : item,
+                                          : item
                                       );
                                       updateSlide("quiz", quiz);
                                     }}
@@ -615,10 +832,10 @@ const CourseBuilder = () => {
                                 )}
                               </div>
                             ))}
-                            {errors[`quiz-opt${qIdx}`] && (
+                            {fieldErrors[`quiz-opt${selectedSlide}-${qIdx}`] && (
                               <p className="text-red-600 text-sm flex items-center gap-1">
                                 <AlertCircle className="h-4 w-4" />
-                                {errors[`quiz-opt${qIdx}`]}
+                                {fieldErrors[`quiz-opt${selectedSlide}-${qIdx}`]}
                               </p>
                             )}
                             <Button
@@ -626,7 +843,7 @@ const CourseBuilder = () => {
                               size="sm"
                               onClick={() => {
                                 const quiz = slides[selectedSlide].quiz.map((item, idx) =>
-                                  idx === qIdx ? { ...item, options: [...item.options, ""] } : item,
+                                  idx === qIdx ? { ...item, options: [...item.options, ""] } : item
                                 );
                                 updateSlide("quiz", quiz);
                               }}
@@ -669,10 +886,10 @@ const CourseBuilder = () => {
                     {slides[selectedSlide].resources.map((res, rIdx) => (
                       <div key={rIdx} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
                         <Input
-                          value={res.name || ""}
+                          value={String(res.name || "")}
                           onChange={(e) => {
                             const resources = slides[selectedSlide].resources.map((item, idx) =>
-                              idx === rIdx ? { ...item, name: e.target.value } : item,
+                              idx === rIdx ? { ...item, name: e.target.value } : item
                             );
                             updateSlide("resources", resources);
                           }}
@@ -680,10 +897,10 @@ const CourseBuilder = () => {
                           className="flex-1"
                         />
                         <Input
-                          value={res.url || ""}
+                          value={String(res.url || "")}
                           onChange={(e) => {
                             const resources = slides[selectedSlide].resources.map((item, idx) =>
-                              idx === rIdx ? { ...item, url: e.target.value } : item,
+                              idx === rIdx ? { ...item, url: e.target.value } : item
                             );
                             updateSlide("resources", resources);
                           }}
@@ -703,6 +920,12 @@ const CourseBuilder = () => {
                         </Button>
                       </div>
                     ))}
+                    {fieldErrors[`res${selectedSlide}-${slides[selectedSlide].resources.length - 1}`] && (
+                      <p className="text-red-600 text-sm flex items-center gap-1">
+                        <AlertCircle className="h-4 w-4" />
+                        {fieldErrors[`res${selectedSlide}-${slides[selectedSlide].resources.length - 1}`]}
+                      </p>
+                    )}
 
                     <Button
                       variant="outline"
@@ -736,18 +959,16 @@ const CourseBuilder = () => {
                         </Label>
                         <Input
                           id="course-title"
-                          value={course.title || ""}
-                          onChange={(e) => setCourse({ ...course, title: e.target.value })}
+                          value={String(course.title || "")}
+                          onChange={(e) => updateCourseField("title", e.target.value)}
                           placeholder="Título del curso"
-                          className="mt-2"
+                          className={`mt-2 ${fieldErrors.title ? "border-red-500" : fieldSuccess.title ? "border-green-500" : ""}`}
                           required
                         />
-                        {errors.title && (
-                          <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                            <AlertCircle className="h-4 w-4" />
-                            {errors.title}
-                          </p>
-                        )}
+                        <FieldFeedback
+                          errors={fieldErrors.title}
+                          success={fieldSuccess.title}
+                        />
                       </div>
                       <div>
                         <Label htmlFor="provider" className="text-base font-medium">
@@ -755,18 +976,16 @@ const CourseBuilder = () => {
                         </Label>
                         <Input
                           id="provider"
-                          value={course.provider || ""}
-                          onChange={(e) => setCourse({ ...course, provider: e.target.value })}
+                          value={String(course.provider || "")}
+                          onChange={(e) => updateCourseField("provider", e.target.value)}
                           placeholder="Nombre del proveedor"
-                          className="mt-2"
+                          className={`mt-2 ${fieldErrors.provider ? "border-red-500" : fieldSuccess.provider ? "border-green-500" : ""}`}
                           required
                         />
-                        {errors.provider && (
-                          <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                            <AlertCircle className="h-4 w-4" />
-                            {errors.provider}
-                          </p>
-                        )}
+                        <FieldFeedback
+                          errors={fieldErrors.provider}
+                          success={fieldSuccess.provider}
+                        />
                       </div>
                       <div>
                         <Label htmlFor="category" className="text-base font-medium">
@@ -774,18 +993,16 @@ const CourseBuilder = () => {
                         </Label>
                         <Input
                           id="category"
-                          value={course.category || ""}
-                          onChange={(e) => setCourse({ ...course, category: e.target.value })}
+                          value={String(course.category || "")}
+                          onChange={(e) => updateCourseField("category", e.target.value)}
                           placeholder="Categoría del curso"
-                          className="mt-2"
+                          className={`mt-2 ${fieldErrors.category ? "border-red-500" : fieldSuccess.category ? "border-green-500" : ""}`}
                           required
                         />
-                        {errors.category && (
-                          <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                            <AlertCircle className="h-4 w-4" />
-                            {errors.category}
-                          </p>
-                        )}
+                        <FieldFeedback
+                          errors={fieldErrors.category}
+                          success={fieldSuccess.category}
+                        />
                       </div>
                       <div>
                         <Label htmlFor="type" className="text-base font-medium">
@@ -793,18 +1010,16 @@ const CourseBuilder = () => {
                         </Label>
                         <Input
                           id="type"
-                          value={course.type || ""}
-                          onChange={(e) => setCourse({ ...course, type: e.target.value })}
+                          value={String(course.type || "")}
+                          onChange={(e) => updateCourseField("type", e.target.value)}
                           placeholder="Tipo de curso"
-                          className="mt-2"
+                          className={`mt-2 ${fieldErrors.type ? "border-red-500" : fieldSuccess.type ? "border-green-500" : ""}`}
                           required
                         />
-                        {errors.type && (
-                          <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                            <AlertCircle className="h-4 w-4" />
-                            {errors.type}
-                          </p>
-                        )}
+                        <FieldFeedback
+                          errors={fieldErrors.type}
+                          success={fieldSuccess.type}
+                        />
                       </div>
                     </div>
 
@@ -814,8 +1029,8 @@ const CourseBuilder = () => {
                       </Label>
                       <Textarea
                         id="description"
-                        value={course.description || ""}
-                        onChange={(e) => setCourse({ ...course, description: e.target.value })}
+                        value={String(course.description || "")}
+                        onChange={(e) => updateCourseField("description", e.target.value)}
                         placeholder="Describe de qué trata el curso..."
                         rows={4}
                         className="mt-2"
@@ -829,18 +1044,16 @@ const CourseBuilder = () => {
                         </Label>
                         <Input
                           id="image-url"
-                          value={course.image_url || ""}
-                          onChange={(e) => setCourse({ ...course, image_url: e.target.value })}
+                          value={String(course.image_url || "")}
+                          onChange={(e) => updateCourseField("image_url", e.target.value)}
                           placeholder="https://ejemplo.com/imagen.jpg"
-                          className="mt-2"
+                          className={`mt-2 ${fieldErrors.image_url ? "border-red-500" : fieldSuccess.image_url ? "border-green-500" : ""}`}
                           required
                         />
-                        {errors.image_url && (
-                          <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                            <AlertCircle className="h-4 w-4" />
-                            {errors.image_url}
-                          </p>
-                        )}
+                        <FieldFeedback
+                          errors={fieldErrors.image_url}
+                          success={fieldSuccess.image_url}
+                        />
                       </div>
                       <div>
                         <Label htmlFor="logo-url" className="text-base font-medium">
@@ -848,18 +1061,16 @@ const CourseBuilder = () => {
                         </Label>
                         <Input
                           id="logo-url"
-                          value={course.logo_url || ""}
-                          onChange={(e) => setCourse({ ...course, logo_url: e.target.value })}
+                          value={String(course.logo_url || "")}
+                          onChange={(e) => updateCourseField("logo_url", e.target.value)}
                           placeholder="https://ejemplo.com/logo.jpg"
-                          className="mt-2"
+                          className={`mt-2 ${fieldErrors.logo_url ? "border-red-500" : fieldSuccess.logo_url ? "border-green-500" : ""}`}
                           required
                         />
-                        {errors.logo_url && (
-                          <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                            <AlertCircle className="h-4 w-4" />
-                            {errors.logo_url}
-                          </p>
-                        )}
+                        <FieldFeedback
+                          errors={fieldErrors.logo_url}
+                          success={fieldSuccess.logo_url}
+                        />
                       </div>
                     </div>
                   </CardContent>
@@ -883,15 +1094,12 @@ const CourseBuilder = () => {
                           id="start-date"
                           type="date"
                           value={formatDate(course.start_date)}
-                          onChange={(e) => setCourse({ ...course, start_date: e.target.value })}
-                          className={`mt-2 ${errors.start_date ? "border-red-500" : ""}`}
+                          onChange={(e) => updateCourseField("start_date", e.target.value)}
+                          className={`mt-2 ${fieldErrors.start_date ? "border-red-500" : ""}`}
                         />
-                        {errors.start_date && (
-                          <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                            <AlertCircle className="h-4 w-4" />
-                            {errors.start_date}
-                          </p>
-                        )}
+                        <FieldFeedback
+                          errors={fieldErrors.start_date}
+                        />
                       </div>
                       <div>
                         <Label htmlFor="duration" className="text-base font-medium flex items-center gap-2">
@@ -900,8 +1108,8 @@ const CourseBuilder = () => {
                         </Label>
                         <Input
                           id="duration"
-                          value={course.duration || ""}
-                          onChange={(e) => setCourse({ ...course, duration: e.target.value })}
+                          value={String(course.duration || "")}
+                          onChange={(e) => updateCourseField("duration", e.target.value)}
                           placeholder="8 semanas"
                           className="mt-2"
                         />
@@ -914,10 +1122,13 @@ const CourseBuilder = () => {
                         <Input
                           id="effort"
                           type="number"
-                          value={course.effort_hours || ""}
-                          onChange={(e) => setCourse({ ...course, effort_hours: e.target.value })}
+                          value={String(course.effort_hours || "")}
+                          onChange={(e) => updateCourseField("effort_hours", e.target.value)}
                           placeholder="5"
-                          className="mt-2"
+                          className={`mt-2 ${fieldErrors.effort_hours ? "border-red-500" : ""}`}
+                        />
+                        <FieldFeedback
+                          errors={fieldErrors.effort_hours}
                         />
                       </div>
                     </div>
@@ -930,8 +1141,8 @@ const CourseBuilder = () => {
                         </Label>
                         <Input
                           id="language"
-                          value={course.language || ""}
-                          onChange={(e) => setCourse({ ...course, language: e.target.value })}
+                          value={String(course.language || "")}
+                          onChange={(e) => updateCourseField("language", e.target.value)}
                           placeholder="Español"
                           className="mt-2"
                         />
@@ -942,8 +1153,8 @@ const CourseBuilder = () => {
                         </Label>
                         <Input
                           id="level"
-                          value={course.level || ""}
-                          onChange={(e) => setCourse({ ...course, level: e.target.value })}
+                          value={String(course.level || "")}
+                          onChange={(e) => updateCourseField("level", e.target.value)}
                           placeholder="Principiante"
                           className="mt-2"
                         />
@@ -959,17 +1170,15 @@ const CourseBuilder = () => {
                           step="0.1"
                           min="0"
                           max="5"
-                          value={course.rating || ""}
-                          onChange={(e) => setCourse({ ...course, rating: e.target.value })}
+                          value={String(course.rating || "")}
+                          onChange={(e) => updateCourseField("rating", e.target.value)}
                           placeholder="4.5"
-                          className="mt-2"
+                          className={`mt-2 ${fieldErrors.rating ? "border-red-500" : fieldSuccess.rating ? "border-green-500" : ""}`}
                         />
-                        {errors.rating && (
-                          <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
-                            <AlertCircle className="h-4 w-4" />
-                            {errors.rating}
-                          </p>
-                        )}
+                        <FieldFeedback
+                          errors={fieldErrors.rating}
+                          success={fieldSuccess.rating}
+                        />
                       </div>
                     </div>
 
@@ -979,8 +1188,8 @@ const CourseBuilder = () => {
                       </Label>
                       <Textarea
                         id="prerequisites"
-                        value={course.prerequisites || ""}
-                        onChange={(e) => setCourse({ ...course, prerequisites: e.target.value })}
+                        value={String(course.prerequisites || "")}
+                        onChange={(e) => updateCourseField("prerequisites", e.target.value)}
                         placeholder="Conocimientos básicos requeridos..."
                         rows={3}
                         className="mt-2"
@@ -1008,7 +1217,7 @@ const CourseBuilder = () => {
                         <Switch
                           id="popular"
                           checked={course.is_popular}
-                          onCheckedChange={(checked) => setCourse({ ...course, is_popular: checked })}
+                          onCheckedChange={(checked) => updateCourseField("is_popular", checked)}
                         />
                       </div>
                       <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -1021,7 +1230,7 @@ const CourseBuilder = () => {
                         <Switch
                           id="new"
                           checked={course.is_new}
-                          onCheckedChange={(checked) => setCourse({ ...course, is_new: checked })}
+                          onCheckedChange={(checked) => updateCourseField("is_new", checked)}
                         />
                       </div>
                       <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -1034,7 +1243,7 @@ const CourseBuilder = () => {
                         <Switch
                           id="trending"
                           checked={course.is_trending}
-                          onCheckedChange={(checked) => setCourse({ ...course, is_trending: checked })}
+                          onCheckedChange={(checked) => updateCourseField("is_trending", checked)}
                         />
                       </div>
                       <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -1047,7 +1256,7 @@ const CourseBuilder = () => {
                         <Switch
                           id="certificate"
                           checked={course.has_certificate}
-                          onCheckedChange={(checked) => setCourse({ ...course, has_certificate: checked })}
+                          onCheckedChange={(checked) => updateCourseField("has_certificate", checked)}
                         />
                       </div>
                     </div>
