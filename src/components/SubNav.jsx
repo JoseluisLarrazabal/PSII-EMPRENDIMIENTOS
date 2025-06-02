@@ -128,7 +128,6 @@ const SubNav = () => {
       >
         Mi perfil
       </Link>
-
       {user?.rol === 'Mentor' && (
         <>
           <Link
@@ -147,7 +146,6 @@ const SubNav = () => {
           </Link>
         </>
       )}
-
       <button
         onClick={handleLogout}
         disabled={loading}

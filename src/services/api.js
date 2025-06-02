@@ -54,7 +54,6 @@ export const fetchAllMoocsData = async () => {
   }
 };
 
-
 export const fetchCourseById = async (id) => {
   const response = await axios.get(`http://localhost:8000/api/moocs/courses/${id}`);
   return response.data.data;
@@ -99,4 +98,3 @@ export const updateCourse = async (id, courseData, token) => {
   );
   return response.data;
 };
-
