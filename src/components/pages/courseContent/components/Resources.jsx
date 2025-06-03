@@ -25,19 +25,24 @@ const Resources = ({ resources }) => {
           <Download className="h-5 w-5 text-[#8B0D37]" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-slate-900">Recursos para descargar</h3>
-          <p className="text-sm text-slate-600">
+          <h3 className="text-lg font-semibold text-slate-900">
+            Recursos para descargar
+          </h3>
+          <div className="text-sm text-slate-600">
             Materiales adicionales para complementar tu aprendizaje
             <Badge variant="secondary" className="ml-2">
               {resources.length} recurso{resources.length !== 1 ? "s" : ""}
             </Badge>
-          </p>
+          </div>
         </div>
       </div>
 
       <div className="grid gap-3">
         {resources.map((resource, index) => (
-          <Card key={index} className="hover:shadow-md transition-all duration-200 border-slate-200">
+          <Card
+            key={index}
+            className="hover:shadow-md transition-all duration-200 border-slate-200"
+          >
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -45,7 +50,9 @@ const Resources = ({ resources }) => {
                     <FileText className="h-4 w-4 text-blue-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-slate-900 truncate">{resource.name}</h4>
+                    <h4 className="font-medium text-slate-900 truncate">
+                      {resource.name}
+                    </h4>
                     <p className="text-sm text-slate-500 flex items-center gap-1">
                       <ExternalLink className="h-3 w-3" />
                       Recurso descargable

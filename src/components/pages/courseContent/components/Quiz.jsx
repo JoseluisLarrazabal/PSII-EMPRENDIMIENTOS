@@ -3,7 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle2, XCircle, RotateCcw, HelpCircle, Trophy, AlertTriangle } from "lucide-react";
+import {
+  CheckCircle2,
+  XCircle,
+  RotateCcw,
+  HelpCircle,
+  Trophy,
+  AlertTriangle,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const Quiz = ({ quiz }) => {
@@ -34,7 +41,8 @@ const Quiz = ({ quiz }) => {
   };
 
   // Deshabilitar submit si no todas las preguntas están respondidas
-  const allAnswered = quiz.length > 0 && quiz.every((_, i) => typeof selected[i] === "number");
+  const allAnswered =
+    quiz.length > 0 && quiz.every((_, i) => typeof selected[i] === "number");
   const percentage = showResult ? Math.round((score / quiz.length) * 100) : 0;
 
   if (!quiz || quiz.length === 0) {
@@ -55,18 +63,27 @@ const Quiz = ({ quiz }) => {
             <HelpCircle className="h-5 w-5 text-[#8B0D37]" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">Quiz de la lección</h3>
-            <p className="text-sm text-slate-600">
+            <h3 className="text-lg font-semibold text-slate-900">
+              Quiz de la lección
+            </h3>
+            <div className="text-sm text-slate-600">
               Pon a prueba tus conocimientos
               <Badge variant="secondary" className="ml-2">
                 {quiz.length} pregunta{quiz.length !== 1 ? "s" : ""}
               </Badge>
-            </p>
+            </div>
           </div>
         </div>
         {showResult && (
-          <Badge variant={percentage >= 70 ? "default" : "destructive"} className="text-sm flex items-center gap-1">
-            {percentage >= 70 ? <Trophy className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
+          <Badge
+            variant={percentage >= 70 ? "default" : "destructive"}
+            className="text-sm flex items-center gap-1"
+          >
+            {percentage >= 70 ? (
+              <Trophy className="h-3 w-3" />
+            ) : (
+              <AlertTriangle className="h-3 w-3" />
+            )}
             {score}/{quiz.length} ({percentage}%)
           </Badge>
         )}
@@ -74,14 +91,22 @@ const Quiz = ({ quiz }) => {
 
       {/* Resultado del quiz */}
       {showResult && (
-        <Alert className={percentage >= 70 ? "border-green-200 bg-green-50" : "border-amber-200 bg-amber-50"}>
+        <Alert
+          className={
+            percentage >= 70
+              ? "border-green-200 bg-green-50"
+              : "border-amber-200 bg-amber-50"
+          }
+        >
           <div className="flex items-center gap-2">
             {percentage >= 70 ? (
               <CheckCircle2 className="h-4 w-4 text-green-600" />
             ) : (
               <AlertTriangle className="h-4 w-4 text-amber-600" />
             )}
-            <AlertDescription className={percentage >= 70 ? "text-green-800" : "text-amber-800"}>
+            <AlertDescription
+              className={percentage >= 70 ? "text-green-800" : "text-amber-800"}
+            >
               {percentage >= 70
                 ? "¡Excelente trabajo! Has demostrado un buen dominio del tema."
                 : "Puedes mejorar. Te recomendamos revisar el contenido y volver a intentarlo."}
@@ -95,7 +120,8 @@ const Quiz = ({ quiz }) => {
         {quiz.map((q, i) => {
           const userAnswer = selected[i];
           const isCorrect = showResult && userAnswer === q.answer;
-          const isIncorrect = showResult && userAnswer !== q.answer && userAnswer !== undefined;
+          const isIncorrect =
+            showResult && userAnswer !== q.answer && userAnswer !== undefined;
           const wasNotAnswered = showResult && userAnswer === undefined;
 
           return (
@@ -105,7 +131,7 @@ const Quiz = ({ quiz }) => {
                 "transition-all duration-200",
                 showResult && isCorrect && "border-green-200 bg-green-50",
                 showResult && isIncorrect && "border-red-200 bg-red-50",
-                showResult && wasNotAnswered && "border-amber-200 bg-amber-50",
+                showResult && wasNotAnswered && "border-amber-200 bg-amber-50"
               )}
             >
               <CardContent className="p-6">
@@ -115,12 +141,15 @@ const Quiz = ({ quiz }) => {
                       {i + 1}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-slate-900 mb-4">{q.question}</h4>
+                      <h4 className="font-medium text-slate-900 mb-4">
+                        {q.question}
+                      </h4>
                       <div className="space-y-2">
                         {q.options.map((option, j) => {
                           const isSelected = userAnswer === j;
                           const isCorrectOption = showResult && j === q.answer;
-                          const isWrongSelection = showResult && isSelected && j !== q.answer;
+                          const isWrongSelection =
+                            showResult && isSelected && j !== q.answer;
 
                           return (
                             <button
@@ -130,33 +159,57 @@ const Quiz = ({ quiz }) => {
                               disabled={showResult}
                               className={cn(
                                 "w-full text-left p-3 rounded-lg border transition-all duration-200 flex items-center gap-3",
-                                !showResult && "hover:bg-slate-50 hover:border-slate-300 cursor-pointer",
-                                isSelected && !showResult && "border-[#8B0D37] bg-[#F8E6ED]",
-                                isCorrectOption && "border-green-500 bg-green-50",
+                                !showResult &&
+                                  "hover:bg-slate-50 hover:border-slate-300 cursor-pointer",
+                                isSelected &&
+                                  !showResult &&
+                                  "border-[#8B0D37] bg-[#F8E6ED]",
+                                isCorrectOption &&
+                                  "border-green-500 bg-green-50",
                                 isWrongSelection && "border-red-500 bg-red-50",
-                                !isSelected && !isCorrectOption && showResult && "opacity-60",
-                                showResult && "cursor-default",
+                                !isSelected &&
+                                  !isCorrectOption &&
+                                  showResult &&
+                                  "opacity-60",
+                                showResult && "cursor-default"
                               )}
                             >
                               <div
                                 className={cn(
                                   "w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0",
-                                  isSelected && !showResult && "border-[#8B0D37] bg-[#8B0D37]",
-                                  isCorrectOption && "border-green-500 bg-green-500",
-                                  isWrongSelection && "border-red-500 bg-red-500",
-                                  !isSelected && !isCorrectOption && !showResult && "border-slate-300",
+                                  isSelected &&
+                                    !showResult &&
+                                    "border-[#8B0D37] bg-[#8B0D37]",
+                                  isCorrectOption &&
+                                    "border-green-500 bg-green-500",
+                                  isWrongSelection &&
+                                    "border-red-500 bg-red-500",
+                                  !isSelected &&
+                                    !isCorrectOption &&
+                                    !showResult &&
+                                    "border-slate-300"
                                 )}
                               >
-                                {isSelected && !showResult && <div className="w-2 h-2 bg-white rounded-full" />}
-                                {isCorrectOption && <CheckCircle2 className="w-3 h-3 text-white" />}
-                                {isWrongSelection && <XCircle className="w-3 h-3 text-white" />}
+                                {isSelected && !showResult && (
+                                  <div className="w-2 h-2 bg-white rounded-full" />
+                                )}
+                                {isCorrectOption && (
+                                  <CheckCircle2 className="w-3 h-3 text-white" />
+                                )}
+                                {isWrongSelection && (
+                                  <XCircle className="w-3 h-3 text-white" />
+                                )}
                               </div>
                               <span className="flex-1">{option}</span>
                               {showResult && isCorrectOption && (
-                                <span className="text-green-600 text-sm font-medium">Correcta</span>
+                                <span className="text-green-600 text-sm font-medium">
+                                  Correcta
+                                </span>
                               )}
                               {showResult && isWrongSelection && (
-                                <span className="text-red-600 text-sm font-medium">Incorrecta</span>
+                                <span className="text-red-600 text-sm font-medium">
+                                  Incorrecta
+                                </span>
                               )}
                             </button>
                           );
@@ -180,7 +233,11 @@ const Quiz = ({ quiz }) => {
         <div className="flex items-center justify-between pt-4">
           {!showResult ? (
             <div className="space-y-2">
-              <Button type="submit" disabled={!allAnswered} className="bg-[#8B0D37] hover:bg-[#6E0B2A]">
+              <Button
+                type="submit"
+                disabled={!allAnswered}
+                className="bg-[#8B0D37] hover:bg-[#6E0B2A]"
+              >
                 Comprobar respuestas
               </Button>
               {!allAnswered && (
@@ -197,7 +254,12 @@ const Quiz = ({ quiz }) => {
                   Resultado: {score} de {quiz.length} respuestas correctas
                 </span>
               </div>
-              <Button type="button" variant="outline" onClick={handleRetry} className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleRetry}
+                className="flex items-center gap-2"
+              >
                 <RotateCcw className="h-4 w-4" />
                 Intentar de nuevo
               </Button>
