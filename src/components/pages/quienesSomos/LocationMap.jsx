@@ -1,71 +1,90 @@
 // src/components/LocationMap.jsx
-import React from 'react';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import React, { useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 
-const LocationMap = ({ apiKey, locations }) => {
-  const [selectedLocation, setSelectedLocation] = React.useState(null);
+// Crear un ícono personalizado con FontAwesome
+const createCustomIcon = (location) => {
+  return L.divIcon({
+    className: 'custom-marker',
+    html: `
+      <div class="marker-container">
+        <div class="marker-icon">
+          <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <div class="marker-pulse"></div>
+      </div>
+    `,
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
+    popupAnchor: [0, -40]
+  });
+};
+
+const LocationMap = ({ locations }) => {
+  const [selectedLocation, setSelectedLocation] = useState(null);
   
   // Centro del mapa (se puede calcular dinámicamente si hay múltiples ubicaciones)
   const mapCenter = locations.length > 0 
-    ? { lat: locations[0].lat, lng: locations[0].lng }
-    : { lat: -16.5, lng: -68.15 }; // Coordenadas por defecto (La Paz, Bolivia)
-  
-  const mapContainerStyle = {
-    width: '100%',
-    height: '500px',
-    borderRadius: '8px',
-    overflow: 'hidden'
-  };
-  
-  const options = {
-    disableDefaultUI: false,
-    zoomControl: true,
-    mapTypeControl: true,
-    streetViewControl: true,
-    fullscreenControl: true,
-  };
+    ? [locations[0].lat, locations[0].lng]
+    : [-16.5, -68.15]; // Coordenadas por defecto (La Paz, Bolivia)
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-[1200px] mx-auto px-4 md:px-12">
-        <h2 className="text-[#8B0D37] text-2xl font-bold mb-8">Mapas de ubicación y direcciones</h2>
+        <h2 className="text-[#8B0D37] text-3xl font-bold mb-4 text-center">Mapas de ubicación y direcciones</h2>
+        <p className="text-gray-600 dark:text-gray-300 text-center mb-8">Encuentra nuestras sedes y puntos de atención</p>
         
-        <div className="shadow-lg">
-          <LoadScript googleMapsApiKey={apiKey}>
-            <GoogleMap
-              mapContainerStyle={mapContainerStyle}
-              center={mapCenter}
-              zoom={15}
-              options={options}
-            >
-              {locations.map((location, index) => (
-                <Marker
-                  key={index}
-                  position={{ lat: location.lat, lng: location.lng }}
-                  onClick={() => setSelectedLocation(location)}
-                  icon={{
-                    url: location.iconUrl || '/images/marker-incuvalab.png',
-                    scaledSize: { width: 40, height: 40 }
-                  }}
-                />
-              ))}
-              
-              {selectedLocation && (
-                <InfoWindow
-                  position={{ lat: selectedLocation.lat, lng: selectedLocation.lng }}
-                  onCloseClick={() => setSelectedLocation(null)}
+        <div className="shadow-2xl h-[600px] rounded-2xl overflow-hidden transform transition-all duration-300 hover:scale-[1.01]">
+          <MapContainer 
+            center={mapCenter} 
+            zoom={15} 
+            style={{ height: "100%", width: "100%" }}
+            className="z-0"
+            zoomControl={false}
+          >
+            <ZoomControl position="bottomright" />
+            
+            {/* Mapa base con estilo moderno */}
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+            />
+            
+            {locations.map((location, index) => (
+              <Marker
+                key={index}
+                position={[location.lat, location.lng]}
+                eventHandlers={{
+                  click: () => setSelectedLocation(location),
+                  mouseover: (e) => {
+                    e.target.openPopup();
+                  },
+                  mouseout: (e) => {
+                    e.target.closePopup();
+                  }
+                }}
+                icon={createCustomIcon(location)}
+              >
+                <Popup
+                  className="custom-popup"
+                  closeButton={false}
+                  offset={[0, -40]}
                 >
-                  <div className="p-2">
-                    <h3 className="font-bold text-lg">{selectedLocation.name}</h3>
-                    <p className="text-sm text-gray-600">{selectedLocation.address}</p>
-                    {selectedLocation.rating && (
-                      <div className="flex items-center mt-1">
-                        <span className="text-sm font-semibold mr-1">{selectedLocation.rating}</span>
+                  <div className="p-3 min-w-[250px]">
+                    <h3 className="font-bold text-lg text-[#8B0D37]">{location.name}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{location.address}</p>
+                    {location.rating && (
+                      <div className="flex items-center mt-2">
+                        <span className="text-sm font-semibold mr-1">{location.rating}</span>
                         <div className="flex">
                           {Array(5).fill(0).map((_, i) => (
                             <svg 
                               key={i} 
-                              className={`w-4 h-4 ${i < Math.floor(selectedLocation.rating) ? 'text-yellow-400' : 'text-gray-300'}`}
+                              className={`w-4 h-4 ${i < Math.floor(location.rating) ? 'text-yellow-400' : 'text-gray-300'}`}
                               fill="currentColor" 
                               viewBox="0 0 20 20"
                             >
@@ -73,27 +92,32 @@ const LocationMap = ({ apiKey, locations }) => {
                             </svg>
                           ))}
                         </div>
-                        <span className="text-xs text-gray-500 ml-1">({selectedLocation.reviewCount})</span>
+                        <span className="text-xs text-gray-500 ml-1">({location.reviewCount})</span>
                       </div>
                     )}
-                    {selectedLocation.type && (
-                      <p className="text-xs text-gray-500 mt-1">{selectedLocation.type}</p>
+                    {location.type && (
+                      <p className="text-xs text-gray-500 mt-1 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full inline-block">
+                        {location.type}
+                      </p>
                     )}
-                    {selectedLocation.url && (
+                    {location.url && (
                       <a 
-                        href={selectedLocation.url} 
+                        href={location.url} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="mt-2 text-sm text-blue-600 hover:text-blue-800 block"
+                        className="mt-3 text-sm text-[#8B0D37] hover:text-[#6B0D2D] font-medium flex items-center"
                       >
-                        Ver en Google Maps
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        Ver en el mapa
                       </a>
                     )}
                   </div>
-                </InfoWindow>
-              )}
-            </GoogleMap>
-          </LoadScript>
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
         </div>
       </div>
     </section>
