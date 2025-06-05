@@ -463,42 +463,165 @@ const deleteCourse = async (id) => {
 };
 
 // Obtener un curso por ID
+// En moocModel.js, actualiza getCourseById:
 const getCourseById = async (id) => {
-  const [rows] = await pool.query("SELECT * FROM mooc_catalog WHERE id = ?", [
-    Number(id),
-  ]);
-  return rows[0] || null;
+  try {
+    const [rows] = await pool.query(
+      `SELECT mc.*, c.estado, c.fecha_inicio, c.duracion as duracion_curso, 
+              c.horas_esfuerzo as horas_curso, c.idioma as idioma_curso, 
+              c.nivel as nivel_curso, c.prerequisitos as prerequisitos_curso,
+              c.certificado
+       FROM mooc_catalog mc 
+       LEFT JOIN curso c ON mc.curso_id = c.id 
+       WHERE mc.id = ?`, 
+      [Number(id)]
+    );
+    
+    if (!rows[0]) return null;
+    
+    // Mapear campos correctamente
+    const course = {
+      ...rows[0],
+      // Priorizar datos de la tabla curso si existen
+      estado: rows[0].estado || 'borrador',
+      start_date: rows[0].fecha_inicio || rows[0].start_date,
+      duration: rows[0].duracion_curso || rows[0].duration,
+      effort_hours: rows[0].horas_curso || rows[0].effort_hours,
+      language: rows[0].idioma_curso || rows[0].language || 'Español',
+      level: rows[0].nivel_curso || rows[0].level,
+      prerequisites: rows[0].prerequisitos_curso || rows[0].prerequisites,
+      has_certificate: rows[0].certificado === 1 || rows[0].has_certificate
+    };
+    
+    return course;
+  } catch (error) {
+    console.error('Error en getCourseById:', error);
+    throw error;
+  }
 };
 
 // Obtener slides por ID de curso
-const getSlidesByCourseId = async (courseId) => {
-  const [rows] = await pool.query(
-    `SELECT id, title, content, video_url AS videoUrl, embed_url AS embedUrl, quiz, resources, slide_order
-     FROM mooc_course_slides
-     WHERE course_id = ?
-     ORDER BY slide_order ASC`,
-    [courseId]
-  );
-  // Parsear quiz y resources de JSON SOLO si son string
-  return rows.map((slide) => ({
-    ...slide,
-    quiz:
-      typeof slide.quiz === "string"
-        ? slide.quiz.trim() === ""
-          ? []
-          : JSON.parse(slide.quiz)
-        : Array.isArray(slide.quiz)
-        ? slide.quiz
-        : [],
-    resources:
-      typeof slide.resources === "string"
-        ? slide.resources.trim() === ""
-          ? []
-          : JSON.parse(slide.resources)
-        : Array.isArray(slide.resources)
-        ? slide.resources
-        : [],
-  }));
+// En moocModel.js, reemplaza getSlidesByCourseId:
+const getSlidesByCourseId = async (catalogId) => {
+  const connection = await pool.getConnection();
+  try {
+    console.log('🔍 Buscando slides para catalog ID:', catalogId);
+    
+    // Obtener curso_id
+    const [catalogInfo] = await connection.query(
+      'SELECT curso_id FROM mooc_catalog WHERE id = ?',
+      [catalogId]
+    );
+    
+    if (!catalogInfo[0] || !catalogInfo[0].curso_id) {
+      // Si no hay curso_id, buscar en mooc_course_slides
+      const [rows] = await connection.query(
+        `SELECT id, title, content, video_url AS videoUrl, embed_url AS embedUrl, quiz, resources, slide_order
+         FROM mooc_course_slides
+         WHERE course_id = ?
+         ORDER BY slide_order ASC`,
+        [catalogId]
+      );
+      
+      connection.release();
+      return rows.map((slide) => ({
+        ...slide,
+        quiz: typeof slide.quiz === "string" ? JSON.parse(slide.quiz || "[]") : slide.quiz || [],
+        resources: typeof slide.resources === "string" ? JSON.parse(slide.resources || "[]") : slide.resources || []
+      }));
+    }
+    
+    const cursoId = catalogInfo[0].curso_id;
+    console.log('✅ Curso ID:', cursoId);
+    
+    // Obtener lecciones
+    const [lecciones] = await connection.query(
+      `SELECT 
+        id,
+        titulo as title,
+        contenido_texto as content,
+        video_url as videoUrl,
+        embed_url as embedUrl,
+        orden as slide_order
+       FROM lecciones
+       WHERE curso_id = ?
+       ORDER BY orden ASC`,
+      [cursoId]
+    );
+    
+    console.log('📚 Lecciones encontradas:', lecciones.length);
+    
+    // Para cada lección obtener recursos y quiz
+    for (let leccion of lecciones) {
+      // Obtener recursos
+      const [recursos] = await connection.query(
+        `SELECT nombre as name, url_archivo as url, tipo as type
+         FROM recursos 
+         WHERE leccion_id = ?`,
+        [leccion.id]
+      );
+      leccion.resources = recursos;
+      
+      // Inicializar quiz como array vacío
+      leccion.quiz = [];
+      
+      // Obtener quiz
+      const [quizData] = await connection.query(
+        'SELECT id FROM quizzes WHERE leccion_id = ?',
+        [leccion.id]
+      );
+      
+      if (quizData.length > 0) {
+        const quizId = quizData[0].id;
+        
+        // Obtener todas las preguntas y opciones
+        const [questionData] = await connection.query(
+          `SELECT 
+            pq.id as pregunta_id,
+            pq.texto_pregunta,
+            pq.orden,
+            opr.texto_opcion,
+            opr.es_correcta
+           FROM preguntas_quiz pq
+           LEFT JOIN opciones_respuesta opr ON pq.id = opr.pregunta_id
+           WHERE pq.quiz_id = ?
+           ORDER BY pq.orden, opr.id`,
+          [quizId]
+        );
+        
+        // Agrupar por pregunta
+        const preguntasMap = new Map();
+        
+        for (const row of questionData) {
+          if (!preguntasMap.has(row.pregunta_id)) {
+            preguntasMap.set(row.pregunta_id, {
+              question: row.texto_pregunta,
+              options: [],
+              answer: 0
+            });
+          }
+          
+          const pregunta = preguntasMap.get(row.pregunta_id);
+          if (row.texto_opcion) {
+            pregunta.options.push(row.texto_opcion);
+            if (row.es_correcta === 1) {
+              pregunta.answer = pregunta.options.length - 1;
+            }
+          }
+        }
+        
+        leccion.quiz = Array.from(preguntasMap.values());
+      }
+    }
+    
+    connection.release();
+    return lecciones;
+    
+  } catch (error) {
+    connection.release();
+    console.error('❌ Error:', error);
+    throw error;
+  }
 };
 
 // Obtener cursos por mentor (administrador_id)

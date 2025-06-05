@@ -100,72 +100,57 @@ const initializeContentTables = async () => {
 };
 
 // Crear un nuevo curso con su contenido
+// En contentModel.js - Versión corregida de createCourseWithContent
 const createCourseWithContent = async (courseData) => {
   const connection = await pool.getConnection();
   try {
-    console.log(
-      "Iniciando creación de curso con datos:",
-      JSON.stringify(courseData, null, 2)
-    );
-
-    // Validaciones iniciales
-    if (
-      !courseData.title ||
-      !courseData.provider ||
-      !courseData.image_url ||
-      !courseData.logo_url ||
-      !courseData.type ||
-      !courseData.category
-    ) {
-      console.error("Faltan campos requeridos:", {
-        title: !courseData.title,
-        provider: !courseData.provider,
-        image_url: !courseData.image_url,
-        logo_url: !courseData.logo_url,
-        type: !courseData.type,
-        category: !courseData.category,
-      });
-      throw new Error("Faltan campos requeridos en los datos del curso");
-    }
+    console.log("Iniciando creación de curso con datos:", JSON.stringify(courseData, null, 2));
 
     await connection.beginTransaction();
 
     // 1. Insertar en la tabla curso
     console.log("Insertando en tabla curso...");
     const [cursoResult] = await connection.query(
-      `INSERT INTO curso (titulo, descripcion, estado, mentor_id) VALUES (?, ?, ?, ?)`, // 🔥 CAMBIO: mentor_id no usuario_mentor_id
+      `INSERT INTO curso (
+        titulo, 
+        descripcion, 
+        estado, 
+        usuario_mentor_id,
+        fecha_inicio,
+        duracion,
+        horas_esfuerzo,
+        idioma,
+        nivel,
+        prerequisitos,
+        certificado
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         courseData.title,
         courseData.description || "",
         courseData.estado || "borrador",
         courseData.mentor_id || null,
+        formatDateForMySQL(courseData.start_date),
+        courseData.duration || null,
+        courseData.effort_hours || null,
+        courseData.language || 'Español',
+        courseData.level || null,
+        courseData.prerequisites || null,
+        courseData.has_certificate ? 1 : 0
       ]
     );
     const cursoId = cursoResult.insertId;
     console.log("Curso creado con ID:", cursoId);
 
     // 2. Insertar en mooc_catalog
-    console.log("Insertando en mooc_catalog...");
-    console.log("Datos para mooc_catalog:", {
-      title: courseData.title,
-      provider: courseData.provider,
-      image_url: courseData.image_url,
-      logo_url: courseData.logo_url,
-      type: courseData.type,
-      category: courseData.category,
-      is_popular: courseData.is_popular || false,
-      is_new: courseData.is_new || false,
-      is_trending: courseData.is_trending || false,
-      curso_id: cursoId,
-    });
-
-    // En contentModel.js - MODIFICA la inserción en mooc_catalog
     const [catalogResult] = await connection.query(
       `INSERT INTO mooc_catalog (
-    title, provider, image_url, logo_url, type, 
-    category, is_popular, is_new, is_trending,
-    curso_id, has_certificate
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        title, provider, image_url, logo_url, type, 
+        category, is_popular, is_new, is_trending,
+        curso_id, has_certificate, description,
+        start_date, duration, effort_hours, 
+        language, level, prerequisites, rating,
+        mentor_id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         courseData.title,
         courseData.provider,
@@ -178,9 +163,17 @@ const createCourseWithContent = async (courseData) => {
         courseData.is_trending || false,
         cursoId,
         courseData.has_certificate || false,
+        courseData.description || null,
+        formatDateForMySQL(courseData.start_date),
+        courseData.duration || null,
+        courseData.effort_hours || null,
+        courseData.language || null,
+        courseData.level || null,
+        courseData.prerequisites || null,
+        courseData.rating || null,
+        courseData.mentor_id || null
       ]
     );
-    console.log("Catálogo creado con ID:", catalogResult.insertId);
 
     // 3. Insertar lecciones
     if (courseData.slides && courseData.slides.length > 0) {
@@ -189,118 +182,91 @@ const createCourseWithContent = async (courseData) => {
         if (!slide.title) {
           throw new Error(`La lección ${i + 1} debe tener un título`);
         }
-        console.log("Procesando lección:", i + 1, slide.title);
 
         const [leccionResult] = await connection.query(
           `INSERT INTO lecciones (
-        curso_id, titulo, orden, contenido_texto, 
-        video_url, embed_url
-      ) VALUES (?, ?, ?, ?, ?, ?)`,
+            curso_id, titulo, orden, contenido_texto, 
+            video_url, embed_url
+          ) VALUES (?, ?, ?, ?, ?, ?)`,
           [
             cursoId,
             slide.title,
             i,
             slide.content || "",
-            slide.video_url || null, // 🔥 Los datos ya vienen con video_url
-            slide.embed_url || null, // 🔥 Los datos ya vienen con embed_url
+            slide.video_url || null,
+            slide.embed_url || null
           ]
         );
         const leccionId = leccionResult.insertId;
-        console.log("Lección creada con ID:", leccionId);
 
         // 4. Insertar recursos si existen
         if (slide.recursos && slide.recursos.length > 0) {
           for (const recurso of slide.recursos) {
             if (!recurso.nombre || !recurso.url_archivo) {
-              throw new Error(
-                `El recurso de la lección ${i + 1} debe tener nombre y URL`
-              );
+              throw new Error(`El recurso de la lección ${i + 1} debe tener nombre y URL`);
             }
             await connection.query(
               `INSERT INTO recursos (
-            leccion_id, nombre, url_archivo, tipo
-          ) VALUES (?, ?, ?, ?)`,
+                leccion_id, nombre, url_archivo, tipo
+              ) VALUES (?, ?, ?, ?)`,
               [
                 leccionId,
                 recurso.nombre,
                 recurso.url_archivo,
-                recurso.tipo || "link",
+                recurso.tipo || "link"
               ]
             );
           }
-          console.log("Recursos insertados para lección:", leccionId);
         }
 
         // 5. Insertar quiz si existe
-        if (
-          slide.quiz &&
-          slide.quiz.preguntas &&
-          slide.quiz.preguntas.length > 0
-        ) {
-          // 🔥 ESTRUCTURA CORRECTA
+        if (slide.quiz && slide.quiz.preguntas && slide.quiz.preguntas.length > 0) {
           const [quizResult] = await connection.query(
             `INSERT INTO quizzes (
-          leccion_id, titulo, instrucciones
-        ) VALUES (?, ?, ?)`,
+              leccion_id, titulo, instrucciones
+            ) VALUES (?, ?, ?)`,
             [
               leccionId,
               slide.quiz.titulo || "Quiz de la Lección",
-              slide.quiz.instrucciones || "",
+              slide.quiz.instrucciones || ""
             ]
           );
           const quizId = quizResult.insertId;
-          console.log("Quiz creado con ID:", quizId);
 
           // 6. Insertar preguntas del quiz
           for (let j = 0; j < slide.quiz.preguntas.length; j++) {
             const pregunta = slide.quiz.preguntas[j];
             if (!pregunta.texto_pregunta) {
-              throw new Error(
-                `La pregunta ${j + 1} del quiz de la lección ${
-                  i + 1
-                } debe tener texto`
-              );
+              throw new Error(`La pregunta ${j + 1} del quiz de la lección ${i + 1} debe tener texto`);
             }
             const [preguntaResult] = await connection.query(
               `INSERT INTO preguntas_quiz (
-            quiz_id, texto_pregunta, tipo_pregunta, orden
-          ) VALUES (?, ?, ?, ?)`,
+                quiz_id, texto_pregunta, tipo_pregunta, orden
+              ) VALUES (?, ?, ?, ?)`,
               [
                 quizId,
                 pregunta.texto_pregunta,
                 pregunta.tipo_pregunta || "multiple-choice",
-                j,
+                j
               ]
             );
             const preguntaId = preguntaResult.insertId;
 
             // 7. Insertar opciones de respuesta
             if (pregunta.opciones && pregunta.opciones.length > 0) {
-              if (pregunta.opciones.length < 2) {
-                throw new Error(
-                  `La pregunta ${j + 1} del quiz de la lección ${
-                    i + 1
-                  } debe tener al menos 2 opciones`
-                );
-              }
               for (const opcion of pregunta.opciones) {
                 if (!opcion.texto_opcion) {
-                  throw new Error(
-                    `Las opciones de la pregunta ${
-                      j + 1
-                    } del quiz de la lección ${i + 1} deben tener texto`
-                  );
+                  throw new Error(`Las opciones de la pregunta ${j + 1} del quiz de la lección ${i + 1} deben tener texto`);
                 }
                 await connection.query(
                   `INSERT INTO opciones_respuesta (
-                pregunta_id, texto_opcion, es_correcta
-              ) VALUES (?, ?, ?)`,
+                    pregunta_id, texto_opcion, es_correcta
+                  ) VALUES (?, ?, ?)`,
                   [preguntaId, opcion.texto_opcion, opcion.es_correcta ? 1 : 0]
                 );
               }
             }
           }
-          console.log("Preguntas y opciones insertadas para quiz:", quizId);
         }
       }
     }
@@ -317,23 +283,49 @@ const createCourseWithContent = async (courseData) => {
   }
 };
 
-// Obtener un curso con todo su contenido
+
+const formatDateForMySQL = (dateString) => {
+  if (!dateString) return null;
+
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return null;
+
+    // Formatear a YYYY-MM-DD HH:MM:SS
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  } catch (error) {
+    return null;
+  }
+};
+
+// Función faltante: getCourseWithContent
 const getCourseWithContent = async (cursoId) => {
   try {
     // 1. Obtener información del curso
-    const [curso] = await pool.query(`SELECT * FROM curso WHERE id = ?`, [
-      cursoId,
-    ]);
+    const [curso] = await pool.query(`SELECT * FROM curso WHERE id = ?`, [cursoId]);
 
     if (!curso[0]) return null;
 
-    // 2. Obtener lecciones ordenadas
+    // 2. Obtener información de mooc_catalog
+    const [catalogInfo] = await pool.query(
+      `SELECT * FROM mooc_catalog WHERE curso_id = ?`,
+      [cursoId]
+    );
+
+    // 3. Obtener lecciones ordenadas
     const [lecciones] = await pool.query(
       `SELECT * FROM lecciones WHERE curso_id = ? ORDER BY orden`,
       [cursoId]
     );
 
-    // 3. Para cada lección, obtener sus recursos y quiz
+    // 4. Para cada lección, obtener sus recursos y quiz
     for (let leccion of lecciones) {
       // Obtener recursos
       const [recursos] = await pool.query(
@@ -370,17 +362,263 @@ const getCourseWithContent = async (cursoId) => {
       }
     }
 
-    return {
+    // Combinar datos de ambas tablas
+    const cursoCompleto = {
       ...curso[0],
+      ...(catalogInfo[0] || {}),
       lecciones,
+      // Mapear slides para el frontend
+      slides: lecciones.map((leccion) => ({
+        title: leccion.titulo,
+        content: leccion.contenido_texto || "",
+        videoUrl: leccion.video_url || "",
+        embedUrl: leccion.embed_url || "",
+        recursos: leccion.recursos || [],
+        quiz: leccion.quiz ? {
+          titulo: leccion.quiz.titulo,
+          instrucciones: leccion.quiz.instrucciones,
+          preguntas: leccion.quiz.preguntas || []
+        } : null
+      }))
     };
+
+    return cursoCompleto;
   } catch (error) {
     throw error;
   }
 };
 
+// Función updateCourseWithContent completa
+const updateCourseWithContent = async (catalogId, courseData) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    // 1. Primero obtener el curso_id desde mooc_catalog
+    const [catalogInfo] = await connection.query(
+      `SELECT curso_id FROM mooc_catalog WHERE id = ?`,
+      [catalogId]
+    );
+
+    if (catalogInfo.length === 0) {
+      throw new Error("No se encontró el curso en el catálogo");
+    }
+
+    const cursoId = catalogInfo[0].curso_id;
+
+    // 2. Actualizar tabla curso con formato de fecha corregido
+    if (cursoId) {
+      await connection.query(
+        `UPDATE curso 
+         SET titulo = ?, 
+             descripcion = ?, 
+             estado = ?,
+             fecha_inicio = ?,
+             duracion = ?,
+             horas_esfuerzo = ?,
+             idioma = ?,
+             nivel = ?,
+             prerequisitos = ?,
+             certificado = ?
+         WHERE id = ?`,
+        [
+          courseData.title,
+          courseData.description || "",
+          courseData.estado || "borrador",
+          formatDateForMySQL(courseData.start_date),
+          courseData.duration || null,
+          courseData.effort_hours || null,
+          courseData.language || "Español",
+          courseData.level || null,
+          courseData.prerequisites || null,
+          courseData.has_certificate ? 1 : 0,
+          cursoId
+        ]
+      );
+    }
+
+    // 3. Actualizar mooc_catalog con TODOS los campos
+    await connection.query(
+      `UPDATE mooc_catalog SET
+        title = ?, 
+        provider = ?, 
+        image_url = ?, 
+        logo_url = ?,
+        type = ?, 
+        category = ?, 
+        is_popular = ?, 
+        is_new = ?,
+        is_trending = ?, 
+        has_certificate = ?, 
+        description = ?,
+        start_date = ?,
+        duration = ?,
+        effort_hours = ?,
+        language = ?,
+        level = ?,
+        prerequisites = ?,
+        rating = ?
+       WHERE id = ?`,
+      [
+        courseData.title,
+        courseData.provider,
+        courseData.image_url,
+        courseData.logo_url,
+        courseData.type,
+        courseData.category,
+        courseData.is_popular ? 1 : 0,
+        courseData.is_new ? 1 : 0,
+        courseData.is_trending ? 1 : 0,
+        courseData.has_certificate ? 1 : 0,
+        courseData.description || null,
+        formatDateForMySQL(courseData.start_date),
+        courseData.duration || null,
+        courseData.effort_hours || null,
+        courseData.language || null,
+        courseData.level || null,
+        courseData.prerequisites || null,
+        courseData.rating || null,
+        catalogId
+      ]
+    );
+
+    // Solo procesar lecciones si hay un curso_id válido
+    if (cursoId) {
+      // 4. Eliminar lecciones existentes
+      await connection.query(`DELETE FROM lecciones WHERE curso_id = ?`, [cursoId]);
+
+      // 5. Insertar lecciones actualizadas
+      if (courseData.slides && courseData.slides.length > 0) {
+        for (let i = 0; i < courseData.slides.length; i++) {
+          const slide = courseData.slides[i];
+
+          const [leccionResult] = await connection.query(
+            `INSERT INTO lecciones (
+              curso_id, titulo, orden, contenido_texto, 
+              video_url, embed_url
+            ) VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+              cursoId,
+              slide.title,
+              i,
+              slide.content || "",
+              slide.video_url || null,
+              slide.embed_url || null
+            ]
+          );
+          const leccionId = leccionResult.insertId;
+
+          // 6. Insertar recursos
+          if (slide.recursos && slide.recursos.length > 0) {
+            for (const recurso of slide.recursos) {
+              await connection.query(
+                `INSERT INTO recursos (
+                  leccion_id, nombre, url_archivo, tipo
+                ) VALUES (?, ?, ?, ?)`,
+                [
+                  leccionId,
+                  recurso.nombre,
+                  recurso.url_archivo,
+                  recurso.tipo || "link"
+                ]
+              );
+            }
+          }
+
+          // 7. Insertar quiz si existe
+          if (slide.quiz && slide.quiz.preguntas && slide.quiz.preguntas.length > 0) {
+            const [quizResult] = await connection.query(
+              `INSERT INTO quizzes (
+                leccion_id, titulo, instrucciones
+              ) VALUES (?, ?, ?)`,
+              [
+                leccionId,
+                slide.quiz.titulo || "Quiz de la Lección",
+                slide.quiz.instrucciones || ""
+              ]
+            );
+            const quizId = quizResult.insertId;
+
+            // Insertar preguntas y opciones
+            for (let j = 0; j < slide.quiz.preguntas.length; j++) {
+              const pregunta = slide.quiz.preguntas[j];
+              const [preguntaResult] = await connection.query(
+                `INSERT INTO preguntas_quiz (
+                  quiz_id, texto_pregunta, tipo_pregunta, orden
+                ) VALUES (?, ?, ?, ?)`,
+                [
+                  quizId,
+                  pregunta.texto_pregunta,
+                  pregunta.tipo_pregunta || "multiple-choice",
+                  j
+                ]
+              );
+              const preguntaId = preguntaResult.insertId;
+
+              if (pregunta.opciones && pregunta.opciones.length > 0) {
+                for (const opcion of pregunta.opciones) {
+                  await connection.query(
+                    `INSERT INTO opciones_respuesta (
+                      pregunta_id, texto_opcion, es_correcta
+                    ) VALUES (?, ?, ?)`,
+                    [
+                      preguntaId,
+                      opcion.texto_opcion,
+                      opcion.es_correcta ? 1 : 0
+                    ]
+                  );
+                }
+              }
+            }
+          }
+        }
+      }
+    } else {
+      // Si no hay curso_id, usar mooc_course_slides
+      await connection.query(
+        `DELETE FROM mooc_course_slides WHERE course_id = ?`,
+        [catalogId]
+      );
+
+      if (courseData.slides && courseData.slides.length > 0) {
+        for (let i = 0; i < courseData.slides.length; i++) {
+          const slide = courseData.slides[i];
+          await connection.query(
+            `INSERT INTO mooc_course_slides 
+              (course_id, title, content, video_url, embed_url, quiz, resources, slide_order)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              catalogId,
+              slide.title,
+              slide.content || "",
+              slide.video_url || null,
+              slide.embed_url || null,
+              JSON.stringify(slide.quiz || []),
+              JSON.stringify(slide.recursos || []),
+              i
+            ]
+          );
+        }
+      }
+    }
+
+    await connection.commit();
+    console.log("✅ Curso actualizado exitosamente");
+    return true;
+  } catch (error) {
+    console.error("Error en updateCourseWithContent:", error);
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
+
+// Exportar la nueva función
 module.exports = {
   initializeContentTables,
   createCourseWithContent,
   getCourseWithContent,
+  updateCourseWithContent,
+  formatDateForMySQL,
 };

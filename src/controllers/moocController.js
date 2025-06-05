@@ -1,5 +1,6 @@
 const moocModel = require('../models/moocModel');
-const { createCourseWithContent, getCourseWithContent } = require('../models/contentModel');
+const pool = require("../config/database");
+const { createCourseWithContent, getCourseWithContent, updateCourseWithContent } = require('../models/contentModel');
 
 // Inicializar tablas
 const initializeTables = async (req, res, next) => {
@@ -81,13 +82,15 @@ const getSchools = async (req, res, next) => {
 };
 
 // 🔥 CREAR CURSO - SOLO USANDO CONTENTMODEL
+// En moocController.js, actualiza createCourse para incluir todos los campos:
 const createCourse = async (req, res) => {
   try {
     console.log('Datos recibidos en createCourse:', req.body);
     
     const { 
       title, description, provider, image_url, logo_url, type, category, 
-      slides, is_popular, is_new, is_trending, has_certificate, estado
+      slides, is_popular, is_new, is_trending, has_certificate, estado,
+      start_date, duration, effort_hours, language, level, prerequisites, rating
     } = req.body;
 
     // Validar campos requeridos
@@ -106,7 +109,7 @@ const createCourse = async (req, res) => {
       });
     }
 
-    // 🔥 USAR SOLO CONTENTMODEL
+    // Crear curso con todos los campos
     const result = await createCourseWithContent({
       title,
       description: description || '',
@@ -121,6 +124,14 @@ const createCourse = async (req, res) => {
       is_trending: is_trending || false,
       has_certificate: has_certificate || false,
       mentor_id: req.user?.id || null,
+      // Campos adicionales
+      start_date,
+      duration,
+      effort_hours,
+      language,
+      level,
+      prerequisites,
+      rating,
       slides
     });
 
@@ -139,11 +150,29 @@ const createCourse = async (req, res) => {
   }
 };
 
+
 // Obtener un curso con su contenido
 const getCourse = async (req, res) => {
   try {
-    const { cursoId } = req.params;
-    const course = await getCourseWithContent(cursoId);
+    const { id } = req.params; // Este es el ID de mooc_catalog
+    
+    // Primero obtener el curso_id
+    const [catalogInfo] = await pool.query(
+      'SELECT curso_id FROM mooc_catalog WHERE id = ?',
+      [id]
+    );
+    
+    if (!catalogInfo[0] || !catalogInfo[0].curso_id) {
+      // Si no hay curso_id, devolver solo la info de mooc_catalog
+      const basicCourse = await moocModel.getCourseById(id);
+      return res.json({
+        success: true,
+        data: basicCourse
+      });
+    }
+    
+    // Si hay curso_id, obtener todo el contenido
+    const course = await getCourseWithContent(catalogInfo[0].curso_id);
 
     if (!course) {
       return res.status(404).json({
@@ -166,14 +195,17 @@ const getCourse = async (req, res) => {
   }
 };
 
-// 🔥 ACTUALIZAR - TAMBIÉN USAR CONTENTMODEL (pendiente implementar)
+
 const updateCourse = async (req, res, next) => {
   try {
     const { id } = req.params;
     const courseData = req.body;
     
-    // Por ahora usar moocModel hasta implementar updateCourseWithContent
-    const success = await moocModel.updateCourse(id, courseData);
+    console.log('Actualizando curso con ID:', id);
+    console.log('Datos recibidos:', courseData);
+    
+    // Usar updateCourseWithContent en lugar de moocModel.updateCourse
+    const success = await updateCourseWithContent(id, courseData);
     
     if (!success) {
       return res.status(404).json({
@@ -187,7 +219,12 @@ const updateCourse = async (req, res, next) => {
       message: 'Curso actualizado exitosamente'
     });
   } catch (error) {
-    next(error);
+    console.error('Error al actualizar curso:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al actualizar el curso',
+      error: error.message
+    });
   }
 };
 
