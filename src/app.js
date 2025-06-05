@@ -12,6 +12,10 @@ const contactoRoutes = require('./routes/contactoRoutes');
 const proyectoRoutes = require('./routes/partnersRoutes');
 const revenueRoutes = require('./routes/revenueRoutes');
 const authRoutes = require('./routes/authRoutes');
+const { initializeTables } = require('./models/moocModel');
+const { initializeContentTables } = require('./models/contentModel');
+const moocRoutes = require('./routes/moocRoutes');
+
 const app = express();
 
 // Middleware
@@ -19,6 +23,19 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Inicializar tablas
+const initializeDatabase = async () => {
+  try {
+    await initializeTables();
+    await initializeContentTables();
+    console.log('Base de datos inicializada correctamente');
+  } catch (error) {
+    console.error('Error al inicializar la base de datos:', error);
+    process.exit(1);
+  }
+};
+
+initializeDatabase();
 
 // Rutas
 app.use('/api', routes);
@@ -32,8 +49,14 @@ app.use('/api', contactoRoutes);
 app.use('/api', proyectoRoutes);
 app.use('/api', revenueRoutes);
 app.use('/api', authRoutes);
+app.use('/api/moocs', moocRoutes);
 
 // Manejo de errores
 app.use(errorHandler);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
+});
 
 module.exports = app;
