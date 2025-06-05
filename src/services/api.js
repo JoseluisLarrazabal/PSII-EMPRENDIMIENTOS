@@ -43,7 +43,6 @@ export const fetchSchools = async () => {
   }
 };
 
-// Nueva función para obtener todos los datos de una vez
 export const fetchAllMoocsData = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/all-courses`);
@@ -55,22 +54,32 @@ export const fetchAllMoocsData = async () => {
 };
 
 export const fetchCourseById = async (id) => {
-  const response = await axios.get(`http://localhost:8000/api/moocs/courses/${id}`);
-  return response.data.data;
+  try {
+    const response = await axios.get(`${BASE_URL}/courses/${id}`);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching course:", error);
+    throw error;
+  }
 };
 
 export const createCourse = async (courseData, token) => {
-  const response = await axios.post(
-    "http://localhost:8000/api/moocs/courses",
-    courseData,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  return response.data;
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/courses`,
+      courseData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error creating course:", error);
+    throw error;
+  }
 };
 
 export const fetchSlidesByCourseId = async (id) => {
@@ -79,22 +88,32 @@ export const fetchSlidesByCourseId = async (id) => {
 };
 
 export const fetchMyCourses = async (token) => {
-  const response = await axios.get('http://localhost:8000/api/moocs/my-courses', {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  return response.data.data;
+  try {
+    const response = await axios.get(`${BASE_URL}/my-courses`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching my courses:", error);
+    throw error;
+  }
 };
 
 export const updateCourse = async (id, courseData, token) => {
-  const response = await axios.put(
-    `http://localhost:8000/api/moocs/courses/${id}`,
-    courseData,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  return response.data;
+  try {
+    const response = await axios.put(
+      `${BASE_URL}/courses/${id}`,
+      courseData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating course:", error);
+    throw error;
+  }
 };

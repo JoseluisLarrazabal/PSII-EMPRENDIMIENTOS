@@ -25,7 +25,7 @@ const MyCourses = () => {
   }, []);
 
   const handleEdit = (id) => {
-    navigate(`/course-builder?id=${id}`); // Puedes ajustar la ruta según tu lógica de edición
+    navigate(`/course-builder?id=${id}`);
   };
 
   const handleDelete = async (id) => {
@@ -39,6 +39,20 @@ const MyCourses = () => {
       setCourses((prev) => prev.filter((c) => c.id !== id));
     } catch (err) {
       alert("Error al eliminar el curso.");
+    }
+  };
+
+  // Función para obtener el color y texto del estado
+  const getEstadoInfo = (estado) => {
+    switch (estado) {
+      case 'borrador':
+        return { color: 'bg-gray-100 text-gray-800', text: '📝 Borrador' };
+      case 'activo':
+        return { color: 'bg-green-100 text-green-800', text: '✅ Activo' };
+      case 'inactivo':
+        return { color: 'bg-yellow-100 text-yellow-800', text: '⏸️ Inactivo' };
+      default:
+        return { color: 'bg-gray-100 text-gray-800', text: '📝 Borrador' };
     }
   };
 
@@ -69,42 +83,44 @@ const MyCourses = () => {
             </tr>
           </thead>
           <tbody>
-            {courses.map((course) => (
-              <tr key={course.id} className="border-b hover:bg-gray-50">
-                <td className="py-2 px-4">
-                  <img src={course.image_url} alt={course.title} className="w-16 h-12 object-cover rounded shadow" />
-                </td>
-                <td className="py-2 px-4 font-semibold">{course.title}</td>
-                <td className="py-2 px-4">
-                  <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                    {course.category}
-                  </span>
-                </td>
-                <td className="py-2 px-4 text-sm text-gray-600">
-                  {course.fecha_creacion ? new Date(course.fecha_creacion).toLocaleDateString() : '-'}
-                </td>
-                <td className="py-2 px-4">
-                  {course.is_popular ? <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded mr-1">Popular</span> : null}
-                  {course.is_new ? <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded mr-1">Nuevo</span> : null}
-                  {course.is_trending ? <span className="bg-pink-100 text-pink-800 text-xs px-2 py-1 rounded">Tendencia</span> : null}
-                  {!course.is_popular && !course.is_new && !course.is_trending && <span className="text-gray-400 text-xs">-</span>}
-                </td>
-                <td className="py-2 px-4 flex gap-2">
-                  <button
-                    className="px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500"
-                    onClick={() => handleEdit(course.id)}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                    onClick={() => handleDelete(course.id)}
-                  >
-                    Eliminar
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {courses.map((course) => {
+              const estadoInfo = getEstadoInfo(course.estado);
+              return (
+                <tr key={course.id} className="border-b hover:bg-gray-50">
+                  <td className="py-2 px-4">
+                    <img src={course.image_url} alt={course.title} className="w-16 h-12 object-cover rounded shadow" />
+                  </td>
+                  <td className="py-2 px-4 font-semibold">{course.title}</td>
+                  <td className="py-2 px-4">
+                    <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                      {course.category}
+                    </span>
+                  </td>
+                  <td className="py-2 px-4 text-sm text-gray-600">
+                    {course.fecha_creacion ? new Date(course.fecha_creacion).toLocaleDateString() : '-'}
+                  </td>
+                  <td className="py-2 px-4">
+                    <span className={`inline-block ${estadoInfo.color} text-xs px-2 py-1 rounded`}>
+                      {estadoInfo.text}
+                    </span>
+                  </td>
+                  <td className="py-2 px-4 flex gap-2">
+                    <button
+                      className="px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500"
+                      onClick={() => handleEdit(course.id)}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                      onClick={() => handleDelete(course.id)}
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}

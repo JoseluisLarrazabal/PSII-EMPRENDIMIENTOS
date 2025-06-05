@@ -215,25 +215,14 @@ const emptyCourse = {
   image_url: "",
   logo_url: "",
   type: "",
-  course_count: "",
   category: "",
+  description: "",
+  estado: "borrador",
   is_popular: false,
   is_new: false,
   is_trending: false,
-  school_id: "",
-  administrador_id: "",
-  description: "",
-  start_date: "",
-  duration: "",
-  effort_hours: "",
-  language: "",
-  level: "",
-  prerequisites: "",
-  enrollment_count: "",
-  rating: "",
-  video_preview_url: "",
   has_certificate: false,
-  subjects: [],
+  slides: []
 };
 
 // Utilidad para formatear la fecha a yyyy-MM-dd
@@ -463,21 +452,61 @@ const CourseBuilder = () => {
     setSaving(true);
     try {
       const token = localStorage.getItem("token");
-      let startDate = course.start_date;
-      if (startDate && startDate.includes("T")) {
-        startDate = startDate.split("T")[0];
-      }
-      const courseToSave = { ...course, slides, start_date: startDate };
+      
+      // Transformar los datos al formato que espera el backend
+      const courseToSave = {
+        title: course.title,
+        description: course.description,
+        provider: course.provider,
+        image_url: course.image_url,
+        logo_url: course.logo_url,
+        type: course.type,
+        category: course.category,
+        estado: course.estado || 'borrador',
+        is_popular: course.is_popular || false,
+        is_new: course.is_new || false,
+        is_trending: course.is_trending || false,
+        has_certificate: course.has_certificate || false,
+        slides: slides.map((slide, index) => ({
+          title: slide.title,
+          content: slide.content || "",
+          orden: index,
+          video_url: slide.videoUrl || null,
+          embed_url: slide.embedUrl || null,
+          recursos: slide.resources.map(resource => ({
+            nombre: resource.name,
+            url_archivo: resource.url,
+            tipo: 'link'
+          })),
+          quiz: slide.quiz.length > 0 ? {
+            titulo: 'Quiz de la Lección',
+            instrucciones: '',
+            preguntas: slide.quiz.map((q, qIndex) => ({
+              texto_pregunta: q.question,
+              tipo_pregunta: 'multiple-choice',
+              orden: qIndex,
+              opciones: q.options.map((opt, optIndex) => ({
+                texto_opcion: opt,
+                es_correcta: optIndex === q.answer ? 1 : 0
+              }))
+            }))
+          } : null
+        }))
+      };
+
+      console.log('Datos a enviar:', courseToSave); // Para debugging
+
       let response;
       if (isEdit && courseId) {
         response = await updateCourse(courseId, courseToSave, token);
         alert("Curso actualizado exitosamente");
       } else {
         response = await createCourse(courseToSave, token);
-        alert("Curso creado exitosamente con ID: " + response.data.id);
+        alert("Curso creado exitosamente");
       }
       navigate("/mis-cursos");
     } catch (error) {
+      console.error('Error completo:', error);
       alert("Error al guardar el curso: " + (error.response?.data?.message || error.message));
     }
     setSaving(false);
@@ -1202,10 +1231,36 @@ const CourseBuilder = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Award className="h-5 w-5" />
-                      Configuración adicional
+                      Estado y configuración
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
+                    {/* Estado del curso */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <Label htmlFor="estado" className="text-base font-medium flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4" />
+                          Estado del curso
+                        </Label>
+                        <select
+                          id="estado"
+                          value={course.estado || 'borrador'}
+                          onChange={(e) => updateCourseField("estado", e.target.value)}
+                          className="w-full mt-2 px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B0D37] focus:border-transparent"
+                        >
+                          <option value="borrador">📝 Borrador (No visible)</option>
+                          <option value="activo">✅ Activo (Publicado)</option>
+                          <option value="inactivo">⏸️ Inactivo (Pausado)</option>
+                        </select>
+                        <p className="text-sm text-slate-600 mt-1">
+                          {course.estado === 'borrador' && "El curso no será visible al público"}
+                          {course.estado === 'activo' && "El curso está publicado y visible"}
+                          {course.estado === 'inactivo' && "El curso está pausado temporalmente"}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Switches existentes */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="flex items-center justify-between p-4 border rounded-lg">
                         <div>
@@ -1220,6 +1275,7 @@ const CourseBuilder = () => {
                           onCheckedChange={(checked) => updateCourseField("is_popular", checked)}
                         />
                       </div>
+                      
                       <div className="flex items-center justify-between p-4 border rounded-lg">
                         <div>
                           <Label htmlFor="new" className="text-base font-medium">
@@ -1233,6 +1289,7 @@ const CourseBuilder = () => {
                           onCheckedChange={(checked) => updateCourseField("is_new", checked)}
                         />
                       </div>
+                      
                       <div className="flex items-center justify-between p-4 border rounded-lg">
                         <div>
                           <Label htmlFor="trending" className="text-base font-medium">
@@ -1246,6 +1303,7 @@ const CourseBuilder = () => {
                           onCheckedChange={(checked) => updateCourseField("is_trending", checked)}
                         />
                       </div>
+                      
                       <div className="flex items-center justify-between p-4 border rounded-lg">
                         <div>
                           <Label htmlFor="certificate" className="text-base font-medium">
