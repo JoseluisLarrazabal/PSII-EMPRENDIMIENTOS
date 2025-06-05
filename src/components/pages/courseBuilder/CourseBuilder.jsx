@@ -33,14 +33,19 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { createCourse, fetchCourseById, fetchSlidesByCourseId, updateCourse } from "../../../services/api";
+import {
+  createCourse,
+  fetchCourseById,
+  fetchSlidesByCourseId,
+  updateCourse,
+} from "../../../services/api";
 import { cn } from "@/lib/utils";
 
 // 🔥 VALIDACIONES MEJORADAS
 const validationRules = {
   // Validar URLs
   isValidUrl: (url) => {
-    const stringUrl = String(url || '');
+    const stringUrl = String(url || "");
     if (!stringUrl.trim()) return true; // URLs opcionales
     try {
       new URL(stringUrl);
@@ -52,15 +57,17 @@ const validationRules = {
 
   // Validar URL de YouTube
   isValidYouTubeUrl: (url) => {
-    const stringUrl = String(url || '');
+    const stringUrl = String(url || "");
     if (!stringUrl.trim()) return true;
-    const patterns = [/^https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)/];
+    const patterns = [
+      /^https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)/,
+    ];
     return patterns.some((pattern) => pattern.test(stringUrl));
   },
 
   // Validar URL de presentación embebida
   isValidEmbedUrl: (url) => {
-    const stringUrl = String(url || '');
+    const stringUrl = String(url || "");
     if (!stringUrl.trim()) return true;
     const patterns = [
       /^https:\/\/docs\.google\.com\/presentation\/d\/e\/.+\/embed/,
@@ -74,7 +81,7 @@ const validationRules = {
 
   // Validar fecha
   isValidDate: (dateString) => {
-    const stringDate = String(dateString || '');
+    const stringDate = String(dateString || "");
     if (!stringDate.trim()) return true;
     const date = new Date(stringDate);
     const today = new Date();
@@ -84,7 +91,7 @@ const validationRules = {
 
   // Validar rating
   isValidRating: (rating) => {
-    const stringRating = String(rating || '');
+    const stringRating = String(rating || "");
     if (!stringRating.trim()) return true;
     const num = Number.parseFloat(stringRating);
     return !isNaN(num) && num >= 0 && num <= 5;
@@ -92,84 +99,97 @@ const validationRules = {
 
   // Validar número positivo
   isValidPositiveNumber: (value) => {
-    const stringValue = String(value || '');
+    const stringValue = String(value || "");
     if (!stringValue.trim()) return true;
     const num = Number.parseFloat(stringValue);
     return !isNaN(num) && num > 0;
   },
-}
+};
 
 // 🔥 FUNCIÓN DE VALIDACIÓN COMPLETA
 const validateField = (field, value, context = {}) => {
-  const errors = []
+  const errors = [];
 
   // Convertir value a string para aplicar trim y otras validaciones de string
-  const stringValue = String(value || '');
+  const stringValue = String(value || "");
 
   switch (field) {
     case "title":
       if (!stringValue.trim()) {
-        errors.push("El título es obligatorio")
+        errors.push("El título es obligatorio");
       } else if (stringValue.trim().length < 3) {
-        errors.push("El título debe tener al menos 3 caracteres")
-      } else if (context.checkDuplicates && context.existingTitles?.includes(stringValue.trim())) {
-        errors.push("Ya existe una lección con este título")
+        errors.push("El título debe tener al menos 3 caracteres");
+      } else if (
+        context.checkDuplicates &&
+        context.existingTitles?.includes(stringValue.trim())
+      ) {
+        errors.push("Ya existe una lección con este título");
       }
-      break
+      break;
 
     case "videoUrl":
-      if (stringValue.trim() && !validationRules.isValidYouTubeUrl(stringValue)) {
-        errors.push("URL de YouTube no válida. Usa: https://youtube.com/watch?v=...")
+      if (
+        stringValue.trim() &&
+        !validationRules.isValidYouTubeUrl(stringValue)
+      ) {
+        errors.push(
+          "URL de YouTube no válida. Usa: https://youtube.com/watch?v=..."
+        );
       }
-      break
+      break;
 
     case "embedUrl":
       if (stringValue.trim() && !validationRules.isValidEmbedUrl(stringValue)) {
-        errors.push("URL de presentación no válida. Usa enlaces de inserción de Google Slides, Canva, etc.")
+        errors.push(
+          "URL de presentación no válida. Usa enlaces de inserción de Google Slides, Canva, etc."
+        );
       }
-      break
+      break;
 
     case "image_url":
     case "logo_url":
       if (!stringValue.trim()) {
-        errors.push("Este campo es obligatorio")
+        errors.push("Este campo es obligatorio");
       } else if (!validationRules.isValidUrl(stringValue)) {
-        errors.push("URL no válida")
+        errors.push("URL no válida");
       }
-      break
+      break;
 
     case "start_date":
       if (stringValue.trim() && !validationRules.isValidDate(stringValue)) {
-        errors.push("La fecha debe ser hoy o posterior")
+        errors.push("La fecha debe ser hoy o posterior");
       }
-      break
+      break;
 
     case "rating":
       if (stringValue.trim() && !validationRules.isValidRating(stringValue)) {
-        errors.push("La calificación debe estar entre 0 y 5")
+        errors.push("La calificación debe estar entre 0 y 5");
       }
-      break
+      break;
 
     case "effort_hours":
-      if (stringValue.trim() && !validationRules.isValidPositiveNumber(stringValue)) {
-        errors.push("Debe ser un número positivo")
+      if (
+        stringValue.trim() &&
+        !validationRules.isValidPositiveNumber(stringValue)
+      ) {
+        errors.push("Debe ser un número positivo");
       }
-      break
+      break;
 
     case "resourceUrl":
       if (stringValue.trim() && !validationRules.isValidUrl(stringValue)) {
-        errors.push("URL de recurso no válida")
+        errors.push("URL de recurso no válida");
       }
-      break
+      break;
 
     default:
       if (context.required && !stringValue.trim()) {
-        errors.push("Este campo es obligatorio")
+        errors.push("Este campo es obligatorio");
       }
   }
 
-  return errors
-}
+  return errors;
+};
 
 // 🔥 COMPONENTE DE FEEDBACK VISUAL
 const FieldFeedback = ({ errors, success, className }) => {
@@ -183,20 +203,25 @@ const FieldFeedback = ({ errors, success, className }) => {
           </p>
         ))}
       </div>
-    )
+    );
   }
 
   if (success) {
     return (
-      <p className={cn("text-green-600 text-sm flex items-center gap-1", className)}>
+      <p
+        className={cn(
+          "text-green-600 text-sm flex items-center gap-1",
+          className
+        )}
+      >
         <Check className="h-4 w-4" />
         {success}
       </p>
-    )
+    );
   }
 
-  return null
-}
+  return null;
+};
 
 // Estructura inicial de un slide vacío
 const emptySlide = {
@@ -222,7 +247,7 @@ const emptyCourse = {
   is_new: false,
   is_trending: false,
   has_certificate: false,
-  slides: []
+  slides: [],
 };
 
 // Utilidad para formatear la fecha a yyyy-MM-dd
@@ -254,8 +279,19 @@ const CourseBuilder = () => {
     // Contexto para validaciones
     const context = {
       checkDuplicates: field === "title",
-      existingTitles: slides.map((slide, idx) => (idx !== slideIndex ? String(slide.title || '').trim() : '')).filter(Boolean),
-      required: ["title", "provider", "image_url", "logo_url", "type", "category"].includes(field),
+      existingTitles: slides
+        .map((slide, idx) =>
+          idx !== slideIndex ? String(slide.title || "").trim() : ""
+        )
+        .filter(Boolean),
+      required: [
+        "title",
+        "provider",
+        "image_url",
+        "logo_url",
+        "type",
+        "category",
+      ].includes(field),
     };
 
     const errors = validateField(field, value, context);
@@ -266,13 +302,19 @@ const CourseBuilder = () => {
     }));
 
     // Mostrar éxito si no hay errores y el campo tiene contenido válido
-    if (errors.length === 0 && String(value || '').trim()) {
+    if (errors.length === 0 && String(value || "").trim()) {
       let successMessage = "";
       if (field === "videoUrl" && validationRules.isValidYouTubeUrl(value)) {
         successMessage = "URL de YouTube válida";
-      } else if (field === "embedUrl" && validationRules.isValidEmbedUrl(value)) {
+      } else if (
+        field === "embedUrl" &&
+        validationRules.isValidEmbedUrl(value)
+      ) {
         successMessage = "URL de presentación válida";
-      } else if (["image_url", "logo_url"].includes(field) && validationRules.isValidUrl(value)) {
+      } else if (
+        ["image_url", "logo_url"].includes(field) &&
+        validationRules.isValidUrl(value)
+      ) {
         successMessage = "URL válida";
       } else if (field === "rating" && validationRules.isValidRating(value)) {
         successMessage = "Calificación válida";
@@ -320,7 +362,7 @@ const CourseBuilder = () => {
     const existingTitles = [];
     slides.forEach((slide, slideIndex) => {
       // Verificar títulos duplicados, asegurando que el título es un string
-      const slideTitle = String(slide.title || '');
+      const slideTitle = String(slide.title || "");
       if (slideTitle.trim()) {
         if (existingTitles.includes(slideTitle.trim())) {
           errors[`title_${slideIndex}`] = ["Título duplicado"];
@@ -350,31 +392,48 @@ const CourseBuilder = () => {
 
       // Validar quiz
       slide.quiz.forEach((q, qIdx) => {
-        if (!String(q.question || '').trim()) {
-          errors[`quiz-q${slideIndex}-${qIdx}`] = ["La pregunta es obligatoria"];
+        if (!String(q.question || "").trim()) {
+          errors[`quiz-q${slideIndex}-${qIdx}`] = [
+            "La pregunta es obligatoria",
+          ];
           hasErrors = true;
         }
         if (q.options.length < 2) {
-          errors[`quiz-opt${slideIndex}-${qIdx}`] = ["Debe haber al menos 2 opciones"];
+          errors[`quiz-opt${slideIndex}-${qIdx}`] = [
+            "Debe haber al menos 2 opciones",
+          ];
           hasErrors = true;
         }
-        if (typeof q.answer !== "number" || q.answer < 0 || q.answer >= q.options.length) {
-          errors[`quiz-ans${slideIndex}-${qIdx}`] = ["Debe marcar una respuesta correcta"];
+        if (
+          typeof q.answer !== "number" ||
+          q.answer < 0 ||
+          q.answer >= q.options.length
+        ) {
+          errors[`quiz-ans${slideIndex}-${qIdx}`] = [
+            "Debe marcar una respuesta correcta",
+          ];
           hasErrors = true;
         }
       });
 
       // Validar recursos
       slide.resources.forEach((res, rIdx) => {
-        const resName = String(res.name || '');
-        const resUrl = String(res.url || '');
+        const resName = String(res.name || "");
+        const resUrl = String(res.url || "");
 
-        if ((resName.trim() && !resUrl.trim()) || (!resName.trim() && resUrl.trim())) {
-          errors[`res${slideIndex}-${rIdx}`] = ["Completa ambos campos del recurso"];
+        if (
+          (resName.trim() && !resUrl.trim()) ||
+          (!resName.trim() && resUrl.trim())
+        ) {
+          errors[`res${slideIndex}-${rIdx}`] = [
+            "Completa ambos campos del recurso",
+          ];
           hasErrors = true;
         }
         if (resUrl.trim() && !validationRules.isValidUrl(resUrl)) {
-          errors[`resourceUrl_${slideIndex}-${rIdx}`] = ["URL de recurso no válida"];
+          errors[`resourceUrl_${slideIndex}-${rIdx}`] = [
+            "URL de recurso no válida",
+          ];
           hasErrors = true;
         }
       });
@@ -385,24 +444,53 @@ const CourseBuilder = () => {
   };
 
   // Cargar datos si es edición
-  useEffect(() => {
-    const loadCourse = async () => {
-      if (!courseId) return;
-      setIsEdit(true);
-      try {
-        const data = await fetchCourseById(courseId);
-        setCourse({ ...emptyCourse, ...data });
-        const slidesData = await fetchSlidesByCourseId(courseId);
-        setSlides(slidesData.length > 0 ? slidesData : [{ ...emptySlide }]);
-        setSelectedSlide(0);
-      } catch (err) {
-        alert("Error al cargar el curso para edición");
-        navigate("/mis-cursos");
-      }
-    };
-    loadCourse();
-    // eslint-disable-next-line
-  }, [courseId]);
+  // En CourseBuilder.jsx, actualiza el useEffect que carga el curso:
+useEffect(() => {
+  const loadCourse = async () => {
+    if (!courseId) return;
+    setIsEdit(true);
+    try {
+      const data = await fetchCourseById(courseId);
+      console.log('Datos del curso cargados:', data);
+      
+      // Mapear TODOS los campos correctamente
+      setCourse({ 
+        ...emptyCourse,
+        title: data.title || '',
+        description: data.description || '',
+        provider: data.provider || '',
+        image_url: data.image_url || '',
+        logo_url: data.logo_url || '',
+        type: data.type || '',
+        category: data.category || '',
+        estado: data.estado || 'borrador',
+        is_popular: Boolean(data.is_popular),
+        is_new: Boolean(data.is_new),
+        is_trending: Boolean(data.is_trending),
+        has_certificate: Boolean(data.has_certificate || data.certificado),
+        // Campos adicionales
+        start_date: data.start_date || data.fecha_inicio || '',
+        duration: data.duration || data.duracion || '',
+        effort_hours: data.effort_hours || data.horas_esfuerzo || '',
+        language: data.language || data.idioma || 'Español',
+        level: data.level || data.nivel || '',
+        prerequisites: data.prerequisites || data.prerequisitos || '',
+        rating: data.rating || ''
+      });
+      
+      const slidesData = await fetchSlidesByCourseId(courseId);
+      console.log('Slides cargados:', slidesData);
+      
+      setSlides(slidesData.length > 0 ? slidesData : [{ ...emptySlide }]);
+      setSelectedSlide(0);
+    } catch (err) {
+      console.error('Error al cargar el curso:', err);
+      alert("Error al cargar el curso para edición");
+      navigate("/mis-cursos");
+    }
+  };
+  loadCourse();
+}, [courseId]);
 
   // Funciones para agregar, eliminar y actualizar slides
   const addSlide = () => {
@@ -452,7 +540,7 @@ const CourseBuilder = () => {
     setSaving(true);
     try {
       const token = localStorage.getItem("token");
-      
+
       // Transformar los datos al formato que espera el backend
       const courseToSave = {
         title: course.title,
@@ -462,39 +550,49 @@ const CourseBuilder = () => {
         logo_url: course.logo_url,
         type: course.type,
         category: course.category,
-        estado: course.estado || 'borrador',
+        estado: course.estado || "borrador",
         is_popular: course.is_popular || false,
         is_new: course.is_new || false,
         is_trending: course.is_trending || false,
         has_certificate: course.has_certificate || false,
+        start_date: course.start_date,
+        duration: course.duration,
+        effort_hours: course.effort_hours,
+        language: course.language || "Español",
+        level: course.level,
+        prerequisites: course.prerequisites,
+        rating: course.rating,
         slides: slides.map((slide, index) => ({
           title: slide.title,
           content: slide.content || "",
           orden: index,
           video_url: slide.videoUrl || null,
           embed_url: slide.embedUrl || null,
-          recursos: slide.resources.map(resource => ({
+          recursos: slide.resources.map((resource) => ({
             nombre: resource.name,
             url_archivo: resource.url,
-            tipo: 'link'
+            tipo: "link",
           })),
-          quiz: slide.quiz.length > 0 ? {
-            titulo: 'Quiz de la Lección',
-            instrucciones: '',
-            preguntas: slide.quiz.map((q, qIndex) => ({
-              texto_pregunta: q.question,
-              tipo_pregunta: 'multiple-choice',
-              orden: qIndex,
-              opciones: q.options.map((opt, optIndex) => ({
-                texto_opcion: opt,
-                es_correcta: optIndex === q.answer ? 1 : 0
-              }))
-            }))
-          } : null
-        }))
+          quiz:
+            slide.quiz.length > 0
+              ? {
+                  titulo: "Quiz de la Lección",
+                  instrucciones: "",
+                  preguntas: slide.quiz.map((q, qIndex) => ({
+                    texto_pregunta: q.question,
+                    tipo_pregunta: "multiple-choice",
+                    orden: qIndex,
+                    opciones: q.options.map((opt, optIndex) => ({
+                      texto_opcion: opt,
+                      es_correcta: optIndex === q.answer ? 1 : 0,
+                    })),
+                  })),
+                }
+              : null,
+        })),
       };
 
-      console.log('Datos a enviar:', courseToSave); // Para debugging
+      console.log("Datos a enviar:", courseToSave); // Para debugging
 
       let response;
       if (isEdit && courseId) {
@@ -506,8 +604,11 @@ const CourseBuilder = () => {
       }
       navigate("/mis-cursos");
     } catch (error) {
-      console.error('Error completo:', error);
-      alert("Error al guardar el curso: " + (error.response?.data?.message || error.message));
+      console.error("Error completo:", error);
+      alert(
+        "Error al guardar el curso: " +
+          (error.response?.data?.message || error.message)
+      );
     }
     setSaving(false);
   };
@@ -529,7 +630,11 @@ const CourseBuilder = () => {
                 </p>
               </div>
             </div>
-            <Button onClick={addSlide} className="w-full bg-[#8B0D37] hover:bg-[#6E0B2A]" size="sm">
+            <Button
+              onClick={addSlide}
+              className="w-full bg-[#8B0D37] hover:bg-[#6E0B2A]"
+              size="sm"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Agregar lección
             </Button>
@@ -552,7 +657,9 @@ const CourseBuilder = () => {
                       <div className="flex items-center gap-3 flex-1">
                         <div
                           className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                            idx === selectedSlide ? "bg-[#8B0D37] text-white" : "bg-slate-100 text-slate-600"
+                            idx === selectedSlide
+                              ? "bg-[#8B0D37] text-white"
+                              : "bg-slate-100 text-slate-600"
                           }`}
                         >
                           {idx + 1}
@@ -562,10 +669,18 @@ const CourseBuilder = () => {
                             {slide.title || `Lección ${idx + 1}`}
                           </p>
                           <div className="flex items-center gap-2 mt-1">
-                            {slide.videoUrl && <Play className="h-3 w-3 text-slate-400" />}
-                            {slide.embedUrl && <FileText className="h-3 w-3 text-slate-400" />}
-                            {slide.quiz.length > 0 && <HelpCircle className="h-3 w-3 text-slate-400" />}
-                            {slide.resources.length > 0 && <Download className="h-3 w-3 text-slate-400" />}
+                            {slide.videoUrl && (
+                              <Play className="h-3 w-3 text-slate-400" />
+                            )}
+                            {slide.embedUrl && (
+                              <FileText className="h-3 w-3 text-slate-400" />
+                            )}
+                            {slide.quiz.length > 0 && (
+                              <HelpCircle className="h-3 w-3 text-slate-400" />
+                            )}
+                            {slide.resources.length > 0 && (
+                              <Download className="h-3 w-3 text-slate-400" />
+                            )}
                           </div>
                         </div>
                       </div>
@@ -631,14 +746,16 @@ const CourseBuilder = () => {
                   <AlertCircle className="h-5 w-5 text-amber-600" />
                   <div>
                     <p className="font-medium text-amber-800">Modo edición</p>
-                    <p className="text-sm text-amber-700">Estás editando un curso existente</p>
+                    <p className="text-sm text-amber-700">
+                      Estás editando un curso existente
+                    </p>
                   </div>
                 </div>
               )}
             </div>
 
             <Tabs defaultValue="lesson" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="lesson" className="flex items-center gap-2">
                   <Edit3 className="h-4 w-4" />
                   Editar Lección
@@ -664,13 +781,21 @@ const CourseBuilder = () => {
                     {/* Título y contenido */}
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor={`slide-title-${selectedSlide}`}>Título de la lección</Label>
+                        <Label htmlFor={`slide-title-${selectedSlide}`}>
+                          Título de la lección
+                        </Label>
                         <Input
                           id={`slide-title-${selectedSlide}`}
                           value={String(slides[selectedSlide].title || "")}
                           onChange={(e) => updateSlide("title", e.target.value)}
                           placeholder="Título de la lección"
-                          className={`mt-2 ${fieldErrors[`title_${selectedSlide}`] ? "border-red-500" : fieldSuccess[`title_${selectedSlide}`] ? "border-green-500" : ""}`}
+                          className={`mt-2 ${
+                            fieldErrors[`title_${selectedSlide}`]
+                              ? "border-red-500"
+                              : fieldSuccess[`title_${selectedSlide}`]
+                              ? "border-green-500"
+                              : ""
+                          }`}
                         />
                         <FieldFeedback
                           errors={fieldErrors[`title_${selectedSlide}`]}
@@ -680,11 +805,15 @@ const CourseBuilder = () => {
 
                       {/* 🔥 CAMPO CONTENT QUE FALTABA */}
                       <div>
-                        <Label htmlFor={`slide-content-${selectedSlide}`}>Contenido de la lección</Label>
+                        <Label htmlFor={`slide-content-${selectedSlide}`}>
+                          Contenido de la lección
+                        </Label>
                         <Textarea
                           id={`slide-content-${selectedSlide}`}
                           value={String(slides[selectedSlide].content || "")}
-                          onChange={(e) => updateSlide("content", e.target.value)}
+                          onChange={(e) =>
+                            updateSlide("content", e.target.value)
+                          }
                           placeholder="Contenido textual o instrucciones"
                           rows={4}
                           className="mt-2"
@@ -692,13 +821,23 @@ const CourseBuilder = () => {
                       </div>
 
                       <div>
-                        <Label htmlFor={`slide-video-${selectedSlide}`}>URL del video (YouTube)</Label>
+                        <Label htmlFor={`slide-video-${selectedSlide}`}>
+                          URL del video (YouTube)
+                        </Label>
                         <Input
                           id={`slide-video-${selectedSlide}`}
                           value={String(slides[selectedSlide].videoUrl || "")}
-                          onChange={(e) => updateSlide("videoUrl", e.target.value)}
+                          onChange={(e) =>
+                            updateSlide("videoUrl", e.target.value)
+                          }
                           placeholder="https://www.youtube.com/watch?v=..."
-                          className={`mt-2 ${fieldErrors[`videoUrl_${selectedSlide}`] ? "border-red-500" : fieldSuccess[`videoUrl_${selectedSlide}`] ? "border-green-500" : ""}`}
+                          className={`mt-2 ${
+                            fieldErrors[`videoUrl_${selectedSlide}`]
+                              ? "border-red-500"
+                              : fieldSuccess[`videoUrl_${selectedSlide}`]
+                              ? "border-green-500"
+                              : ""
+                          }`}
                         />
                         <FieldFeedback
                           errors={fieldErrors[`videoUrl_${selectedSlide}`]}
@@ -707,13 +846,23 @@ const CourseBuilder = () => {
                       </div>
 
                       <div>
-                        <Label htmlFor={`slide-embed-${selectedSlide}`}>URL de presentación embebida</Label>
+                        <Label htmlFor={`slide-embed-${selectedSlide}`}>
+                          URL de presentación embebida
+                        </Label>
                         <Input
                           id={`slide-embed-${selectedSlide}`}
                           value={String(slides[selectedSlide].embedUrl || "")}
-                          onChange={(e) => updateSlide("embedUrl", e.target.value)}
+                          onChange={(e) =>
+                            updateSlide("embedUrl", e.target.value)
+                          }
                           placeholder="https://docs.google.com/presentation/d/..."
-                          className={`mt-2 ${fieldErrors[`embedUrl_${selectedSlide}`] ? "border-red-500" : fieldSuccess[`embedUrl_${selectedSlide}`] ? "border-green-500" : ""}`}
+                          className={`mt-2 ${
+                            fieldErrors[`embedUrl_${selectedSlide}`]
+                              ? "border-red-500"
+                              : fieldSuccess[`embedUrl_${selectedSlide}`]
+                              ? "border-green-500"
+                              : ""
+                          }`}
                         />
                         <FieldFeedback
                           errors={fieldErrors[`embedUrl_${selectedSlide}`]}
@@ -728,7 +877,9 @@ const CourseBuilder = () => {
                     {slides[selectedSlide].embedUrl && (
                       <Card className="bg-slate-50">
                         <CardHeader>
-                          <CardTitle className="text-lg">Vista previa de la presentación</CardTitle>
+                          <CardTitle className="text-lg">
+                            Vista previa de la presentación
+                          </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <div className="aspect-video rounded-lg overflow-hidden bg-white shadow-sm">
@@ -755,7 +906,8 @@ const CourseBuilder = () => {
                       <HelpCircle className="h-5 w-5" />
                       Quiz de la lección
                       <Badge variant="secondary">
-                        {slides[selectedSlide].quiz.length} pregunta{slides[selectedSlide].quiz.length !== 1 ? "s" : ""}
+                        {slides[selectedSlide].quiz.length} pregunta
+                        {slides[selectedSlide].quiz.length !== 1 ? "s" : ""}
                       </Badge>
                     </CardTitle>
                   </CardHeader>
@@ -764,12 +916,16 @@ const CourseBuilder = () => {
                       <Card key={qIdx} className="bg-slate-50">
                         <CardContent className="p-4 space-y-4">
                           <div className="flex items-center justify-between">
-                            <Label className="text-base font-medium">Pregunta {qIdx + 1}</Label>
+                            <Label className="text-base font-medium">
+                              Pregunta {qIdx + 1}
+                            </Label>
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => {
-                                const quiz = slides[selectedSlide].quiz.filter((_, idx) => idx !== qIdx);
+                                const quiz = slides[selectedSlide].quiz.filter(
+                                  (_, idx) => idx !== qIdx
+                                );
                                 updateSlide("quiz", quiz);
                               }}
                               className="text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -781,13 +937,20 @@ const CourseBuilder = () => {
                           <Input
                             value={String(q.question || "")}
                             onChange={(e) => {
-                              const quiz = slides[selectedSlide].quiz.map((item, idx) =>
-                                idx === qIdx ? { ...item, question: e.target.value } : item
+                              const quiz = slides[selectedSlide].quiz.map(
+                                (item, idx) =>
+                                  idx === qIdx
+                                    ? { ...item, question: e.target.value }
+                                    : item
                               );
                               updateSlide("quiz", quiz);
                             }}
                             placeholder="Escribe tu pregunta aquí..."
-                            className={fieldErrors[`quiz-q${selectedSlide}-${qIdx}`] ? "border-red-500" : ""}
+                            className={
+                              fieldErrors[`quiz-q${selectedSlide}-${qIdx}`]
+                                ? "border-red-500"
+                                : ""
+                            }
                           />
                           {fieldErrors[`quiz-q${selectedSlide}-${qIdx}`] && (
                             <p className="text-red-600 text-sm flex items-center gap-1">
@@ -797,36 +960,55 @@ const CourseBuilder = () => {
                           )}
 
                           <div className="space-y-2">
-                            <Label className="text-sm font-medium">Opciones de respuesta</Label>
+                            <Label className="text-sm font-medium">
+                              Opciones de respuesta
+                            </Label>
                             {q.options.map((opt, oIdx) => (
-                              <div key={oIdx} className="flex items-center gap-3">
+                              <div
+                                key={oIdx}
+                                className="flex items-center gap-3"
+                              >
                                 <div className="flex items-center gap-2">
                                   <input
                                     type="radio"
                                     name={`correct-${selectedSlide}-${qIdx}`}
                                     checked={q.answer === oIdx}
                                     onChange={() => {
-                                      const quiz = slides[selectedSlide].quiz.map((item, idx) =>
-                                        idx === qIdx ? { ...item, answer: oIdx } : item
+                                      const quiz = slides[
+                                        selectedSlide
+                                      ].quiz.map((item, idx) =>
+                                        idx === qIdx
+                                          ? { ...item, answer: oIdx }
+                                          : item
                                       );
                                       updateSlide("quiz", quiz);
                                     }}
                                     className="text-[#8B0D37]"
                                   />
                                   <CheckCircle2
-                                    className={`h-4 w-4 ${q.answer === oIdx ? "text-[#8B0D37]" : "text-slate-300"}`}
+                                    className={`h-4 w-4 ${
+                                      q.answer === oIdx
+                                        ? "text-[#8B0D37]"
+                                        : "text-slate-300"
+                                    }`}
                                   />
                                 </div>
                                 <Input
                                   value={String(opt || "")}
                                   onChange={(e) => {
-                                    const quiz = slides[selectedSlide].quiz.map((item, idx) =>
-                                      idx === qIdx
-                                        ? {
-                                            ...item,
-                                            options: item.options.map((o, oi) => (oi === oIdx ? e.target.value : o)),
-                                          }
-                                        : item
+                                    const quiz = slides[selectedSlide].quiz.map(
+                                      (item, idx) =>
+                                        idx === qIdx
+                                          ? {
+                                              ...item,
+                                              options: item.options.map(
+                                                (o, oi) =>
+                                                  oi === oIdx
+                                                    ? e.target.value
+                                                    : o
+                                              ),
+                                            }
+                                          : item
                                     );
                                     updateSlide("quiz", quiz);
                                   }}
@@ -838,17 +1020,21 @@ const CourseBuilder = () => {
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => {
-                                      const quiz = slides[selectedSlide].quiz.map((item, idx) =>
+                                      const quiz = slides[
+                                        selectedSlide
+                                      ].quiz.map((item, idx) =>
                                         idx === qIdx
                                           ? {
                                               ...item,
-                                              options: item.options.filter((_, oi) => oi !== oIdx),
+                                              options: item.options.filter(
+                                                (_, oi) => oi !== oIdx
+                                              ),
                                               answer:
                                                 item.answer === oIdx
                                                   ? 0
                                                   : item.answer > oIdx
-                                                    ? item.answer - 1
-                                                    : item.answer,
+                                                  ? item.answer - 1
+                                                  : item.answer,
                                             }
                                           : item
                                       );
@@ -861,18 +1047,30 @@ const CourseBuilder = () => {
                                 )}
                               </div>
                             ))}
-                            {fieldErrors[`quiz-opt${selectedSlide}-${qIdx}`] && (
+                            {fieldErrors[
+                              `quiz-opt${selectedSlide}-${qIdx}`
+                            ] && (
                               <p className="text-red-600 text-sm flex items-center gap-1">
                                 <AlertCircle className="h-4 w-4" />
-                                {fieldErrors[`quiz-opt${selectedSlide}-${qIdx}`]}
+                                {
+                                  fieldErrors[
+                                    `quiz-opt${selectedSlide}-${qIdx}`
+                                  ]
+                                }
                               </p>
                             )}
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                const quiz = slides[selectedSlide].quiz.map((item, idx) =>
-                                  idx === qIdx ? { ...item, options: [...item.options, ""] } : item
+                                const quiz = slides[selectedSlide].quiz.map(
+                                  (item, idx) =>
+                                    idx === qIdx
+                                      ? {
+                                          ...item,
+                                          options: [...item.options, ""],
+                                        }
+                                      : item
                                 );
                                 updateSlide("quiz", quiz);
                               }}
@@ -889,7 +1087,10 @@ const CourseBuilder = () => {
                     <Button
                       variant="outline"
                       onClick={() => {
-                        const quiz = [...slides[selectedSlide].quiz, { question: "", options: ["", ""], answer: 0 }];
+                        const quiz = [
+                          ...slides[selectedSlide].quiz,
+                          { question: "", options: ["", ""], answer: 0 },
+                        ];
                         updateSlide("quiz", quiz);
                       }}
                       className="w-full"
@@ -907,18 +1108,28 @@ const CourseBuilder = () => {
                       <Download className="h-5 w-5" />
                       Recursos descargables
                       <Badge variant="secondary">
-                        {slides[selectedSlide].resources.length} recurso{slides[selectedSlide].resources.length !== 1 ? "s" : ""}
+                        {slides[selectedSlide].resources.length} recurso
+                        {slides[selectedSlide].resources.length !== 1
+                          ? "s"
+                          : ""}
                       </Badge>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {slides[selectedSlide].resources.map((res, rIdx) => (
-                      <div key={rIdx} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                      <div
+                        key={rIdx}
+                        className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg"
+                      >
                         <Input
                           value={String(res.name || "")}
                           onChange={(e) => {
-                            const resources = slides[selectedSlide].resources.map((item, idx) =>
-                              idx === rIdx ? { ...item, name: e.target.value } : item
+                            const resources = slides[
+                              selectedSlide
+                            ].resources.map((item, idx) =>
+                              idx === rIdx
+                                ? { ...item, name: e.target.value }
+                                : item
                             );
                             updateSlide("resources", resources);
                           }}
@@ -928,8 +1139,12 @@ const CourseBuilder = () => {
                         <Input
                           value={String(res.url || "")}
                           onChange={(e) => {
-                            const resources = slides[selectedSlide].resources.map((item, idx) =>
-                              idx === rIdx ? { ...item, url: e.target.value } : item
+                            const resources = slides[
+                              selectedSlide
+                            ].resources.map((item, idx) =>
+                              idx === rIdx
+                                ? { ...item, url: e.target.value }
+                                : item
                             );
                             updateSlide("resources", resources);
                           }}
@@ -940,7 +1155,9 @@ const CourseBuilder = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => {
-                            const resources = slides[selectedSlide].resources.filter((_, idx) => idx !== rIdx);
+                            const resources = slides[
+                              selectedSlide
+                            ].resources.filter((_, idx) => idx !== rIdx);
                             updateSlide("resources", resources);
                           }}
                           className="text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -949,17 +1166,30 @@ const CourseBuilder = () => {
                         </Button>
                       </div>
                     ))}
-                    {fieldErrors[`res${selectedSlide}-${slides[selectedSlide].resources.length - 1}`] && (
+                    {fieldErrors[
+                      `res${selectedSlide}-${
+                        slides[selectedSlide].resources.length - 1
+                      }`
+                    ] && (
                       <p className="text-red-600 text-sm flex items-center gap-1">
                         <AlertCircle className="h-4 w-4" />
-                        {fieldErrors[`res${selectedSlide}-${slides[selectedSlide].resources.length - 1}`]}
+                        {
+                          fieldErrors[
+                            `res${selectedSlide}-${
+                              slides[selectedSlide].resources.length - 1
+                            }`
+                          ]
+                        }
                       </p>
                     )}
 
                     <Button
                       variant="outline"
                       onClick={() => {
-                        const resources = [...slides[selectedSlide].resources, { name: "", url: "" }];
+                        const resources = [
+                          ...slides[selectedSlide].resources,
+                          { name: "", url: "" },
+                        ];
                         updateSlide("resources", resources);
                       }}
                       className="w-full"
@@ -983,15 +1213,26 @@ const CourseBuilder = () => {
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <Label htmlFor="course-title" className="text-base font-medium">
+                        <Label
+                          htmlFor="course-title"
+                          className="text-base font-medium"
+                        >
                           Título del curso *
                         </Label>
                         <Input
                           id="course-title"
                           value={String(course.title || "")}
-                          onChange={(e) => updateCourseField("title", e.target.value)}
+                          onChange={(e) =>
+                            updateCourseField("title", e.target.value)
+                          }
                           placeholder="Título del curso"
-                          className={`mt-2 ${fieldErrors.title ? "border-red-500" : fieldSuccess.title ? "border-green-500" : ""}`}
+                          className={`mt-2 ${
+                            fieldErrors.title
+                              ? "border-red-500"
+                              : fieldSuccess.title
+                              ? "border-green-500"
+                              : ""
+                          }`}
                           required
                         />
                         <FieldFeedback
@@ -1000,15 +1241,26 @@ const CourseBuilder = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="provider" className="text-base font-medium">
+                        <Label
+                          htmlFor="provider"
+                          className="text-base font-medium"
+                        >
                           Proveedor *
                         </Label>
                         <Input
                           id="provider"
                           value={String(course.provider || "")}
-                          onChange={(e) => updateCourseField("provider", e.target.value)}
+                          onChange={(e) =>
+                            updateCourseField("provider", e.target.value)
+                          }
                           placeholder="Nombre del proveedor"
-                          className={`mt-2 ${fieldErrors.provider ? "border-red-500" : fieldSuccess.provider ? "border-green-500" : ""}`}
+                          className={`mt-2 ${
+                            fieldErrors.provider
+                              ? "border-red-500"
+                              : fieldSuccess.provider
+                              ? "border-green-500"
+                              : ""
+                          }`}
                           required
                         />
                         <FieldFeedback
@@ -1017,15 +1269,26 @@ const CourseBuilder = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="category" className="text-base font-medium">
+                        <Label
+                          htmlFor="category"
+                          className="text-base font-medium"
+                        >
                           Categoría *
                         </Label>
                         <Input
                           id="category"
                           value={String(course.category || "")}
-                          onChange={(e) => updateCourseField("category", e.target.value)}
+                          onChange={(e) =>
+                            updateCourseField("category", e.target.value)
+                          }
                           placeholder="Categoría del curso"
-                          className={`mt-2 ${fieldErrors.category ? "border-red-500" : fieldSuccess.category ? "border-green-500" : ""}`}
+                          className={`mt-2 ${
+                            fieldErrors.category
+                              ? "border-red-500"
+                              : fieldSuccess.category
+                              ? "border-green-500"
+                              : ""
+                          }`}
                           required
                         />
                         <FieldFeedback
@@ -1040,9 +1303,17 @@ const CourseBuilder = () => {
                         <Input
                           id="type"
                           value={String(course.type || "")}
-                          onChange={(e) => updateCourseField("type", e.target.value)}
+                          onChange={(e) =>
+                            updateCourseField("type", e.target.value)
+                          }
                           placeholder="Tipo de curso"
-                          className={`mt-2 ${fieldErrors.type ? "border-red-500" : fieldSuccess.type ? "border-green-500" : ""}`}
+                          className={`mt-2 ${
+                            fieldErrors.type
+                              ? "border-red-500"
+                              : fieldSuccess.type
+                              ? "border-green-500"
+                              : ""
+                          }`}
                           required
                         />
                         <FieldFeedback
@@ -1053,13 +1324,18 @@ const CourseBuilder = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="description" className="text-base font-medium">
+                      <Label
+                        htmlFor="description"
+                        className="text-base font-medium"
+                      >
                         Descripción
                       </Label>
                       <Textarea
                         id="description"
                         value={String(course.description || "")}
-                        onChange={(e) => updateCourseField("description", e.target.value)}
+                        onChange={(e) =>
+                          updateCourseField("description", e.target.value)
+                        }
                         placeholder="Describe de qué trata el curso..."
                         rows={4}
                         className="mt-2"
@@ -1068,15 +1344,26 @@ const CourseBuilder = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <Label htmlFor="image-url" className="text-base font-medium">
+                        <Label
+                          htmlFor="image-url"
+                          className="text-base font-medium"
+                        >
                           Imagen del curso (URL) *
                         </Label>
                         <Input
                           id="image-url"
                           value={String(course.image_url || "")}
-                          onChange={(e) => updateCourseField("image_url", e.target.value)}
+                          onChange={(e) =>
+                            updateCourseField("image_url", e.target.value)
+                          }
                           placeholder="https://ejemplo.com/imagen.jpg"
-                          className={`mt-2 ${fieldErrors.image_url ? "border-red-500" : fieldSuccess.image_url ? "border-green-500" : ""}`}
+                          className={`mt-2 ${
+                            fieldErrors.image_url
+                              ? "border-red-500"
+                              : fieldSuccess.image_url
+                              ? "border-green-500"
+                              : ""
+                          }`}
                           required
                         />
                         <FieldFeedback
@@ -1085,15 +1372,26 @@ const CourseBuilder = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="logo-url" className="text-base font-medium">
+                        <Label
+                          htmlFor="logo-url"
+                          className="text-base font-medium"
+                        >
                           Logo del proveedor (URL) *
                         </Label>
                         <Input
                           id="logo-url"
                           value={String(course.logo_url || "")}
-                          onChange={(e) => updateCourseField("logo_url", e.target.value)}
+                          onChange={(e) =>
+                            updateCourseField("logo_url", e.target.value)
+                          }
                           placeholder="https://ejemplo.com/logo.jpg"
-                          className={`mt-2 ${fieldErrors.logo_url ? "border-red-500" : fieldSuccess.logo_url ? "border-green-500" : ""}`}
+                          className={`mt-2 ${
+                            fieldErrors.logo_url
+                              ? "border-red-500"
+                              : fieldSuccess.logo_url
+                              ? "border-green-500"
+                              : ""
+                          }`}
                           required
                         />
                         <FieldFeedback
@@ -1115,7 +1413,10 @@ const CourseBuilder = () => {
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div>
-                        <Label htmlFor="start-date" className="text-base font-medium flex items-center gap-2">
+                        <Label
+                          htmlFor="start-date"
+                          className="text-base font-medium flex items-center gap-2"
+                        >
                           <Calendar className="h-4 w-4" />
                           Fecha de inicio
                         </Label>
@@ -1123,28 +1424,38 @@ const CourseBuilder = () => {
                           id="start-date"
                           type="date"
                           value={formatDate(course.start_date)}
-                          onChange={(e) => updateCourseField("start_date", e.target.value)}
-                          className={`mt-2 ${fieldErrors.start_date ? "border-red-500" : ""}`}
+                          onChange={(e) =>
+                            updateCourseField("start_date", e.target.value)
+                          }
+                          className={`mt-2 ${
+                            fieldErrors.start_date ? "border-red-500" : ""
+                          }`}
                         />
-                        <FieldFeedback
-                          errors={fieldErrors.start_date}
-                        />
+                        <FieldFeedback errors={fieldErrors.start_date} />
                       </div>
                       <div>
-                        <Label htmlFor="duration" className="text-base font-medium flex items-center gap-2">
+                        <Label
+                          htmlFor="duration"
+                          className="text-base font-medium flex items-center gap-2"
+                        >
                           <Clock className="h-4 w-4" />
                           Duración
                         </Label>
                         <Input
                           id="duration"
                           value={String(course.duration || "")}
-                          onChange={(e) => updateCourseField("duration", e.target.value)}
+                          onChange={(e) =>
+                            updateCourseField("duration", e.target.value)
+                          }
                           placeholder="8 semanas"
                           className="mt-2"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="effort" className="text-base font-medium flex items-center gap-2">
+                        <Label
+                          htmlFor="effort"
+                          className="text-base font-medium flex items-center gap-2"
+                        >
                           <BarChart3 className="h-4 w-4" />
                           Esfuerzo semanal (horas)
                         </Label>
@@ -1152,44 +1463,59 @@ const CourseBuilder = () => {
                           id="effort"
                           type="number"
                           value={String(course.effort_hours || "")}
-                          onChange={(e) => updateCourseField("effort_hours", e.target.value)}
+                          onChange={(e) =>
+                            updateCourseField("effort_hours", e.target.value)
+                          }
                           placeholder="5"
-                          className={`mt-2 ${fieldErrors.effort_hours ? "border-red-500" : ""}`}
+                          className={`mt-2 ${
+                            fieldErrors.effort_hours ? "border-red-500" : ""
+                          }`}
                         />
-                        <FieldFeedback
-                          errors={fieldErrors.effort_hours}
-                        />
+                        <FieldFeedback errors={fieldErrors.effort_hours} />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div>
-                        <Label htmlFor="language" className="text-base font-medium flex items-center gap-2">
+                        <Label
+                          htmlFor="language"
+                          className="text-base font-medium flex items-center gap-2"
+                        >
                           <Globe className="h-4 w-4" />
                           Idioma
                         </Label>
                         <Input
                           id="language"
                           value={String(course.language || "")}
-                          onChange={(e) => updateCourseField("language", e.target.value)}
+                          onChange={(e) =>
+                            updateCourseField("language", e.target.value)
+                          }
                           placeholder="Español"
                           className="mt-2"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="level" className="text-base font-medium">
+                        <Label
+                          htmlFor="level"
+                          className="text-base font-medium"
+                        >
                           Nivel
                         </Label>
                         <Input
                           id="level"
                           value={String(course.level || "")}
-                          onChange={(e) => updateCourseField("level", e.target.value)}
+                          onChange={(e) =>
+                            updateCourseField("level", e.target.value)
+                          }
                           placeholder="Principiante"
                           className="mt-2"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="rating" className="text-base font-medium flex items-center gap-2">
+                        <Label
+                          htmlFor="rating"
+                          className="text-base font-medium flex items-center gap-2"
+                        >
                           <Star className="h-4 w-4" />
                           Calificación
                         </Label>
@@ -1200,9 +1526,17 @@ const CourseBuilder = () => {
                           min="0"
                           max="5"
                           value={String(course.rating || "")}
-                          onChange={(e) => updateCourseField("rating", e.target.value)}
+                          onChange={(e) =>
+                            updateCourseField("rating", e.target.value)
+                          }
                           placeholder="4.5"
-                          className={`mt-2 ${fieldErrors.rating ? "border-red-500" : fieldSuccess.rating ? "border-green-500" : ""}`}
+                          className={`mt-2 ${
+                            fieldErrors.rating
+                              ? "border-red-500"
+                              : fieldSuccess.rating
+                              ? "border-green-500"
+                              : ""
+                          }`}
                         />
                         <FieldFeedback
                           errors={fieldErrors.rating}
@@ -1212,13 +1546,18 @@ const CourseBuilder = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="prerequisites" className="text-base font-medium">
+                      <Label
+                        htmlFor="prerequisites"
+                        className="text-base font-medium"
+                      >
                         Prerrequisitos
                       </Label>
                       <Textarea
                         id="prerequisites"
                         value={String(course.prerequisites || "")}
-                        onChange={(e) => updateCourseField("prerequisites", e.target.value)}
+                        onChange={(e) =>
+                          updateCourseField("prerequisites", e.target.value)
+                        }
                         placeholder="Conocimientos básicos requeridos..."
                         rows={3}
                         className="mt-2"
@@ -1238,83 +1577,123 @@ const CourseBuilder = () => {
                     {/* Estado del curso */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <Label htmlFor="estado" className="text-base font-medium flex items-center gap-2">
+                        <Label
+                          htmlFor="estado"
+                          className="text-base font-medium flex items-center gap-2"
+                        >
                           <CheckCircle2 className="h-4 w-4" />
                           Estado del curso
                         </Label>
                         <select
                           id="estado"
-                          value={course.estado || 'borrador'}
-                          onChange={(e) => updateCourseField("estado", e.target.value)}
+                          value={course.estado || "borrador"}
+                          onChange={(e) =>
+                            updateCourseField("estado", e.target.value)
+                          }
                           className="w-full mt-2 px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B0D37] focus:border-transparent"
                         >
-                          <option value="borrador">📝 Borrador (No visible)</option>
+                          <option value="borrador">
+                            📝 Borrador (No visible)
+                          </option>
                           <option value="activo">✅ Activo (Publicado)</option>
-                          <option value="inactivo">⏸️ Inactivo (Pausado)</option>
+                          <option value="inactivo">
+                            ⏸️ Inactivo (Pausado)
+                          </option>
                         </select>
                         <p className="text-sm text-slate-600 mt-1">
-                          {course.estado === 'borrador' && "El curso no será visible al público"}
-                          {course.estado === 'activo' && "El curso está publicado y visible"}
-                          {course.estado === 'inactivo' && "El curso está pausado temporalmente"}
+                          {course.estado === "borrador" &&
+                            "El curso no será visible al público"}
+                          {course.estado === "activo" &&
+                            "El curso está publicado y visible"}
+                          {course.estado === "inactivo" &&
+                            "El curso está pausado temporalmente"}
                         </p>
                       </div>
                     </div>
-                    
+
                     {/* Switches existentes */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="flex items-center justify-between p-4 border rounded-lg">
                         <div>
-                          <Label htmlFor="popular" className="text-base font-medium">
+                          <Label
+                            htmlFor="popular"
+                            className="text-base font-medium"
+                          >
                             Curso popular
                           </Label>
-                          <p className="text-sm text-slate-600">Marcar como curso destacado</p>
+                          <p className="text-sm text-slate-600">
+                            Marcar como curso destacado
+                          </p>
                         </div>
                         <Switch
                           id="popular"
                           checked={course.is_popular}
-                          onCheckedChange={(checked) => updateCourseField("is_popular", checked)}
+                          onCheckedChange={(checked) =>
+                            updateCourseField("is_popular", checked)
+                          }
                         />
                       </div>
-                      
+
                       <div className="flex items-center justify-between p-4 border rounded-lg">
                         <div>
-                          <Label htmlFor="new" className="text-base font-medium">
+                          <Label
+                            htmlFor="new"
+                            className="text-base font-medium"
+                          >
                             Curso nuevo
                           </Label>
-                          <p className="text-sm text-slate-600">Marcar como recién lanzado</p>
+                          <p className="text-sm text-slate-600">
+                            Marcar como recién lanzado
+                          </p>
                         </div>
                         <Switch
                           id="new"
                           checked={course.is_new}
-                          onCheckedChange={(checked) => updateCourseField("is_new", checked)}
+                          onCheckedChange={(checked) =>
+                            updateCourseField("is_new", checked)
+                          }
                         />
                       </div>
-                      
+
                       <div className="flex items-center justify-between p-4 border rounded-lg">
                         <div>
-                          <Label htmlFor="trending" className="text-base font-medium">
+                          <Label
+                            htmlFor="trending"
+                            className="text-base font-medium"
+                          >
                             En tendencia
                           </Label>
-                          <p className="text-sm text-slate-600">Marcar como tendencia</p>
+                          <p className="text-sm text-slate-600">
+                            Marcar como tendencia
+                          </p>
                         </div>
                         <Switch
                           id="trending"
                           checked={course.is_trending}
-                          onCheckedChange={(checked) => updateCourseField("is_trending", checked)}
+                          onCheckedChange={(checked) =>
+                            updateCourseField("is_trending", checked)
+                          }
                         />
                       </div>
-                      
+
                       <div className="flex items-center justify-between p-4 border rounded-lg">
                         <div>
-                          <Label htmlFor="certificate" className="text-base font-medium">
+                          <Label
+                            htmlFor="certificate"
+                            className="text-base font-medium"
+                          >
                             Incluye certificado
                           </Label>
-                          <p className="text-sm text-slate-600">Otorga certificado al completar</p>
+                          <p className="text-sm text-slate-600">
+                            Otorga certificado al completar
+                          </p>
                         </div>
                         <Switch
                           id="certificate"
                           checked={course.has_certificate}
-                          onCheckedChange={(checked) => updateCourseField("has_certificate", checked)}
+                          onCheckedChange={(checked) =>
+                            updateCourseField("has_certificate", checked)
+                          }
                         />
                       </div>
                     </div>

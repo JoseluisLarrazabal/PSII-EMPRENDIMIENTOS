@@ -82,9 +82,26 @@ export const createCourse = async (courseData, token) => {
   }
 };
 
+// En api.js
 export const fetchSlidesByCourseId = async (id) => {
-  const response = await axios.get(`http://localhost:8000/api/moocs/courses/${id}/slides`);
-  return response.data.data;
+  try {
+    const response = await axios.get(`${BASE_URL}/courses/${id}/slides`);
+    
+    // Mapear los datos correctamente
+    const slides = response.data.data.map(slide => ({
+      title: slide.title || '',
+      content: slide.content || '',
+      videoUrl: slide.videoUrl || slide.video_url || '',
+      embedUrl: slide.embedUrl || slide.embed_url || '',
+      quiz: Array.isArray(slide.quiz) ? slide.quiz : [],
+      resources: Array.isArray(slide.resources) ? slide.resources : []
+    }));
+    
+    return slides;
+  } catch (error) {
+    console.error('Error fetching slides:', error);
+    return [];
+  }
 };
 
 export const fetchMyCourses = async (token) => {
