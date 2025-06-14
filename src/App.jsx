@@ -31,6 +31,7 @@ import CourseContent from "./components/pages/courseContent/CourseContent";
 import CourseBuilder from "./components/pages/courseBuilder/CourseBuilder";
 import Profile from './components/pages/Profile';
 import MyCourses from './components/pages/moocs/MyCourses';
+import Developers from './components/pages/Developers';
 
 
 // Componente para controlar la visualización de elementos de navegación
@@ -57,6 +58,7 @@ function AppContent() {
           <Route path="/help" element={<Help />} />
           <Route path="/mentoring" element={<Mentoring />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/developers" element={<Developers />} />
           <Route path="/eventos" element={<Eventos />} />
           <Route path="/servicios" element={<Servicios />} />
           <Route path="/servicios/revenue" element={<Revenue />} />
