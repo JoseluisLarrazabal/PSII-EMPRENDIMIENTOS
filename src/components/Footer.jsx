@@ -88,13 +88,27 @@ const Footer = () => {
                 Impulsamos la innovación y el emprendimiento para un futuro mejor
               </p>
 
-              {/* Botón que lleva a Contact.jsx */}
-              <Link 
-                to="/contact"
-                className="inline-block mt-6 px-6 py-2 bg-[#8B0D37] text-white rounded hover:bg-opacity-90 transition-colors duration-200"
-              >
-                Contáctanos
-              </Link>
+              {/* Botones en columna */}
+              <div className="flex flex-col space-y-4 mt-6">
+                <Link 
+                  to="/contact"
+                  className="px-6 py-3 bg-[#8B0D37] text-white rounded-lg hover:bg-opacity-90 transition-colors duration-200 text-center font-medium shadow-md hover:shadow-lg"
+                >
+                  Contáctanos
+                </Link>
+
+                <Link
+                  to="/developers"
+                  className="px-6 py-3 bg-[#8B0D37] text-white rounded-lg hover:bg-opacity-90 transition-all duration-300 font-bold shadow-lg hover:shadow-xl hover:scale-[1.02] transform text-center relative overflow-hidden group border-2 border-[#D12F5B]"
+                >
+                  <span className="relative z-10 flex items-center justify-center">
+                    <span className="mr-2">👨‍💻</span> 
+                    Desarrolladores
+                    <span className="ml-2">🚀</span>
+                  </span>
+                  <span className="absolute inset-0 bg-[#D12F5B] opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -105,7 +119,7 @@ const Footer = () => {
         {/* Información institucional y redes sociales */}
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
-            <p className="text-gray-400 text-sm">La Paz, Bolivia</p>
+            <p className="text-gray-400 text-sm">Cochabamba, Bolivia</p>
           </div>
           
           <div className="flex flex-wrap justify-center mb-4 md:mb-0">
